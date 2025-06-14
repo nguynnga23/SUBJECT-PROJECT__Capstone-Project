@@ -1,0 +1,39 @@
+# Ignore virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Ignore Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Ignore Scrapy logs and outputs
+*.log
+output.json
+output.csv
+output.xml
+
+# Ignore Scrapy .egg-info
+*.egg-info/
+.eggs/
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore Jupyter notebooks if accidentally added
+*.ipynb
+
+# Ignore editor files
+.vscode/
+.idea/
+*.swp
+*.swo
