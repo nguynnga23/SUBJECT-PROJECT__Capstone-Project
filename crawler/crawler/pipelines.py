@@ -283,4 +283,6 @@ class CMSPipeline:
         if response.status_code == 200:
             print("Article created successfully:")
         else:
-            print("Error:", data)
+            print("❌ Failed to create article")
+            print("Status code:", response.status_code)
+            print("Response:", response.text)
