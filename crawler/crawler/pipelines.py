@@ -5,6 +5,9 @@ from itemadapter import ItemAdapter
 from bs4 import BeautifulSoup
 import html2text
 import os
+from urllib.parse import unquote
+from urllib.parse import urljoin
+
 
 from crawler.items import ArticleItem
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
@@ -104,6 +107,7 @@ class ArticlePipeline:
         department = adapter.get('department', '')
         base_url = f'https://{department}'
         strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
+        new_img_url = None
 
         pdf_urls = self.extract_pdf_url(adapter)
         if pdf_urls:
@@ -118,7 +122,19 @@ class ArticlePipeline:
                 img_path = self.download_file(img_url, base_url)
                 new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN, "image")
                 if new_img_url:
-                    adapter['content'] = adapter['content'].replace(img_url, new_img_url)
+                    if 'content' in adapter and isinstance(adapter['content'], str):
+                        adapter['content'] = adapter['content'].replace(img_url, new_img_url)    
+                name_img_url = unquote(img_url.split('/')[-1])
+                thumbnail = adapter.get('thumbnail', '').split('/')[-1]
+                    
+                if thumbnail == name_img_url and new_img_url:
+                    adapter['thumbnail'] = new_img_url
+                elif thumbnail == "img_default.png":
+                        adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
+        else:
+            base_url = f"https://{adapter['department']}/"
+            adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
+            
         # Convert HTML content to Markdown
         self._convert_html_to_markdown(adapter)
 
@@ -137,6 +153,11 @@ class CMSPipeline:
 
     def process_item(self, item, spider) -> ArticleItem:
         adapter = ItemAdapter(item)
+        
+        # kiểm tra trùng external_id
+        if self._is_article_exist(adapter.get('external_url')):
+            spider.logger.info(f"Duplicate article skipped: {adapter.get('external_id')}")
+            return item  # bỏ qua nếu trùng
         
         department_name = adapter.get('department')
         department_id = self._get_or_create_department(department_name)
@@ -286,3 +307,19 @@ class CMSPipeline:
             print("❌ Failed to create article")
             print("Status code:", response.status_code)
             print("Response:", response.text)
+            
+    def _is_article_exist(self, external_url):
+        query = """
+        query checkArticle($external_url: String!) {
+            articles(filters: { external_url: { eq: $external_url } }) {
+                title
+            }
+        }
+        """
+        response = requests.post(
+            self._graphql_url_endpoint,
+            headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
+            data=json.dumps({'query': query, 'variables': {'external_url': external_url}})
+        )
+        data = response.json()
+        return len(data['data']['articles']) > 0
