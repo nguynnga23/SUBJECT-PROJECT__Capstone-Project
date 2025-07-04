@@ -1,14 +1,20 @@
 [
     {
         "url": "https://iuh.edu.vn",
-        "department":"iuh.edu.vn",
+        "department":{
+            "key_department": "iuh",
+            "department_url": "iuh.edu.vn",
+            "department_name":"Trang thông tin chính thức của IUH"
+        },
         "start_url": [
             {
-                "url_category": "https://iuh.edu.vn/vi/thong-bao-fi20",
+                "key_category": "tbsv",
+                "category_url": "https://iuh.edu.vn/vi/thong-bao-fi20",
                 "category_name": "THÔNG BÁO SINH VIÊN"
             },
             {
-                "url_category": "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11",
+                "key_category": "ttsk",
+                "category_url": "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11",
                 "category_name": "TIN TỨC - SỰ KIỆN"
             }
         ],
@@ -23,14 +29,20 @@
     },
     {
         "url": "https://fit.iuh.edu.vn",
-        "department":"fit.iuh.edu.vn",
+        "department":{
+            "key_department": "fit",
+            "department_url": "fit.iuh.edu.vn",
+            "department_name":"Khoa Công Nghệ Thông Tin IUH"
+        },
         "start_url": [
             {
-                "url_category": "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
+                "key_category": "tbsv",
+                "category_url": "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
                 "category_name": "THÔNG BÁO SINH VIÊN"
             },
             {
-                "url_category": "https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien",
+                "key_category": "ttsk",
+                "category_url": "https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien",
                 "category_name": "TIN TỨC - SỰ KIỆN"
             }
         ],

@@ -104,8 +104,8 @@ class ArticlePipeline:
         self._clean_summary(adapter)
         
         # Process <a> or <img> to upload PDF or IMAGE to Strapi
-        department = adapter.get('department', '')
-        base_url = f'https://{department}'
+        department_url = adapter.get('department_url', '')
+        base_url = f'https://{department_url}'
         strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
         new_img_url = None
 
@@ -130,9 +130,9 @@ class ArticlePipeline:
                 if thumbnail == name_img_url and new_img_url:
                     adapter['thumbnail'] = new_img_url
                 elif thumbnail == "img_default.png":
-                        adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
+                    adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
         else:
-            base_url = f"https://{adapter['department']}/"
+            base_url = f"https://{adapter['department_url']}/"
             adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
             
         # Convert HTML content to Markdown
@@ -159,7 +159,7 @@ class CMSPipeline:
             spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
             return item  # bỏ qua nếu trùng
         
-        department_name = adapter.get('department')
+        department_name = adapter.get('department_name')
         department_id = self._get_or_create_department(department_name)
         
         category_name = adapter.get('category')
