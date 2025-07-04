@@ -390,7 +390,6 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    external_id: Schema.Attribute.String;
     external_publish_date: Schema.Attribute.Date;
     external_slug: Schema.Attribute.String;
     external_url: Schema.Attribute.String;

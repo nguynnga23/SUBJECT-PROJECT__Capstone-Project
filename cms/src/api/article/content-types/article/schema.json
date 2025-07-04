@@ -33,9 +33,6 @@
     "external_slug": {
       "type": "string"
     },
-    "external_id": {
-      "type": "string"
-    },
     "category": {
       "type": "relation",
       "relation": "manyToOne",

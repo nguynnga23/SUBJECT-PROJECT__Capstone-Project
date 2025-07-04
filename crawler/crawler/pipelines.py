@@ -154,9 +154,9 @@ class CMSPipeline:
     def process_item(self, item, spider) -> ArticleItem:
         adapter = ItemAdapter(item)
         
-        # kiểm tra trùng external_id
+        # kiểm tra trùng external_url
         if self._is_article_exist(adapter.get('external_url')):
-            spider.logger.info(f"Duplicate article skipped: {adapter.get('external_id')}")
+            spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
             return item  # bỏ qua nếu trùng
         
         department_name = adapter.get('department')
@@ -254,7 +254,6 @@ class CMSPipeline:
           $thumbnail: String!,
           $external_slug: String!,
           $external_url: String!,
-          $external_id: String!,
           $external_publish_date: Date!,
           $categoryId: ID!
         ) {
@@ -266,7 +265,6 @@ class CMSPipeline:
               thumbnail: $thumbnail,
               external_slug: $external_slug,
               external_url: $external_url,
-              external_id: $external_id,
               external_publish_date: $external_publish_date,
               category: $categoryId
             }
@@ -276,7 +274,6 @@ class CMSPipeline:
             thumbnail
             external_slug
             external_url
-            external_id
             external_publish_date
             category {
               documentId
@@ -295,7 +292,6 @@ class CMSPipeline:
                 'thumbnail': adapter.get('thumbnail'),
                 'external_slug': adapter.get('external_slug'),
                 'external_url': adapter.get('external_url'),
-                'external_id': adapter.get('external_id'),
                 'external_publish_date': adapter.get('external_publish_date'),
                 'categoryId': category_id,
             }})

@@ -22,5 +22,5 @@ class ArticleItem(scrapy.Item):
     content = scrapy.Field()
     external_slug = scrapy.Field()
     external_url = scrapy.Field()
-    external_id = scrapy.Field()
+    # external_id = scrapy.Field()
     external_publish_date = scrapy.Field()
