@@ -23,5 +23,5 @@ Step 4: Get Token by CMS
 - Register, Login to CMS Admin at localhost:1337
 - Go to Settings choose API Token then create new token like that:
 ![API Token Strapi](image.png)
-- Set Token to UNIFEED_CMS_GRAPHQL_TOKEN in your .env file
+- Set Token to UNIFEED_CMS_GRAPHQL_TOKEN in your crawler/.env file 
 
