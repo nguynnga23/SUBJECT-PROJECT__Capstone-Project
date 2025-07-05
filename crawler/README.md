@@ -15,7 +15,13 @@ Step 1: Update libs by poetry command:
 ```bash
 poetry install
 ```
-Step 2: Crawl data by command, all departments, all categories, all pages
+Step 2: Create .env file follow .env.sample, filling information (read guidance to get UNIFEED_CMS_GRAPHQL_TOKEN):
+
+```bash
+poetry install
+```
+
+Step 3: Crawl data by command, all departments, all categories, all pages
 
 ```bash
 poetry run scrapy crawl iuh
