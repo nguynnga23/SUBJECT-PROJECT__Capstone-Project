@@ -24,8 +24,7 @@
         "external_id":"",
         "title":"#page-content > div > div > div > div.article-detail.col-md-9 > div.content > h1 ::text",
         "content":"#page-content > div > div > div > div.article-detail.col-md-9 > div.content > div.divNewsDetail",
-        "external_publish_date":"#page-content > div > div > div > div.article-detail.col-md-9 > div.content > h1 > span ::text",
-        "summary":"#page-content > div > div > div > div.article-detail.col-md-9 > div.content > div.divNewsDetail > p:first-of-type"
+        "external_publish_date":"#page-content > div > div > div > div.article-detail.col-md-9 > div.content > h1 > span ::text"
     },
     {
         "url": "https://fit.iuh.edu.vn",
@@ -52,7 +51,6 @@
         "external_id":"",
         "title":"body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.page-title ::text",
         "content":"body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.left-content > div",
-        "external_publish_date":"body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.title-date ::text",
-        "summary":"body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.left-content > div > p:first-of-type"
+        "external_publish_date":"body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.title-date ::text"
     }
 ]

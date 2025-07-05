@@ -118,6 +118,5 @@ class DynamicIUHSpider(scrapy.Spider):
         item['title'] = response.css(config['title']).get()
         item['content'] = response.css(config['content']).get()
         item['external_publish_date'] = response.css(config['external_publish_date']).get()
-        item['summary'] = response.css(config['summary']).get()
 
         yield item

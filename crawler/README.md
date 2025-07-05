@@ -51,3 +51,6 @@ poetry run scrapy crawl iuh -a key_max_number=2
 poetry run scrapy crawl iuh -a key_department=iuh -a key_category=ttsk -a key_max_pages=2
 ```
 
+# Resources
+- [AI](https://huggingface.co/) - Tool Using Model AI
+

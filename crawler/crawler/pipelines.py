@@ -3,16 +3,25 @@ import requests
 from datetime import datetime
 from itemadapter import ItemAdapter
 from bs4 import BeautifulSoup
+import re
 import html2text
 import os
 from urllib.parse import unquote
 from urllib.parse import urljoin
-
+from transformers import pipeline
+from w3lib.html import remove_tags
 
 from crawler.items import ArticleItem
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
 
 class ArticlePipeline:
+    def __init__(self):
+         # Tạo pipeline AI ngay khi pipeline khởi tạo   
+        self.summarizer = pipeline(
+            "summarization",
+            model="VietAI/vit5-large-vietnews-summarization",
+            tokenizer="VietAI/vit5-large-vietnews-summarization"
+        )  
     def _clean_title(self, adapter):
         title = adapter.get('title', '')
         cleaned_title = title.replace('\r\n', ' ').strip()
@@ -37,12 +46,48 @@ class ArticlePipeline:
         markdown_content = h.handle(content)
         adapter['content'] = markdown_content
 
+    def clean_markdown(self, text: str) -> str:
+        """Chuyển markdown về plain text."""
+        text = re.sub(r'!\[.*?\]\(.*?\)', '', text)                       # Remove images
+        text = re.sub(r'\[(.*?)\]\(.*?\)', r'\1', text)                   # Remove links
+        text = re.sub(r'[_*]{1,2}(.*?)[_*]{1,2}', r'\1', text)            # Remove bold/italic
+        text = re.sub(r'^#+\s+', '', text, flags=re.MULTILINE)           # Remove headings
+        text = re.sub(r'\n+', '\n', text)                                 # Normalize newlines
+        return text.strip()
+        
+    def _summarize_text(self, adapter, spider):
+        
 
-    def _clean_summary(self, adapter):
-        summary = adapter.get('summary', '')
-        soup = BeautifulSoup(summary, 'html.parser')
-        adapter['summary'] = soup.get_text()
+        content_html = adapter.get('content', '')
 
+        # Bước 1: HTML to plain text
+        plain_text = remove_tags(content_html)
+
+        # Bước 2: Làm sạch markdown
+        plain_text = self.clean_markdown(plain_text)
+
+        # Bước 3: Giới hạn độ dài (ví dụ: 500 từ)
+        words = plain_text.split()
+        if len(words) > 200:  
+            plain_text = " ".join(words[:200])
+
+        # Bước 4: Gọi summarizer nếu đủ dài
+        if len(words) > 50:
+            try:
+                result = self.summarizer(
+                    plain_text,
+                    max_length=130,
+                    min_length=30,
+                )
+                if isinstance(result, list) and len(result) > 0 and "summary_text" in result[0]:
+                    adapter["summary"] = result[0]["summary_text"]
+                else:
+                    adapter["summary"] = ""  # fallback rút gọn thủ công
+            except Exception as e:
+                spider.logger.warning(f"AI summarization failed: {e}")
+                adapter["summary"] = ""
+        else:
+            adapter["summary"] = "" 
 
     def extract_pdf_url(self, adapter):
         content = adapter.get('content', '')        
@@ -92,17 +137,16 @@ class ArticlePipeline:
             return file_path
         else:
             raise Exception(f"Failed to download file from {file_url}")
-
-    
+   
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         # Clean title (remove unnecessary whitespace and newlines)
         self._clean_title(adapter)
         # Format time (DD/MM/YYYY to YYYY-MM-DD)
         self._format_time(adapter)
-        # Clean summary
-        self._clean_summary(adapter)
-        
+        # Using AI for summary content
+        self._summarize_text(adapter, spider)
+         
         # Process <a> or <img> to upload PDF or IMAGE to Strapi
         department_url = adapter.get('department_url', '')
         base_url = f'https://{department_url}'
