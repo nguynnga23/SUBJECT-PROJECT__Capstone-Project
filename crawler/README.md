@@ -15,7 +15,7 @@ Step 1: Update libs by poetry command:
 ```bash
 poetry install
 ```
-Step 2: Create .env file follow .env.sample, filling information (read guidance to get UNIFEED_CMS_GRAPHQL_TOKEN):
+Step 2: Create .env file follow .env.sample, filling information (read guidance from cms/README.md to get UNIFEED_CMS_GRAPHQL_TOKEN):
 
 ```bash
 poetry install
