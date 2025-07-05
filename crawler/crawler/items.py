@@ -1,12 +1,26 @@
-# Define here the models for your scraped items
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
-
+from dataclasses import dataclass
 import scrapy
 
-
-class CrawlerItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    pass
+# @dataclass  
+class ArticleItem(scrapy.Item):
+    # title: str
+    # summary: str
+    # thumbnail: str
+    # category: str
+    # department: str
+    # content: str
+    # external_slug: str
+    # external_url: str
+    # external_id: str
+    # external_publish_date: str
+    
+    title = scrapy.Field()
+    summary = scrapy.Field()
+    thumbnail = scrapy.Field()
+    category = scrapy.Field()
+    department_name = scrapy.Field()
+    department_url = scrapy.Field()
+    content = scrapy.Field()
+    external_slug = scrapy.Field()
+    external_url = scrapy.Field()
+    external_publish_date = scrapy.Field()
