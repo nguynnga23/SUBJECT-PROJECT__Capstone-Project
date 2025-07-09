@@ -1,7 +1,9 @@
 import scrapy
 import json
 from urllib.parse import urljoin
+from datetime import datetime
 from crawler.items import ArticleItem
+from scrapy.exceptions import CloseSpider
 
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh" # Default name crawler
@@ -19,6 +21,10 @@ class DynamicIUHSpider(scrapy.Spider):
         self.key_category = kwargs.pop('key_category', None)
         
         self.page_counter = {}
+        # 💡 Đọc ngày lưu trước đó
+        self.last_crawled_date = self.load_last_crawled_date()
+        self.latest_date_found = None
+        
         super().__init__(*args, **kwargs)
         
         #Loggin các filter đang áp dụng
@@ -28,6 +34,23 @@ class DynamicIUHSpider(scrapy.Spider):
             self.logger.info(f"*** Filtering by category: {self.key_category}")
         if self.key_max_pages:
             self.logger.info(f"*** Max pages to crawl: {self.key_max_pages}")
+        if self.last_crawled_date:
+            self.logger.info(f"*** Last crawled date: {self.last_crawled_date}")
+    
+    def load_last_crawled_date(self):
+        try:
+            with open('last_crawled_date.json', encoding='utf-8') as f:
+                data = json.load(f)
+                return datetime.strptime(data.get('last_date'), "%Y-%m-%d").date()
+        except:
+            return None
+        
+    def save_last_crawled_date(self):
+        if self.latest_date_found:
+            with open('last_crawled_date.json', 'w', encoding='utf-8') as f:
+                json.dump({"last_date": self.latest_date_found.strftime("%Y-%m-%d")}, f)
+            self.logger.info(f"✅ Đã cập nhật ngày crawl mới nhất: {self.latest_date_found}")    
+                
     
     def start_requests(self):
         #Đọc file config.json
@@ -68,15 +91,39 @@ class DynamicIUHSpider(scrapy.Spider):
         category_url = response.meta['category_url']
         
         current_page = self.page_counter.get(category_url, 1)
-        
         # ✅ Tăng page lên 1
         self.page_counter[category_url] = current_page + 1
         
         #Crawl all article links
         articles = response.css(config['relative_url_list'])
+        
+        stop_crawling = False
+        
         for article in articles:
             relative_url = article.css(config['relative_url']).get()
             thumbnail = article.css(config['thumbnail']).get()
+            date_str = article.css(config['external_publish_date']).get()
+            
+            if not date_str:
+                self.logger.warning("❌ Không tìm thấy ngày đăng bài viết")
+                print("DATE:", relative_url)
+                return
+                continue
+
+            try:
+                article_date = datetime.strptime(date_str.strip(), "%d/%m/%Y").date()
+            except Exception as e:
+                self.logger.warning(f"❌ Lỗi parse ngày: {date_str} | {e}")
+                continue
+            
+             # Ghi nhận ngày mới nhất gặp trong session này
+            if not self.latest_date_found or article_date > self.latest_date_found:
+                self.latest_date_found = article_date
+                
+            if self.last_crawled_date and article_date < self.last_crawled_date:
+                self.logger.info(f"🛑 Gặp bài viết ngày {article_date} < {self.last_crawled_date}, dừng crawl...")
+                stop_crawling = True
+                break
             
             if relative_url:
                 full_url = urljoin(response.url, relative_url)
@@ -91,17 +138,20 @@ class DynamicIUHSpider(scrapy.Spider):
                         'department_url': response.meta.get('department_url'),
                     }
                 )
-                
+        
+        if stop_crawling:
+            raise CloseSpider("Found old articles. Stop crawling.")
+        
                 #Crawl pagination
-                if self.key_max_pages is None or current_page < self.key_max_pages:
-                    next_pages = response.css('.pagination > .number::attr(href)').getall()
-                    if next_pages:
-                        next_page_url = urljoin(response.url, next_pages[-1])
-                        yield scrapy.Request(
-                            url=next_page_url,
-                            callback=self.parse_list,
-                            meta=response.meta
-                        )
+        if self.key_max_pages is None or current_page < self.key_max_pages:
+            next_pages = response.css('.pagination > .number::attr(href)').getall()
+            if next_pages:
+                next_page_url = urljoin(response.url, next_pages[-1])
+                yield scrapy.Request(
+                    url=next_page_url,
+                    callback=self.parse_list,
+                    meta=response.meta
+                )
         
     def parse_detail(self, response):
         config = response.meta['config']
@@ -120,3 +170,6 @@ class DynamicIUHSpider(scrapy.Spider):
         item['external_publish_date'] = response.css(config['external_publish_date']).get()
 
         yield item
+        
+    def closed(self, reason):
+        self.save_last_crawled_date()
