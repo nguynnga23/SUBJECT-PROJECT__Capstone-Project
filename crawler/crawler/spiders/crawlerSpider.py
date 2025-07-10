@@ -4,6 +4,46 @@ from urllib.parse import urljoin
 from datetime import datetime
 from crawler.items import ArticleItem
 from scrapy.exceptions import CloseSpider
+import requests
+from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
+
+
+def get_configs_from_strapi():
+    query = """
+        query {
+            crawlerConfigs {
+                url
+                department {
+                    key_department
+                    department_url
+                    department_name
+                    categories {
+                        key_category
+                        category_url
+                        category_name
+                        last_external_publish_date
+                    },
+                },
+                relative_url_list
+                relative_url
+                thumbnail
+                next_pages
+                title
+                content
+                external_publish_date
+            }
+        }
+    """
+    res = requests.post(
+        f"http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}",
+        json={"query": query},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {UNIFEED_CMS_GRAPHQL_TOKEN}"
+        }
+    )  
+   
+    return res.json()["data"]["crawlerConfigs"]
 
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
@@ -20,10 +60,10 @@ class DynamicIUHSpider(scrapy.Spider):
         self.latest_dates = {}
 
         super().__init__(*args, **kwargs)
+        
 
     def start_requests(self):
-        with open('config.json', encoding='utf-8') as f:
-            self.configs = json.load(f)
+        self.configs = get_configs_from_strapi()
 
         for config in self.configs:
             dept = config.get('department', {})
@@ -32,7 +72,7 @@ class DynamicIUHSpider(scrapy.Spider):
             if self.key_department and key_dept != self.key_department:
                 continue
 
-            for start in config['start_url']:
+            for start in config.get('department', {}).get('categories', []):
                 if self.key_category and start.get('key_category') != self.key_category:
                     continue
 
@@ -127,7 +167,7 @@ class DynamicIUHSpider(scrapy.Spider):
 
         # Nếu chưa gặp bài trùng hoặc cũ, tiếp tục sang trang tiếp theo
         if should_continue:
-            next_pages = response.css('.pagination > .number::attr(href)').getall()
+            next_pages = response.css(config['next_pages']).getall()
             if next_pages:
                 next_page_url = urljoin(response.url, next_pages[-1])
                 yield scrapy.Request(
@@ -162,7 +202,7 @@ class DynamicIUHSpider(scrapy.Spider):
 
         for config in configs:
             key_dept = config['department']['key_department']
-            for start in config['start_url']:
+            for start in config['categories']:
                 key_cat = start['key_category']
                 config_key = f"{key_dept}_{key_cat}"
                 if config_key in self.latest_dates:

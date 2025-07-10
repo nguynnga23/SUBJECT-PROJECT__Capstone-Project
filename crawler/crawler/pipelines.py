@@ -240,7 +240,7 @@ class CMSPipeline:
     def _get_or_create_department(self, department_name):
         query = """
             query checkDepartment($name: String!) {
-                departments(filters: { name: {eq: $name} }) {
+                departments(filters: { department_name: {eq: $name} }) {
                     documentId
                 }
             }
@@ -276,7 +276,7 @@ class CMSPipeline:
     def _get_or_create_category(self, category_name, department_id):
         query = """
             query checkCategory($name: String!) {
-                categories(filters: { name: {eq: $name} }) {
+                categories(filters: { category_name: {eq: $name} }) {
                     documentId
                 }
             }

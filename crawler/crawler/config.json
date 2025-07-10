@@ -4,55 +4,56 @@
     "department": {
       "key_department": "iuh",
       "department_url": "iuh.edu.vn",
-      "department_name": "Trang thông tin chính thức của IUH"
+      "department_name": "Trang Thông Tin Chính Thức IUH",
+      "categories": [
+        {
+          "key_category": "tbsv",
+          "category_url": "https://iuh.edu.vn/vi/thong-bao-fi20",
+          "category_name": "THÔNG BÁO SINH VIÊN",
+          "last_external_publish_date": "2025-07-05"
+        },
+        {
+          "key_category": "ttsk",
+          "category_url": "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11",
+          "category_name": "TIN TỨC - SỰ KIỆN",
+          "last_external_publish_date": "2025-07-08"
+        }
+      ]
     },
-    "start_url": [
-      {
-        "key_category": "tbsv",
-        "category_url": "https://iuh.edu.vn/vi/thong-bao-fi20",
-        "category_name": "THÔNG BÁO SINH VIÊN",
-        "last_external_publish_date": "2025-07-05"
-      },
-      {
-        "key_category": "ttsk",
-        "category_url": "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11",
-        "category_name": "TIN TỨC - SỰ KIỆN",
-        "last_external_publish_date": "2025-07-08"
-      }
-    ],
     "relative_url_list": ".content",
     "relative_url": ".content-img a ::attr(href)",
     "thumbnail": ".content-img img::attr(src)",
-    "external_id": "",
+    "next_pages": ".pagination > .number::attr(href)",
     "title": "#page-content > div > div > div > div.article-detail.col-md-9 > div.content > h1 ::text",
     "content": "#page-content > div > div > div > div.article-detail.col-md-9 > div.content > div.divNewsDetail",
-    "external_publish_date": " div.content-info.col-sm-9 > span ::text"
+    "external_publish_date": "div.content-info.col-sm-9 > span ::text"
   },
   {
     "url": "https://fit.iuh.edu.vn",
     "department": {
       "key_department": "fit",
       "department_url": "fit.iuh.edu.vn",
-      "department_name": "Khoa Công Nghệ Thông Tin IUH"
+      "department_name": "Khoa Công Nghệ Thông Tin IUH",
+      "categories": [
+        {
+          "key_category": "tbsv",
+          "category_url": "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
+          "category_name": "THÔNG BÁO SINH VIÊN",
+          "last_external_publish_date": "2025-07-07"
+        },
+        {
+          "key_category": "ttsk",
+          "category_url": "https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien",
+          "category_name": "TIN TỨC - SỰ KIỆN",
+          "last_external_publish_date": "2025-07-05"
+        }
+      ]
     },
-    "start_url": [
-      {
-        "key_category": "tbsv",
-        "category_url": "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
-        "category_name": "THÔNG BÁO SINH VIÊN",
-        "last_external_publish_date": "2025-07-07"
-      },
-      {
-        "key_category": "ttsk",
-        "category_url": "https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien",
-        "category_name": "TIN TỨC - SỰ KIỆN",
-        "last_external_publish_date": "2025-07-05"
-      }
-    ],
+
     "relative_url_list": ".content",
     "relative_url": ".content-img a ::attr(href)",
     "thumbnail": ".content-img img::attr(src)",
-    "external_id": "",
+    "next_pages": ".pagination > .number::attr(href)",
     "title": "body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.page-title ::text",
     "content": "body > div.page-content > div.container > div.content-bottom > div > div > div.col-md-9.page-left > div.left-content > div",
     "external_publish_date": "div.content-info.col-sm-9 > span ::text"
