@@ -1,0 +1,45 @@
+{
+  "kind": "collectionType",
+  "collectionName": "crawler_configs",
+  "info": {
+    "singularName": "crawler-config",
+    "pluralName": "crawler-configs",
+    "displayName": "CrawlerConfig"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "url": {
+      "type": "string"
+    },
+    "relative_url_list": {
+      "type": "string"
+    },
+    "relative_url": {
+      "type": "string"
+    },
+    "thumbnail": {
+      "type": "string"
+    },
+    "next_pages": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "content": {
+      "type": "string"
+    },
+    "external_publish_date": {
+      "type": "string"
+    },
+    "department": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::department.department",
+      "inversedBy": "crawler_config"
+    }
+  }
+}
