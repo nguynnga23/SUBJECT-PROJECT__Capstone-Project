@@ -10,6 +10,7 @@ from urllib.parse import unquote
 from urllib.parse import urljoin
 from transformers import pipeline
 from w3lib.html import remove_tags
+import mimetypes
 
 from crawler.items import ArticleItem
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
@@ -26,18 +27,6 @@ class ArticlePipeline:
         title = adapter.get('title', '')
         cleaned_title = title.replace('\r\n', ' ').strip()
         adapter['title'] = cleaned_title
-
-    def _format_time(self, adapter):
-        time = adapter.get('external_publish_date')
-        if time:
-            try:
-                # Convert time from DD/MM/YYYY to YYYY-MM-DD
-                formatted_time = datetime.strptime(time, "%d-%m-%Y").strftime("%Y-%m-%d")
-                adapter['external_publish_date'] = formatted_time
-            except ValueError:
-                print(f"Invalid date format: {time}")
-        else:
-            print("No time provided")    
     
     def _convert_html_to_markdown(self, adapter):
         content = adapter.get('content', '')
@@ -89,12 +78,6 @@ class ArticlePipeline:
         else:
             adapter["summary"] = "" 
 
-    def extract_pdf_url(self, adapter):
-        content = adapter.get('content', '')        
-        soup = BeautifulSoup(content, 'html.parser')
-        pdf_urls = [a.get('href') for a in soup.find_all('a', href=True) if a['href'].lower().endswith('.pdf')]
-        return pdf_urls if pdf_urls else None
-    
     def extract_image_urls(self, adapter):
         content = adapter.get('content', '')        
         soup = BeautifulSoup(content, 'html.parser')
@@ -103,74 +86,116 @@ class ArticlePipeline:
             img_urls = [img.get('src') for img in img_tags if img.get('src')]
             return img_urls
         return None
+
+    def extract_file_urls(self, adapter, extensions=None):
+        content = adapter.get('content', '')        
+        soup = BeautifulSoup(content, 'html.parser')
+        if extensions is None:
+            extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
     
-    def upload_file_to_strapi(self, file_path, strapi_url, token, file_type):
-        with open(file_path, "rb") as file: 
-            file_extension = os.path.splitext(file_path)[1].lower()
-            mime_type = "application/pdf" if file_type == "pdf" else f"image/{file_extension[1:]}"
-            
+        file_urls = [
+            a['href'] for a in soup.find_all('a', href=True)
+            if any(a['href'].lower().endswith(ext) for ext in extensions)
+        ]
+        return file_urls if file_urls else None
+    
+    def upload_file_to_strapi(self, file_path, strapi_url, token):
+        with open(file_path, "rb") as file:
+            file_name = os.path.basename(file_path)
+            mime_type, _ = mimetypes.guess_type(file_path)
+            mime_type = mime_type or "application/octet-stream"
+
             res = requests.post(
                 f"{strapi_url}/api/upload",
-                files={"files":  (os.path.basename(file_path), file, mime_type)}, 
-                headers={
-                    "Authorization": f"Bearer {token}",
-                },
+                files={"files": (file_name, file, mime_type)},
+                headers={"Authorization": f"Bearer {token}"},
             )
             if res:
                 response_data = res.json()
                 if isinstance(response_data, list) and response_data:
-                    file_url = response_data[0].get("url")
-                    return f"{strapi_url}{file_url}" if file_url else None
+                   file_url = response_data[0].get("url")
+                   return f"{strapi_url}{file_url}" if file_url else None
         return None
             
     def download_file(self, file_url, base_url, save_dir='downloads'):
-        file_url = base_url + file_url
-        os.makedirs(save_dir, exist_ok=True)
+        full_url = urljoin(base_url, file_url)
+        headers = {
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+            ),
+            "Referer": base_url,
+        }
 
-        file_name = file_url.split('/')[-1]
-        file_path = os.path.join(save_dir, file_name)
-
-        response = requests.get(file_url)
-        if response:
-            with open(file_path, 'wb') as file:
-                file.write(response.content)
+        response = requests.get(full_url, headers=headers, allow_redirects=True)
+      
+        # Check if the content is not an HTML error page
+        if response.ok and "html" not in response.headers.get("Content-Type", ""):
+            os.makedirs(save_dir, exist_ok=True)
+            file_name = unquote(full_url.split('/')[-1])
+            file_path = os.path.join(save_dir, file_name)
+            with open(file_path, 'wb') as f:
+                f.write(response.content)
+            print("✅ File saved to:", file_path)
             return file_path
         else:
-            raise Exception(f"Failed to download file from {file_url}")
-   
+            raise Exception(f"❌ Failed to download file from {full_url}")
+    
+    def replace_all_variants(self, adapter, old_url, new_url):
+        """
+        Thay thế tất cả biến thể của old_url trong content: 
+        - dạng encode (%20)
+        - dạng decode (khoảng trắng)
+        - có domain (https://...)
+        """
+        content = adapter.get('content', '')
+        department_url = adapter.get('department_url', '')
+        base_url = f'https://{department_url}'
+
+        # Các dạng URL có thể tồn tại trong content
+        variants = [
+            old_url,
+            unquote(old_url),
+            urljoin(base_url, old_url),
+            urljoin(base_url, unquote(old_url))
+        ]
+
+        for variant in variants:
+           if variant in content:
+                content = content.replace(variant, new_url)
+
+        adapter['content'] = content
+    
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
-        # Clean title (remove unnecessary whitespace and newlines)
         self._clean_title(adapter)
-        # Format time (DD/MM/YYYY to YYYY-MM-DD)
-        self._format_time(adapter)
-        # Using AI for summary content
         self._summarize_text(adapter, spider)
-         
-        # Process <a> or <img> to upload PDF or IMAGE to Strapi
+
         department_url = adapter.get('department_url', '')
         base_url = f'https://{department_url}'
         strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
-        new_img_url = None
 
-        pdf_urls = self.extract_pdf_url(adapter)
-        if pdf_urls:
-            for pdf_url in pdf_urls:
-                pdf_path = self.download_file(pdf_url, base_url)
-                new_pdf_url = self.upload_file_to_strapi(pdf_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN, "pdf")
-                if new_pdf_url:
-                    adapter['content'] = adapter['content'].replace(pdf_url, new_pdf_url)
+        # 1. Upload các file tài liệu, video, v.v.
+        extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
+        file_urls = self.extract_file_urls(adapter, extensions)
+        if file_urls:
+            for file_url in file_urls:
+                file_path = self.download_file(file_url, base_url)
+                new_url = self.upload_file_to_strapi(file_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
+                if new_url:
+                    self.replace_all_variants(adapter, file_url, new_url)
+
+        # 2. Upload hình ảnh
         img_urls = self.extract_image_urls(adapter)
         if img_urls:
             for img_url in img_urls:
                 img_path = self.download_file(img_url, base_url)
-                new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN, "image")
-                if new_img_url:
-                    if 'content' in adapter and isinstance(adapter['content'], str):
-                        adapter['content'] = adapter['content'].replace(img_url, new_img_url)    
+                new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
+                if new_img_url and isinstance(adapter['content'], str):
+                    self.replace_all_variants(adapter, img_url, new_img_url)
+            
                 name_img_url = unquote(img_url.split('/')[-1])
                 thumbnail = adapter.get('thumbnail', '').split('/')[-1]
-                    
                 if thumbnail == name_img_url and new_img_url:
                     adapter['thumbnail'] = new_img_url
                 elif thumbnail == "img_default.png":
@@ -178,8 +203,8 @@ class ArticlePipeline:
         else:
             base_url = f"https://{adapter['department_url']}/"
             adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
-            
-        # Convert HTML content to Markdown
+
+        # 3. Convert HTML → Markdown
         self._convert_html_to_markdown(adapter)
 
         return item 

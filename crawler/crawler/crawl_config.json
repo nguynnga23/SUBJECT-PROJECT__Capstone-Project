@@ -1,6 +1,6 @@
 {
   "interval": {
     "type": "minutes",
-    "value": 1
+    "value": 3
   }
 }
