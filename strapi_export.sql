@@ -5,7 +5,7 @@
 -- Dumped from database version 17.5 (Debian 17.5-1.pgdg120+1)
 -- Dumped by pg_dump version 17.2
 
--- Started on 2025-07-12 16:17:11
+-- Started on 2025-07-12 16:33:55
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -25,10 +25,10 @@ SET row_security = off;
 -- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public.categories VALUES (5, 'd2yzqlir4kv6br22gmcfo67j', '2025-07-10 20:25:32.092', '2025-07-12 16:09:15.696', NULL, 1, 1, NULL, '2025-06-17', 'THÔNG BÁO SINH VIÊN', 'https://iuh.edu.vn/vi/thong-bao-fi20', 'tbsv');
-INSERT INTO public.categories VALUES (86, 'd2yzqlir4kv6br22gmcfo67j', '2025-07-10 20:25:32.092', '2025-07-12 16:09:15.696', '2025-07-12 16:09:16.949', 1, 1, NULL, '2025-06-17', 'THÔNG BÁO SINH VIÊN', 'https://iuh.edu.vn/vi/thong-bao-fi20', 'tbsv');
-INSERT INTO public.categories VALUES (7, 'w63o20179ucb8qpy1umoois7', '2025-07-10 20:26:34.208', '2025-07-12 16:09:43.567', NULL, 1, 1, NULL, '2025-07-07', 'THÔNG BÁO SINH VIÊN', 'https://fit.iuh.edu.vn/news.html@155@Thong-bao', 'tbsv');
-INSERT INTO public.categories VALUES (88, 'w63o20179ucb8qpy1umoois7', '2025-07-10 20:26:34.208', '2025-07-12 16:09:43.567', '2025-07-12 16:09:44.985', 1, 1, NULL, '2025-07-07', 'THÔNG BÁO SINH VIÊN', 'https://fit.iuh.edu.vn/news.html@155@Thong-bao', 'tbsv');
+INSERT INTO public.categories VALUES (5, 'd2yzqlir4kv6br22gmcfo67j', '2025-07-10 20:25:32.092', '2025-07-12 16:31:11.713', NULL, 1, 1, NULL, '2025-06-17', 'THÔNG BÁO SINH VIÊN', 'https://iuh.edu.vn/vi/thong-bao-fi20', 'tbsv');
+INSERT INTO public.categories VALUES (91, 'd2yzqlir4kv6br22gmcfo67j', '2025-07-10 20:25:32.092', '2025-07-12 16:31:11.713', '2025-07-12 16:31:13.131', 1, 1, NULL, '2025-06-17', 'THÔNG BÁO SINH VIÊN', 'https://iuh.edu.vn/vi/thong-bao-fi20', 'tbsv');
+INSERT INTO public.categories VALUES (7, 'w63o20179ucb8qpy1umoois7', '2025-07-10 20:26:34.208', '2025-07-12 16:31:46.786', NULL, 1, 1, NULL, '2025-07-07', 'THÔNG BÁO SINH VIÊN', 'https://fit.iuh.edu.vn/news.html@155@Thong-bao', 'tbsv');
+INSERT INTO public.categories VALUES (92, 'w63o20179ucb8qpy1umoois7', '2025-07-10 20:26:34.208', '2025-07-12 16:31:46.786', '2025-07-12 16:31:48.204', 1, 1, NULL, '2025-07-07', 'THÔNG BÁO SINH VIÊN', 'https://fit.iuh.edu.vn/news.html@155@Thong-bao', 'tbsv');
 INSERT INTO public.categories VALUES (1, 'gq079mohadthpaxq1yseazgy', '2025-07-10 20:27:03.15', '2025-07-12 16:09:55.229', NULL, 1, 1, NULL, '2025-05-27', 'TIN TỨC - SỰ KIỆN', 'https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien', 'ttsk');
 INSERT INTO public.categories VALUES (89, 'gq079mohadthpaxq1yseazgy', '2025-07-10 20:27:03.15', '2025-07-12 16:09:55.229', '2025-07-12 16:09:56.483', 1, 1, NULL, '2025-05-27', 'TIN TỨC - SỰ KIỆN', 'https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien', 'ttsk');
 INSERT INTO public.categories VALUES (3, 'is2favqx8kctoews8oa4wlns', '2025-07-10 20:25:56.561', '2025-07-12 16:10:08.887', NULL, 1, 1, NULL, '2025-07-11', 'TIN TỨC - SỰ KIỆN', 'https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11', 'ttsk');
@@ -53,14 +53,14 @@ INSERT INTO public.departments VALUES (4, 'cmn7cbodz9g35ut49dm6owt9', '2025-07-1
 -- Data for Name: categories_department_lnk; Type: TABLE DATA; Schema: public; Owner: root
 --
 
-INSERT INTO public.categories_department_lnk VALUES (95, 86, 4, 1);
-INSERT INTO public.categories_department_lnk VALUES (94, 5, 3, 1);
-INSERT INTO public.categories_department_lnk VALUES (98, 7, 1, 1);
-INSERT INTO public.categories_department_lnk VALUES (99, 88, 2, 1);
-INSERT INTO public.categories_department_lnk VALUES (100, 1, 3, 2);
 INSERT INTO public.categories_department_lnk VALUES (101, 89, 4, 2);
-INSERT INTO public.categories_department_lnk VALUES (102, 3, 1, 2);
 INSERT INTO public.categories_department_lnk VALUES (103, 90, 2, 2);
+INSERT INTO public.categories_department_lnk VALUES (100, 1, 3, 1);
+INSERT INTO public.categories_department_lnk VALUES (105, 91, 2, 3);
+INSERT INTO public.categories_department_lnk VALUES (102, 3, 1, 1);
+INSERT INTO public.categories_department_lnk VALUES (104, 5, 1, 2);
+INSERT INTO public.categories_department_lnk VALUES (106, 7, 3, 2);
+INSERT INTO public.categories_department_lnk VALUES (107, 92, 4, 3);
 
 
 --
@@ -103,7 +103,7 @@ INSERT INTO public.schedule_configs VALUES (2, 'tqarumfivq5xmfbze6o9830q', 'HOUR
 -- Name: categories_department_lnk_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.categories_department_lnk_id_seq', 103, true);
+SELECT pg_catalog.setval('public.categories_department_lnk_id_seq', 107, true);
 
 
 --
@@ -112,7 +112,7 @@ SELECT pg_catalog.setval('public.categories_department_lnk_id_seq', 103, true);
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: root
 --
 
-SELECT pg_catalog.setval('public.categories_id_seq', 90, true);
+SELECT pg_catalog.setval('public.categories_id_seq', 92, true);
 
 
 --
@@ -151,7 +151,7 @@ SELECT pg_catalog.setval('public.departments_id_seq', 12, true);
 SELECT pg_catalog.setval('public.schedule_configs_id_seq', 2, true);
 
 
--- Completed on 2025-07-12 16:17:11
+-- Completed on 2025-07-12 16:33:55
 
 --
 -- PostgreSQL database dump complete
