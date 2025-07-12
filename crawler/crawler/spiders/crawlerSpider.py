@@ -8,43 +8,6 @@ import requests
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
 
 
-def get_configs_from_strapi():
-    query = """
-        query {
-            crawlerConfigs {
-                url
-                department {
-                    key_department
-                    department_url
-                    department_name
-                    categories {
-                        key_category
-                        category_url
-                        category_name
-                        last_external_publish_date
-                    },
-                },
-                relative_url_list
-                relative_url
-                thumbnail
-                next_pages
-                title
-                content
-                external_publish_date
-            }
-        }
-    """
-    res = requests.post(
-        f"http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}",
-        json={"query": query},
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {UNIFEED_CMS_GRAPHQL_TOKEN}"
-        }
-    )  
-   
-    return res.json()["data"]["crawlerConfigs"]
-
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
     custom_settings = {
@@ -52,6 +15,9 @@ class DynamicIUHSpider(scrapy.Spider):
     }
 
     def __init__(self, *args, **kwargs):
+        self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
+        self._token = UNIFEED_CMS_GRAPHQL_TOKEN
+    
         self.key_max_pages = int(kwargs.pop('key_max_pages', 0)) or None
         self.key_department = kwargs.pop('key_department', None)
         self.key_category = kwargs.pop('key_category', None)
@@ -61,9 +27,44 @@ class DynamicIUHSpider(scrapy.Spider):
 
         super().__init__(*args, **kwargs)
         
+    def get_configs_from_strapi(self):
+        query = """
+            query {
+                crawlerConfigs {
+                    url
+                    department {
+                        key_department
+                        department_url
+                        department_name
+                        categories {
+                            key_category
+                            category_url
+                            category_name
+                            last_external_publish_date
+                        },
+                    },
+                    relative_url_list
+                    relative_url
+                    thumbnail
+                    next_pages
+                    title
+                    content
+                    external_publish_date
+                }
+            }
+        """
+        res = requests.post(
+            self._graphql_url_endpoint,
+            json={"query": query},
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {self._token}"
+            }
+        )  
+        return res.json()["data"]["crawlerConfigs"]
 
     def start_requests(self):
-        self.configs = get_configs_from_strapi()
+        self.configs = self.get_configs_from_strapi()
 
         for config in self.configs:
             dept = config.get('department', {})
@@ -101,11 +102,82 @@ class DynamicIUHSpider(scrapy.Spider):
                         'last_external_publish_date': start['last_external_publish_date']
                     }
                 )
+    def update_category_last_date(self, key_department, key_category, last_date):
+        query_find = """
+        query ($key: String!, $dept_key: String!) {
+            categories(filters: {
+                key_category: { eq: $key },
+                department: { key_department: { eq: $dept_key } }
+            }) {
+                documentId
+                last_external_publish_date
+            }
+        }
+        """
+        res = requests.post(
+            self._graphql_url_endpoint,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self._token}'
+            },
+            json={
+                'query': query_find,
+                'variables': {
+                    'key': key_category,
+                    'dept_key': key_department
+                }
+            }
+        )
+        res_json = res.json()
+        data = res_json.get("data", {}).get("categories", [])
+        if not data:
+            print(f"❌ Không tìm thấy category: {key_department} / {key_category}")
+            return
+        category = data[0]
+        category_id = category['documentId']
+        current_last_date_str = category.get('last_external_publish_date')
+
+        # So sánh ngày
+        if current_last_date_str:
+            try:
+                current_last_date = datetime.strptime(current_last_date_str, '%Y-%m-%d').date()
+                if current_last_date >= last_date:
+                    print(f"⚠️ Không cần cập nhật vì ngày hiện tại ({current_last_date}) >= {last_date}")
+                    return
+            except Exception as e:
+                print(f"❌ Lỗi phân tích ngày hiện tại: {e}")
+        
+        # Tiến hành cập nhật nếu khác
+        mutation = """
+        mutation updateCategory($id: ID!, $lastDate: Date!) {
+            updateCategory(documentId: $id, data: {
+                last_external_publish_date: $lastDate
+            }) {
+                key_category,
+                last_external_publish_date,
+                documentId
+            }
+        }
+        """
+        res = requests.post(
+            self._graphql_url_endpoint,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self._token}'
+            },
+            json={
+                'query': mutation,
+                'variables': {
+                    'id': category_id,
+                    'lastDate': last_date.strftime('%Y-%m-%d')
+                }
+            }
+        )
+        print(f"✅ Cập nhật {key_department}/{key_category} → {last_date.strftime('%Y-%m-%d')}")
 
     def parse_list(self, response):
         config = response.meta['config']
-        start = response.meta['start']
-        category = response.meta['category_name']
+        category_name = response.meta['category_name']
         category_url = response.meta['category_url']
         key_dept = response.meta['key_department']
         key_cat = response.meta['key_category']
@@ -148,7 +220,8 @@ class DynamicIUHSpider(scrapy.Spider):
                         callback=self.parse_detail,
                         meta={
                             'config': config,
-                            'category_name': category,
+                            'category_name': category_name,
+                            'category_url': category_url,
                             'thumbnail': thumbnail,
                             'department_name': response.meta.get('department_name'),
                             'department_url': response.meta.get('department_url'),
@@ -158,8 +231,18 @@ class DynamicIUHSpider(scrapy.Spider):
                     requests.append(req)
 
             else:
-                self.logger.info("🛑 TẤT CẢ bài trên trang hiện tại đều đã cũ → dừng crawler.")
+                self.logger.info("🛑 Tất cả bài trên trang hiện tại đều đã cũ → dừng crawler.")
                 should_continue = False
+                
+                # 🔁 Cập nhật last_date lên Strapi nếu có bài mới hơn
+                if config_key in self.latest_dates:
+                    new_date = self.latest_dates[config_key]
+                    self.update_category_last_date(
+                        key_department=key_dept,
+                        key_category=key_cat,
+                        last_date=new_date
+                    )
+                
                 break
 
         for req in requests:
@@ -178,7 +261,6 @@ class DynamicIUHSpider(scrapy.Spider):
 
     def parse_detail(self, response):
         config = response.meta['config']
-        category = response.meta['category_name']
 
         item = ArticleItem()
         item['external_url'] = response.url
@@ -186,29 +268,11 @@ class DynamicIUHSpider(scrapy.Spider):
         item['thumbnail'] = response.meta.get('thumbnail')
         item['department_name'] = response.meta.get('department_name')
         item['department_url'] = response.meta.get('department_url')
-        item['category'] = category
+        item['category_name'] = response.meta['category_name']
+        item['category_url'] = response.meta['category_url']
         item['title'] = response.css(config['title']).get()
         item['content'] = response.css(config['content']).get()
         item['external_publish_date'] = response.meta.get('external_publish_date')
 
         yield item
 
-    def closed(self, reason):
-        if not self.latest_dates:
-            return
-
-        with open('config.json', 'r', encoding='utf-8') as f:
-            configs = json.load(f)
-
-        for config in configs:
-            key_dept = config['department']['key_department']
-            for start in config['categories']:
-                key_cat = start['key_category']
-                config_key = f"{key_dept}_{key_cat}"
-                if config_key in self.latest_dates:
-                    latest_date = self.latest_dates[config_key].strftime("%Y-%m-%d")
-                    start['last_external_publish_date'] = latest_date
-                    print(f"✅ Cập nhật ngày mới cho {config_key}: {latest_date}")
-
-        with open('config.json', 'w', encoding='utf-8') as f:
-            json.dump(configs, f, indent=2, ensure_ascii=False)

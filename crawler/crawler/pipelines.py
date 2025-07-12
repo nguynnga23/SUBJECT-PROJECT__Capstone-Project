@@ -228,19 +228,25 @@ class CMSPipeline:
             spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
             return item  # bỏ qua nếu trùng
         
-        department_name = adapter.get('department_name')
-        department_id = self._get_or_create_department(department_name)
+        department_url = adapter.get('department_url')
+        department_id = self._get_department(department_url)
+        if not department_id:
+            spider.logger.warning(f"❌ Không tìm thấy department với key: {department_url}")
+            return item  # Bỏ qua nếu không có department
         
-        category_name = adapter.get('category')
-        category_id = self._get_or_create_category(category_name, department_id)
-# 
+        category_url = adapter.get('category_url')
+        category_name = adapter.get('category_name')
+        category_id = self._get_category(category_url, department_id)
+        if not category_id:
+            spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_url}")
+            return item  # Bỏ qua nếu không có category phù hợp
+    
         self._create_article(adapter, category_id)
-
         return item
-    def _get_or_create_department(self, department_name):
+    def _get_department(self, department_url):
         query = """
-            query checkDepartment($name: String!) {
-                departments(filters: { department_name: {eq: $name} }) {
+            query checkDepartment($url: String!) {
+                departments(filters: { department_url: {eq: $url} }) {
                     documentId
                 }
             }
@@ -248,70 +254,47 @@ class CMSPipeline:
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-            data=json.dumps({'query': query, 'variables': {'name': department_name}})
+            data=json.dumps({'query': query, 'variables': {'url': department_url}})
         )        
-        data = response.json()
-        
-        if data['data']['departments'] != []:
-            return data['data']['departments'][0]['documentId']
-        else:
-            create_query = """
-                mutation createDepartment($name: String!) {
-                  createDepartment(data: {
-                    name: $name
-                  }) {
-                    name
-                    documentId
-                  }
-                }  
-            """
-            response = requests.post(
-                self._graphql_url_endpoint,
-                headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-                data=json.dumps({'query': create_query, 'variables': {'name': department_name}})
-            )
+        try:
             data = response.json()
-            return data['data']['createDepartment']['documentId']
-
-    def _get_or_create_category(self, category_name, department_id):
+            departments = data.get('data', {}).get('departments', [])
+            if departments:
+                return departments[0].get('documentId')
+        except Exception as e:
+            print("❌ Lỗi khi lấy department:", e)
+            print("Response text:", response.text)
+        return None
+        
+    def _get_category(self, category_url, department_id):
         query = """
-            query checkCategory($name: String!) {
-                categories(filters: { category_name: {eq: $name} }) {
-                    documentId
+           query checkCategory($url: String!, $department_id: ID!) {
+            categories(
+                 filters: {
+                    category_url: { eq: $url }
+                    department: {
+                        documentId: { eq: $department_id }
+                    }
                 }
+            ) {
+                documentId
             }
+        }
         """
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-            data=json.dumps({'query': query, 'variables': {'name': category_name}})
+            data=json.dumps({'query': query, 'variables': {'url': category_url, 'department_id': department_id}})
         )
-        # 
-        data = response.json()
-        if data['data']['categories'] != []:
-            return data['data']['categories'][0]['documentId']
-        else:
-            create_query = """
-            mutation createCategory($name: String!, $departmentId: ID!) {
-              createCategory(data: {
-                name: $name
-                department: $departmentId
-              }) {
-                name
-                documentId
-                department {
-                  documentId
-                }
-              }
-            }
-            """
-            response = requests.post(
-                self._graphql_url_endpoint,
-                headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-                data=json.dumps({'query': create_query, 'variables': {'name': category_name, 'departmentId': department_id}})
-            )
+        try:
             data = response.json()
-            return data['data']['createCategory']['documentId']
+            categories = data.get('data', {}).get('categories', [])
+            if categories:
+                return categories[0].get('documentId')
+        except Exception as e:
+            print("❌ Lỗi khi lấy category:", e)
+            print("Response text:", response.text)
+        return None
 
 
     def _create_article(self, adapter, category_id):
@@ -365,13 +348,20 @@ class CMSPipeline:
                 'categoryId': category_id,
             }})
         )
-        data = response.json()
-        if response.status_code == 200:
-            print("Article created successfully:")
-        else:
-            print("❌ Failed to create article")
-            print("Status code:", response.status_code)
-            print("Response:", response.text)
+        try:
+            if response.status_code == 200:
+                data = response.json()
+                # Kiểm tra xem có lỗi GraphQL không (thường nằm trong trường 'errors')
+                if 'errors' in data:
+                    print("❌ GraphQL errors:", data['errors'])
+                else:
+                    print("✅ Article created successfully")
+            else:
+                print("❌ Failed to create article")
+                print("Status code:", response.status_code)
+                print("Response:", response.text)
+        except Exception as e:
+            print("❌ Exception occurred while creating article:", e)
             
     def _is_article_exist(self, external_url):
         query = """
