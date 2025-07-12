@@ -3,6 +3,7 @@
 Crawl data with scraping information retrieved from config.js file
 
 ## Prerequisites
+
 - Git
 - WSL2 (Windows Subsystem for Linux) with Linux distro installed or MacOS
 - Poetry
@@ -15,13 +16,15 @@ Step 1: Update libs by poetry command:
 ```bash
 poetry install
 ```
+
 Step 2: Create .env file follow .env.sample, filling information (read guidance from cms/README.md to get UNIFEED_CMS_GRAPHQL_TOKEN):
 
-```bash
-poetry install
-```
+Step 3: Generate sample data (category, department,...) from strapi_export.sql file
 
-Step 3: Crawl data by command, all departments, all categories, all pages
+- Open pgAdmin4 or HeidiSQL
+- Open and run script strapi_export.sql file
+
+Step 4: Crawl data by command, all departments, all categories, all pages
 
 ```bash
 poetry run scrapy crawl iuh
@@ -51,6 +54,12 @@ poetry run scrapy crawl iuh -a key_max_number=2
 poetry run scrapy crawl iuh -a key_department=iuh -a key_category=ttsk -a key_max_pages=2
 ```
 
-# Resources
-- [AI](https://huggingface.co/) - Tool Using Model AI
+- (Optional) Run crawl with Schedule Config
 
+```bash
+poetry run python scheduler.py
+```
+
+# Resources
+
+- [AI](https://huggingface.co/) - Tool Using Model AI

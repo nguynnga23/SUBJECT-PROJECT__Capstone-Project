@@ -223,7 +223,7 @@ class CMSPipeline:
     def process_item(self, item, spider) -> ArticleItem:
         adapter = ItemAdapter(item)
         
-        # kiểm tra trùng external_url
+        # Áp dụng Duplicate Filtering kiểm tra trùng external_url
         if self._is_article_exist(adapter.get('external_url')):
             spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
             return item  # bỏ qua nếu trùng
@@ -362,7 +362,8 @@ class CMSPipeline:
                 print("Response:", response.text)
         except Exception as e:
             print("❌ Exception occurred while creating article:", e)
-            
+    
+    # Áp dụng Duplicate Filtering          
     def _is_article_exist(self, external_url):
         query = """
         query checkArticle($external_url: String!) {
