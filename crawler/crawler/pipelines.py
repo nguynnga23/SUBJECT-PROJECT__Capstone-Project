@@ -27,12 +27,6 @@ class ArticlePipeline:
         cleaned_title = title.replace('\r\n', ' ').strip()
         adapter['title'] = cleaned_title
     
-    def _convert_html_to_markdown(self, adapter):
-        content = adapter.get('content', '')
-        h = html2text.HTML2Text()
-        h.ignore_links = False  # Keep links in the Markdown output
-        markdown_content = h.handle(content)
-        adapter['content'] = markdown_content
 
     def clean_markdown(self, text: str) -> str:
         """Chuyển markdown về plain text."""
@@ -77,6 +71,92 @@ class ArticlePipeline:
         # else:
             adapter["summary"] = "" 
 
+    
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        self._clean_title(adapter)
+        self._summarize_text(adapter, spider)
+
+        return item 
+
+class DuplicateArticlePipeline:
+    def __init__(self):
+        pass
+
+class CMSPipeline:
+
+    def __init__(self) -> None:
+        self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
+        self._token = UNIFEED_CMS_GRAPHQL_TOKEN
+        pass
+
+    def process_item(self, item, spider) -> ArticleItem:
+        adapter = ItemAdapter(item)
+        
+        # Áp dụng Duplicate Filtering kiểm tra trùng external_url
+        if self._is_article_exist(adapter.get('external_url')):
+            spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
+            return  # bỏ qua nếu trùng
+        
+        department_url = adapter.get('department_url')
+        department_id = self._get_department(department_url)
+        if not department_id:
+            spider.logger.warning(f"❌ Không tìm thấy department với key: {department_url}")
+            return  # Bỏ qua nếu không có department
+        
+        category_url = adapter.get('category_url')
+        category_name = adapter.get('category_name')
+        category_id = self._get_category(category_url, department_id)
+        if not category_id:
+            spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_url}")
+            return  # Bỏ qua nếu không có category phù hợp
+    
+        # Upload file/image to Strapi
+        department_url = adapter.get('department_url', '')
+        base_url = f'https://{department_url}'
+        strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
+
+        # 1. Upload các file tài liệu, video, v.v.
+        extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
+        file_urls = self.extract_file_urls(adapter, extensions)
+        if file_urls:
+            for file_url in file_urls:
+                file_path = self.download_file(file_url, base_url)
+                new_url = self.upload_file_to_strapi(file_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
+                if new_url:
+                    self.replace_all_variants(adapter, file_url, new_url)
+
+        # 2. Upload hình ảnh
+        img_urls = self.extract_image_urls(adapter)
+        if img_urls:
+            for img_url in img_urls:
+                img_path = self.download_file(img_url, base_url)
+                new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
+                if new_img_url and isinstance(adapter['content'], str):
+                    self.replace_all_variants(adapter, img_url, new_img_url)
+            
+                name_img_url = unquote(img_url.split('/')[-1])
+                thumbnail = adapter.get('thumbnail', '').split('/')[-1]
+                if thumbnail == name_img_url and new_img_url:
+                    adapter['thumbnail'] = new_img_url
+                elif thumbnail == "img_default.png":
+                    adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
+        else:
+            base_url = f"https://{adapter['department_url']}/"
+            adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
+
+        # 3. Convert HTML → Markdown
+        self._convert_html_to_markdown(adapter)
+        self._create_article(adapter, category_id)
+        return item
+    
+    def _convert_html_to_markdown(self, adapter):
+        content = adapter.get('content', '')
+        h = html2text.HTML2Text()
+        h.ignore_links = False  # Keep links in the Markdown output
+        markdown_content = h.handle(content)
+        adapter['content'] = markdown_content
+    
     def extract_image_urls(self, adapter):
         content = adapter.get('content', '')        
         soup = BeautifulSoup(content, 'html.parser')
@@ -165,83 +245,8 @@ class ArticlePipeline:
 
         adapter['content'] = content
     
-    def process_item(self, item, spider):
-        adapter = ItemAdapter(item)
-        self._clean_title(adapter)
-        self._summarize_text(adapter, spider)
-
-        department_url = adapter.get('department_url', '')
-        base_url = f'https://{department_url}'
-        strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
-
-        # 1. Upload các file tài liệu, video, v.v.
-        extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
-        file_urls = self.extract_file_urls(adapter, extensions)
-        if file_urls:
-            for file_url in file_urls:
-                file_path = self.download_file(file_url, base_url)
-                new_url = self.upload_file_to_strapi(file_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
-                if new_url:
-                    self.replace_all_variants(adapter, file_url, new_url)
-
-        # 2. Upload hình ảnh
-        img_urls = self.extract_image_urls(adapter)
-        if img_urls:
-            for img_url in img_urls:
-                img_path = self.download_file(img_url, base_url)
-                new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
-                if new_img_url and isinstance(adapter['content'], str):
-                    self.replace_all_variants(adapter, img_url, new_img_url)
-            
-                name_img_url = unquote(img_url.split('/')[-1])
-                thumbnail = adapter.get('thumbnail', '').split('/')[-1]
-                if thumbnail == name_img_url and new_img_url:
-                    adapter['thumbnail'] = new_img_url
-                elif thumbnail == "img_default.png":
-                    adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
-        else:
-            base_url = f"https://{adapter['department_url']}/"
-            adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
-
-        # 3. Convert HTML → Markdown
-        self._convert_html_to_markdown(adapter)
-
-        return item 
-
-class DuplicateArticlePipeline:
-    def __init__(self):
-        pass
-
-class CMSPipeline:
-
-    def __init__(self) -> None:
-        self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
-        self._token = UNIFEED_CMS_GRAPHQL_TOKEN
-        pass
-
-    def process_item(self, item, spider) -> ArticleItem:
-        adapter = ItemAdapter(item)
-        
-        # Áp dụng Duplicate Filtering kiểm tra trùng external_url
-        if self._is_article_exist(adapter.get('external_url')):
-            spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
-            return item  # bỏ qua nếu trùng
-        
-        department_url = adapter.get('department_url')
-        department_id = self._get_department(department_url)
-        if not department_id:
-            spider.logger.warning(f"❌ Không tìm thấy department với key: {department_url}")
-            return item  # Bỏ qua nếu không có department
-        
-        category_url = adapter.get('category_url')
-        category_name = adapter.get('category_name')
-        category_id = self._get_category(category_url, department_id)
-        if not category_id:
-            spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_url}")
-            return item  # Bỏ qua nếu không có category phù hợp
     
-        self._create_article(adapter, category_id)
-        return item
+    
     def _get_department(self, department_url):
         query = """
             query checkDepartment($url: String!) {
