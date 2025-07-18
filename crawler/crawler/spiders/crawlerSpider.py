@@ -10,9 +10,6 @@ from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, U
 
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
-    custom_settings = {
-        'DOWNLOAD_DELAY': 1,
-    }
 
     def __init__(self, *args, **kwargs):
         self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
