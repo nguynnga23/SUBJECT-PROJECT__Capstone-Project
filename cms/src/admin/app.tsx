@@ -4,13 +4,9 @@ export default {
   config: {
     translations: {
       en: {
+        "Auth.form.welcome.title": "Chào mừng đến với CMS của", // Thay đổi ở màn hình đăng nhập
         "app.components.HomePage.welcome":
-          "Chào mừng đến với hệ thống quản trị của bạn!",
-        // Bạn có thể ghi đè thêm các chuỗi khác tại đây nếu muốn
-      },
-      // Nếu dùng tiếng Việt, bạn có thể thêm 'vi' và các key tương ứng
-      vi: {
-        "app.components.HomePage.welcome": "Chào mừng đến với Strapi của bạn!",
+          "Chào mừng bạn đến với hệ thống quản trị nội dung", // Thay đổi ở dashboard
       },
     },
     locales: [
