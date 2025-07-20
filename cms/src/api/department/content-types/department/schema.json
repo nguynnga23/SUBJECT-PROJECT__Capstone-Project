@@ -11,13 +11,25 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "department_name": {
       "type": "string"
     },
     "categories": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::category.category",
+      "mappedBy": "department"
+    },
+    "key_department": {
+      "type": "string"
+    },
+    "department_url": {
+      "type": "string"
+    },
+    "crawler_config": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::crawler-config.crawler-config",
       "mappedBy": "department"
     }
   }

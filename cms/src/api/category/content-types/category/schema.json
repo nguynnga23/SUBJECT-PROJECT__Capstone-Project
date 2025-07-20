@@ -12,7 +12,7 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "name": {
+    "category_name": {
       "type": "string"
     },
     "department": {
@@ -26,6 +26,15 @@
       "relation": "oneToMany",
       "target": "api::article.article",
       "mappedBy": "category"
+    },
+    "category_url": {
+      "type": "string"
+    },
+    "key_category": {
+      "type": "string"
+    },
+    "last_external_publish_date": {
+      "type": "date"
     }
   }
 }

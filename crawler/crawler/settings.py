@@ -24,6 +24,16 @@ ROBOTSTXT_OBEY = True
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 
+# Chạy tuần tự - chỉ 1 request tại một thời điểm
+CONCURRENT_REQUESTS = 1
+# Thêm thời gian chờ giữa các request (tránh bị block)
+DOWNLOAD_DELAY = 1.0
+# Tắt tự động tính toán thời gian chờ giữa các request
+AUTOTHROTTLE_ENABLED = False
+# Không tải quá nhiều domain cùng 1 lúc
+CONCURRENT_REQUESTS_PER_DOMAIN = 1
+CONCURRENT_REQUESTS_PER_IP = 1
+
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
@@ -31,6 +41,7 @@ ROBOTSTXT_OBEY = True
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
+
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False

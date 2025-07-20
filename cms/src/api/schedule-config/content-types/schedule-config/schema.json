@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "schedule_configs",
+  "info": {
+    "singularName": "schedule-config",
+    "pluralName": "schedule-configs",
+    "displayName": "ScheduleConfig"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "MINUTES",
+        "HOURS",
+        "DAYS"
+      ]
+    },
+    "value": {
+      "type": "integer"
+    }
+  }
+}
