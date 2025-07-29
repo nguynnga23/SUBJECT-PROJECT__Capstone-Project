@@ -11,9 +11,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "url": {
-      "type": "string"
-    },
     "relative_url_list": {
       "type": "string"
     },
