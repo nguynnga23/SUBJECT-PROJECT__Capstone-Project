@@ -40,37 +40,42 @@ public class PermissionController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Permission> getPermissionById(@PathVariable UUID id) {
+    public ResponseEntity<PermissionDto> getPermissionById(@PathVariable UUID id) {
         log.info("Getting permission by id: {}", id);
         Optional<Permission> permission = permissionService.findById(id);
-        return permission.map(value -> ResponseEntity.ok().body(value))
+        return permission.map(value -> ResponseEntity.ok().body(permissionMapper.toDto(value)))
                         .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<Permission>> getAllPermissions() {
+    public ResponseEntity<List<PermissionDto>> getAllPermissions() {
         log.info("Getting all permissions");
         List<Permission> permissions = permissionService.findAll();
-        return ResponseEntity.ok(permissions);
+        List<PermissionDto> permissionDtos = permissions.stream()
+                .map(permissionMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(permissionDtos);
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<Permission>> getAllPermissionsPageable(Pageable pageable) {
+    public ResponseEntity<Page<PermissionDto>> getAllPermissionsPageable(Pageable pageable) {
         log.info("Getting all permissions with pagination: {}", pageable);
         Page<Permission> permissions = permissionService.findAll(pageable);
-        return ResponseEntity.ok(permissions);
+        Page<PermissionDto> permissionDtos = permissions.map(permissionMapper::toDto);
+        return ResponseEntity.ok(permissionDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Permission> updatePermission(@PathVariable UUID id, @RequestBody Permission permission) {
+    public ResponseEntity<PermissionDto> updatePermission(@PathVariable UUID id, @RequestBody PermissionDto permissionDto) {
         log.info("Updating permission with id: {}", id);
         try {
             if (!permissionService.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
+            Permission permission = permissionMapper.toEntity(permissionDto);
             permission.setId(id);
             Permission updatedPermission = permissionService.update(permission);
-            return ResponseEntity.ok(updatedPermission);
+            return ResponseEntity.ok(permissionMapper.toDto(updatedPermission));
         } catch (Exception e) {
             log.error("Error updating permission: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -93,26 +98,35 @@ public class PermissionController {
     }
     
     @GetMapping("/search/action")
-    public ResponseEntity<List<Permission>> getPermissionsByAction(@RequestParam String action) {
+    public ResponseEntity<List<PermissionDto>> getPermissionsByAction(@RequestParam String action) {
         log.info("Getting permissions by action: {}", action);
         List<Permission> permissions = permissionService.findByAction(action);
-        return ResponseEntity.ok(permissions);
+        List<PermissionDto> permissionDtos = permissions.stream()
+                .map(permissionMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(permissionDtos);
     }
     
     @GetMapping("/search/subject")
-    public ResponseEntity<List<Permission>> getPermissionsBySubject(@RequestParam String subject) {
+    public ResponseEntity<List<PermissionDto>> getPermissionsBySubject(@RequestParam String subject) {
         log.info("Getting permissions by subject: {}", subject);
         List<Permission> permissions = permissionService.findBySubject(subject);
-        return ResponseEntity.ok(permissions);
+        List<PermissionDto> permissionDtos = permissions.stream()
+                .map(permissionMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(permissionDtos);
     }
     
     @GetMapping("/search/action-and-subject")
-    public ResponseEntity<List<Permission>> getPermissionsByActionAndSubject(
+    public ResponseEntity<List<PermissionDto>> getPermissionsByActionAndSubject(
             @RequestParam String action, 
             @RequestParam String subject) {
         log.info("Getting permissions by action: {} and subject: {}", action, subject);
         List<Permission> permissions = permissionService.findByActionAndSubject(action, subject);
-        return ResponseEntity.ok(permissions);
+        List<PermissionDto> permissionDtos = permissions.stream()
+                .map(permissionMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(permissionDtos);
     }
     
     @GetMapping("/count")

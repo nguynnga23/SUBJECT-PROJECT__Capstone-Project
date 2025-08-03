@@ -40,37 +40,42 @@ public class CrawlerConfigController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<CrawlerConfig> getCrawlerConfigById(@PathVariable UUID id) {
+    public ResponseEntity<CrawlerConfigDto> getCrawlerConfigById(@PathVariable UUID id) {
         log.info("Getting crawler config by id: {}", id);
         Optional<CrawlerConfig> config = crawlerConfigService.findById(id);
-        return config.map(value -> ResponseEntity.ok().body(value))
+        return config.map(value -> ResponseEntity.ok().body(crawlerConfigMapper.toDto(value)))
                     .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<CrawlerConfig>> getAllCrawlerConfigs() {
+    public ResponseEntity<List<CrawlerConfigDto>> getAllCrawlerConfigs() {
         log.info("Getting all crawler configs");
         List<CrawlerConfig> configs = crawlerConfigService.findAll();
-        return ResponseEntity.ok(configs);
+        List<CrawlerConfigDto> configDtos = configs.stream()
+                .map(crawlerConfigMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(configDtos);
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<CrawlerConfig>> getAllCrawlerConfigsPageable(Pageable pageable) {
+    public ResponseEntity<Page<CrawlerConfigDto>> getAllCrawlerConfigsPageable(Pageable pageable) {
         log.info("Getting all crawler configs with pagination: {}", pageable);
         Page<CrawlerConfig> configs = crawlerConfigService.findAll(pageable);
-        return ResponseEntity.ok(configs);
+        Page<CrawlerConfigDto> configDtos = configs.map(crawlerConfigMapper::toDto);
+        return ResponseEntity.ok(configDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<CrawlerConfig> updateCrawlerConfig(@PathVariable UUID id, @RequestBody CrawlerConfig crawlerConfig) {
+    public ResponseEntity<CrawlerConfigDto> updateCrawlerConfig(@PathVariable UUID id, @RequestBody CrawlerConfigDto crawlerConfigDto) {
         log.info("Updating crawler config with id: {}", id);
         try {
             if (!crawlerConfigService.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
+            CrawlerConfig crawlerConfig = crawlerConfigMapper.toEntity(crawlerConfigDto);
             crawlerConfig.setId(id);
             CrawlerConfig updatedConfig = crawlerConfigService.update(crawlerConfig);
-            return ResponseEntity.ok(updatedConfig);
+            return ResponseEntity.ok(crawlerConfigMapper.toDto(updatedConfig));
         } catch (Exception e) {
             log.error("Error updating crawler config: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -93,17 +98,23 @@ public class CrawlerConfigController {
     }
     
     @GetMapping("/department-website/{departmentWebsiteId}")
-    public ResponseEntity<List<CrawlerConfig>> getCrawlerConfigsByDepartmentWebsiteId(@PathVariable UUID departmentWebsiteId) {
+    public ResponseEntity<List<CrawlerConfigDto>> getCrawlerConfigsByDepartmentWebsiteId(@PathVariable UUID departmentWebsiteId) {
         log.info("Getting crawler configs by department website id: {}", departmentWebsiteId);
         List<CrawlerConfig> configs = crawlerConfigService.findByDepartmentWebsiteId(departmentWebsiteId);
-        return ResponseEntity.ok(configs);
+        List<CrawlerConfigDto> configDtos = configs.stream()
+                .map(crawlerConfigMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(configDtos);
     }
     
     @GetMapping("/search/title-containing")
-    public ResponseEntity<List<CrawlerConfig>> getCrawlerConfigsByTitleContaining(@RequestParam String keyword) {
+    public ResponseEntity<List<CrawlerConfigDto>> getCrawlerConfigsByTitleContaining(@RequestParam String keyword) {
         log.info("Getting crawler configs by title containing: {}", keyword);
         List<CrawlerConfig> configs = crawlerConfigService.findByTitleContaining(keyword);
-        return ResponseEntity.ok(configs);
+        List<CrawlerConfigDto> configDtos = configs.stream()
+                .map(crawlerConfigMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(configDtos);
     }
     
     @GetMapping("/count")

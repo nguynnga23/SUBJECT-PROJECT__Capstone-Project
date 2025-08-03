@@ -58,22 +58,24 @@ public class DepartmentWebsiteController {
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<DepartmentWebsite>> getAllDepartmentWebsitesPageable(Pageable pageable) {
+    public ResponseEntity<Page<DepartmentWebsiteDto>> getAllDepartmentWebsitesPageable(Pageable pageable) {
         log.info("Getting all department websites with pagination: {}", pageable);
         Page<DepartmentWebsite> websites = departmentWebsiteService.findAll(pageable);
-        return ResponseEntity.ok(websites);
+        Page<DepartmentWebsiteDto> websiteDtos = websites.map(departmentWebsiteMapper::toDto);
+        return ResponseEntity.ok(websiteDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<DepartmentWebsite> updateDepartmentWebsite(@PathVariable UUID id, @RequestBody DepartmentWebsite departmentWebsite) {
+    public ResponseEntity<DepartmentWebsiteDto> updateDepartmentWebsite(@PathVariable UUID id, @RequestBody DepartmentWebsiteDto departmentWebsiteDto) {
         log.info("Updating department website with id: {}", id);
         try {
             if (!departmentWebsiteService.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
+            DepartmentWebsite departmentWebsite = departmentWebsiteMapper.toEntity(departmentWebsiteDto);
             departmentWebsite.setId(id);
             DepartmentWebsite updatedWebsite = departmentWebsiteService.update(departmentWebsite);
-            return ResponseEntity.ok(updatedWebsite);
+            return ResponseEntity.ok(departmentWebsiteMapper.toDto(updatedWebsite));
         } catch (Exception e) {
             log.error("Error updating department website: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -96,25 +98,31 @@ public class DepartmentWebsiteController {
     }
     
     @GetMapping("/department/{departmentId}")
-    public ResponseEntity<List<DepartmentWebsite>> getDepartmentWebsitesByDepartmentId(@PathVariable UUID departmentId) {
+    public ResponseEntity<List<DepartmentWebsiteDto>> getDepartmentWebsitesByDepartmentId(@PathVariable UUID departmentId) {
         log.info("Getting department websites by department id: {}", departmentId);
         List<DepartmentWebsite> websites = departmentWebsiteService.findByDepartmentId(departmentId);
-        return ResponseEntity.ok(websites);
+        List<DepartmentWebsiteDto> websiteDtos = websites.stream()
+                .map(departmentWebsiteMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(websiteDtos);
     }
     
     @GetMapping("/search/url")
-    public ResponseEntity<DepartmentWebsite> getDepartmentWebsiteByUrl(@RequestParam String url) {
+    public ResponseEntity<DepartmentWebsiteDto> getDepartmentWebsiteByUrl(@RequestParam String url) {
         log.info("Getting department website by url: {}", url);
         Optional<DepartmentWebsite> website = departmentWebsiteService.findByUrl(url);
-        return website.map(value -> ResponseEntity.ok().body(value))
+        return website.map(value -> ResponseEntity.ok().body(departmentWebsiteMapper.toDto(value)))
                      .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search/url-containing")
-    public ResponseEntity<List<DepartmentWebsite>> getDepartmentWebsitesByUrlContaining(@RequestParam String keyword) {
+    public ResponseEntity<List<DepartmentWebsiteDto>> getDepartmentWebsitesByUrlContaining(@RequestParam String keyword) {
         log.info("Getting department websites by url containing: {}", keyword);
         List<DepartmentWebsite> websites = departmentWebsiteService.findByUrlContaining(keyword);
-        return ResponseEntity.ok(websites);
+        List<DepartmentWebsiteDto> websiteDtos = websites.stream()
+                .map(departmentWebsiteMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(websiteDtos);
     }
     
     @GetMapping("/count")

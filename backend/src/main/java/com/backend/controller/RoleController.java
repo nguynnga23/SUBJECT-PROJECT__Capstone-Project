@@ -40,37 +40,42 @@ public class RoleController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Role> getRoleById(@PathVariable UUID id) {
+    public ResponseEntity<RoleDto> getRoleById(@PathVariable UUID id) {
         log.info("Getting role by id: {}", id);
         Optional<Role> role = roleService.findById(id);
-        return role.map(value -> ResponseEntity.ok().body(value))
+        return role.map(value -> ResponseEntity.ok().body(roleMapper.toDto(value)))
                   .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<Role>> getAllRoles() {
+    public ResponseEntity<List<RoleDto>> getAllRoles() {
         log.info("Getting all roles");
         List<Role> roles = roleService.findAll();
-        return ResponseEntity.ok(roles);
+        List<RoleDto> roleDtos = roles.stream()
+                .map(roleMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(roleDtos);
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<Role>> getAllRolesPageable(Pageable pageable) {
+    public ResponseEntity<Page<RoleDto>> getAllRolesPageable(Pageable pageable) {
         log.info("Getting all roles with pagination: {}", pageable);
         Page<Role> roles = roleService.findAll(pageable);
-        return ResponseEntity.ok(roles);
+        Page<RoleDto> roleDtos = roles.map(roleMapper::toDto);
+        return ResponseEntity.ok(roleDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Role> updateRole(@PathVariable UUID id, @RequestBody Role role) {
+    public ResponseEntity<RoleDto> updateRole(@PathVariable UUID id, @RequestBody RoleDto roleDto) {
         log.info("Updating role with id: {}", id);
         try {
             if (!roleService.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
+            Role role = roleMapper.toEntity(roleDto);
             role.setId(id);
             Role updatedRole = roleService.update(role);
-            return ResponseEntity.ok(updatedRole);
+            return ResponseEntity.ok(roleMapper.toDto(updatedRole));
         } catch (Exception e) {
             log.error("Error updating role: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -93,18 +98,21 @@ public class RoleController {
     }
     
     @GetMapping("/search/name")
-    public ResponseEntity<Role> getRoleByName(@RequestParam String name) {
+    public ResponseEntity<RoleDto> getRoleByName(@RequestParam String name) {
         log.info("Getting role by name: {}", name);
         Optional<Role> role = roleService.findByName(name);
-        return role.map(value -> ResponseEntity.ok().body(value))
+        return role.map(value -> ResponseEntity.ok().body(roleMapper.toDto(value)))
                   .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search/name-containing")
-    public ResponseEntity<List<Role>> getRolesByNameContaining(@RequestParam String keyword) {
+    public ResponseEntity<List<RoleDto>> getRolesByNameContaining(@RequestParam String keyword) {
         log.info("Getting roles by name containing: {}", keyword);
         List<Role> roles = roleService.findByNameContaining(keyword);
-        return ResponseEntity.ok(roles);
+        List<RoleDto> roleDtos = roles.stream()
+                .map(roleMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(roleDtos);
     }
     
     @GetMapping("/count")
