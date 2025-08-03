@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.DepartmentWebsiteDto;
 import com.backend.entity.DepartmentWebsite;
+import com.backend.mapper.DepartmentWebsiteMapper;
 import com.backend.service.DepartmentWebsiteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ import java.util.UUID;
 public class DepartmentWebsiteController {
     
     private final DepartmentWebsiteService departmentWebsiteService;
+    private final DepartmentWebsiteMapper departmentWebsiteMapper;
     
     @PostMapping
-    public ResponseEntity<DepartmentWebsite> createDepartmentWebsite(@RequestBody DepartmentWebsite departmentWebsite) {
-        log.info("Creating new department website: {}", departmentWebsite.getDepartmentWebsiteUrl());
+    public ResponseEntity<DepartmentWebsiteDto> createDepartmentWebsite(@RequestBody DepartmentWebsiteDto departmentWebsiteDto) {
+        log.info("Creating new department website: {}", departmentWebsiteDto.getDepartmentWebsiteUrl());
         try {
+            DepartmentWebsite departmentWebsite = departmentWebsiteMapper.toEntity(departmentWebsiteDto);
             DepartmentWebsite savedWebsite = departmentWebsiteService.save(departmentWebsite);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedWebsite);
+            return ResponseEntity.status(HttpStatus.CREATED).body(departmentWebsiteMapper.toDto(savedWebsite));
         } catch (Exception e) {
             log.error("Error creating department website: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -36,18 +40,21 @@ public class DepartmentWebsiteController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<DepartmentWebsite> getDepartmentWebsiteById(@PathVariable UUID id) {
+    public ResponseEntity<DepartmentWebsiteDto> getDepartmentWebsiteById(@PathVariable UUID id) {
         log.info("Getting department website by id: {}", id);
         Optional<DepartmentWebsite> website = departmentWebsiteService.findById(id);
-        return website.map(value -> ResponseEntity.ok().body(value))
+        return website.map(value -> ResponseEntity.ok().body(departmentWebsiteMapper.toDto(value)))
                      .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<DepartmentWebsite>> getAllDepartmentWebsites() {
+    public ResponseEntity<List<DepartmentWebsiteDto>> getAllDepartmentWebsites() {
         log.info("Getting all department websites");
         List<DepartmentWebsite> websites = departmentWebsiteService.findAll();
-        return ResponseEntity.ok(websites);
+        List<DepartmentWebsiteDto> websiteDtos = websites.stream()
+                .map(departmentWebsiteMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(websiteDtos);
     }
     
     @GetMapping("/page")

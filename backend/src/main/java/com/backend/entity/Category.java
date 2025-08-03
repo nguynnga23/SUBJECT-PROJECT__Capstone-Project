@@ -1,5 +1,6 @@
 package com.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "categories")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Category {
     @Id
     @ColumnDefault("uuid_generate_v4()")
@@ -35,8 +37,8 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "department_id")
-    private Department department;
+    @JoinColumn(name = "department_website_id")
+    private DepartmentWebsite departmentWebsite;
 
     @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")

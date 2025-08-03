@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.UserDto;
 import com.backend.entity.User;
+import com.backend.mapper.UserMapper;
 import com.backend.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,23 +24,25 @@ import java.util.UUID;
 public class UserController {
     
     private final UserService userService;
+    private final UserMapper userMapper;
     
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        log.info("Creating new user: {}", user.getUsername());
+    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto) {
+        log.info("Creating new user: {}", userDto.getUsername());
         try {
             // Check if username or email already exists
-            if (userService.existsByUsername(user.getUsername())) {
-                log.warn("Username already exists: {}", user.getUsername());
+            if (userService.existsByUsername(userDto.getUsername())) {
+                log.warn("Username already exists: {}", userDto.getUsername());
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
-            if (user.getEmail() != null && userService.existsByEmail(user.getEmail())) {
-                log.warn("Email already exists: {}", user.getEmail());
+            if (userDto.getEmail() != null && userService.existsByEmail(userDto.getEmail())) {
+                log.warn("Email already exists: {}", userDto.getEmail());
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
             
+            User user = userMapper.toEntity(userDto);
             User savedUser = userService.save(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDto(savedUser));
         } catch (Exception e) {
             log.error("Error creating user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -46,29 +50,33 @@ public class UserController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable UUID id) {
+    public ResponseEntity<UserDto> getUserById(@PathVariable UUID id) {
         log.info("Getting user by id: {}", id);
         Optional<User> user = userService.findById(id);
-        return user.map(value -> ResponseEntity.ok().body(value))
+        return user.map(value -> ResponseEntity.ok().body(userMapper.toDto(value)))
                   .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDto>> getAllUsers() {
         log.info("Getting all users");
         List<User> users = userService.findAll();
-        return ResponseEntity.ok(users);
+        List<UserDto> userDtos = users.stream()
+                .map(userMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(userDtos);
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<User>> getAllUsersPageable(Pageable pageable) {
+    public ResponseEntity<Page<UserDto>> getAllUsersPageable(Pageable pageable) {
         log.info("Getting all users with pagination: {}", pageable);
         Page<User> users = userService.findAll(pageable);
-        return ResponseEntity.ok(users);
+        Page<UserDto> userDtos = users.map(userMapper::toDto);
+        return ResponseEntity.ok(userDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable UUID id, @RequestBody User user) {
+    public ResponseEntity<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto userDto) {
         log.info("Updating user with id: {}", id);
         try {
             if (!userService.existsById(id)) {
@@ -81,24 +89,25 @@ public class UserController {
                 User existingUser = existingUserOpt.get();
                 
                 // Check username conflict (if changed)
-                if (!existingUser.getUsername().equals(user.getUsername()) && 
-                    userService.existsByUsername(user.getUsername())) {
-                    log.warn("Username already exists: {}", user.getUsername());
+                if (!existingUser.getUsername().equals(userDto.getUsername()) && 
+                    userService.existsByUsername(userDto.getUsername())) {
+                    log.warn("Username already exists: {}", userDto.getUsername());
                     return ResponseEntity.status(HttpStatus.CONFLICT).build();
                 }
                 
                 // Check email conflict (if changed)
-                if (user.getEmail() != null && 
-                    !user.getEmail().equals(existingUser.getEmail()) && 
-                    userService.existsByEmail(user.getEmail())) {
-                    log.warn("Email already exists: {}", user.getEmail());
+                if (userDto.getEmail() != null && 
+                    !userDto.getEmail().equals(existingUser.getEmail()) && 
+                    userService.existsByEmail(userDto.getEmail())) {
+                    log.warn("Email already exists: {}", userDto.getEmail());
                     return ResponseEntity.status(HttpStatus.CONFLICT).build();
                 }
             }
             
+            User user = userMapper.toEntity(userDto);
             user.setId(id);
             User updatedUser = userService.update(user);
-            return ResponseEntity.ok(updatedUser);
+            return ResponseEntity.ok(userMapper.toDto(updatedUser));
         } catch (Exception e) {
             log.error("Error updating user: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -121,33 +130,39 @@ public class UserController {
     }
     
     @GetMapping("/search/username")
-    public ResponseEntity<User> getUserByUsername(@RequestParam String username) {
+    public ResponseEntity<UserDto> getUserByUsername(@RequestParam String username) {
         log.info("Getting user by username: {}", username);
         Optional<User> user = userService.findByUsername(username);
-        return user.map(value -> ResponseEntity.ok().body(value))
+        return user.map(value -> ResponseEntity.ok().body(userMapper.toDto(value)))
                   .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search/email")
-    public ResponseEntity<User> getUserByEmail(@RequestParam String email) {
+    public ResponseEntity<UserDto> getUserByEmail(@RequestParam String email) {
         log.info("Getting user by email: {}", email);
         Optional<User> user = userService.findByEmail(email);
-        return user.map(value -> ResponseEntity.ok().body(value))
+        return user.map(value -> ResponseEntity.ok().body(userMapper.toDto(value)))
                   .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search/username-containing")
-    public ResponseEntity<List<User>> getUsersByUsernameContaining(@RequestParam String keyword) {
+    public ResponseEntity<List<UserDto>> getUsersByUsernameContaining(@RequestParam String keyword) {
         log.info("Getting users by username containing: {}", keyword);
         List<User> users = userService.findByUsernameContaining(keyword);
-        return ResponseEntity.ok(users);
+        List<UserDto> userDtos = users.stream()
+                .map(userMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(userDtos);
     }
     
     @GetMapping("/department/{departmentId}")
-    public ResponseEntity<List<User>> getUsersByDepartmentId(@PathVariable UUID departmentId) {
+    public ResponseEntity<List<UserDto>> getUsersByDepartmentId(@PathVariable UUID departmentId) {
         log.info("Getting users by department id: {}", departmentId);
         List<User> users = userService.findByDepartmentId(departmentId);
-        return ResponseEntity.ok(users);
+        List<UserDto> userDtos = users.stream()
+                .map(userMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(userDtos);
     }
     
     @GetMapping("/check/username")

@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.CrawlerConfigDto;
 import com.backend.entity.CrawlerConfig;
+import com.backend.mapper.CrawlerConfigMapper;
 import com.backend.service.CrawlerConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ import java.util.UUID;
 public class CrawlerConfigController {
     
     private final CrawlerConfigService crawlerConfigService;
+    private final CrawlerConfigMapper crawlerConfigMapper;
     
     @PostMapping
-    public ResponseEntity<CrawlerConfig> createCrawlerConfig(@RequestBody CrawlerConfig crawlerConfig) {
+    public ResponseEntity<CrawlerConfigDto> createCrawlerConfig(@RequestBody CrawlerConfigDto crawlerConfigDto) {
         log.info("Creating new crawler config");
         try {
+            CrawlerConfig crawlerConfig = crawlerConfigMapper.toEntity(crawlerConfigDto);
             CrawlerConfig savedConfig = crawlerConfigService.save(crawlerConfig);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedConfig);
+            return ResponseEntity.status(HttpStatus.CREATED).body(crawlerConfigMapper.toDto(savedConfig));
         } catch (Exception e) {
             log.error("Error creating crawler config: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

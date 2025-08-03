@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.RoleDto;
 import com.backend.entity.Role;
+import com.backend.mapper.RoleMapper;
 import com.backend.service.RoleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ import java.util.UUID;
 public class RoleController {
     
     private final RoleService roleService;
+    private final RoleMapper roleMapper;
     
     @PostMapping
-    public ResponseEntity<Role> createRole(@RequestBody Role role) {
-        log.info("Creating new role: {}", role.getName());
+    public ResponseEntity<RoleDto> createRole(@RequestBody RoleDto roleDto) {
+        log.info("Creating new role: {}", roleDto.getName());
         try {
+            Role role = roleMapper.toEntity(roleDto);
             Role savedRole = roleService.save(role);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedRole);
+            return ResponseEntity.status(HttpStatus.CREATED).body(roleMapper.toDto(savedRole));
         } catch (Exception e) {
             log.error("Error creating role: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

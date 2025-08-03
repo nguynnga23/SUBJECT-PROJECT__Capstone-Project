@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.PermissionDto;
 import com.backend.entity.Permission;
+import com.backend.mapper.PermissionMapper;
 import com.backend.service.PermissionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ import java.util.UUID;
 public class PermissionController {
     
     private final PermissionService permissionService;
+    private final PermissionMapper permissionMapper;
     
     @PostMapping
-    public ResponseEntity<Permission> createPermission(@RequestBody Permission permission) {
-        log.info("Creating new permission: {} - {}", permission.getAction(), permission.getSubject());
+    public ResponseEntity<PermissionDto> createPermission(@RequestBody PermissionDto permissionDto) {
+        log.info("Creating new permission: {} - {}", permissionDto.getAction(), permissionDto.getSubject());
         try {
+            Permission permission = permissionMapper.toEntity(permissionDto);
             Permission savedPermission = permissionService.save(permission);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedPermission);
+            return ResponseEntity.status(HttpStatus.CREATED).body(permissionMapper.toDto(savedPermission));
         } catch (Exception e) {
             log.error("Error creating permission: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

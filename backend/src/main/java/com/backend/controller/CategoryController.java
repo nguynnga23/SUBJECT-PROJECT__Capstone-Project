@@ -1,6 +1,8 @@
 package com.backend.controller;
 
+import com.backend.dto.CategoryDto;
 import com.backend.entity.Category;
+import com.backend.mapper.CategoryMapper;
 import com.backend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,13 +24,15 @@ import java.util.UUID;
 public class CategoryController {
     
     private final CategoryService categoryService;
+    private final CategoryMapper categoryMapper;
     
     @PostMapping
-    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        log.info("Creating new category: {}", category.getCategoryName());
+    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
+        log.info("Creating new category: {}", categoryDto.getCategoryName());
         try {
+            Category category = categoryMapper.toEntity(categoryDto);
             Category savedCategory = categoryService.save(category);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedCategory);
+            return ResponseEntity.status(HttpStatus.CREATED).body(categoryMapper.toDto(savedCategory));
         } catch (Exception e) {
             log.error("Error creating category: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -36,37 +40,42 @@ public class CategoryController {
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<Category> getCategoryById(@PathVariable UUID id) {
+    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable UUID id) {
         log.info("Getting category by id: {}", id);
         Optional<Category> category = categoryService.findById(id);
-        return category.map(value -> ResponseEntity.ok().body(value))
+        return category.map(value -> ResponseEntity.ok().body(categoryMapper.toDto(value)))
                       .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    public ResponseEntity<List<Category>> getAllCategories() {
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
         log.info("Getting all categories");
         List<Category> categories = categoryService.findAll();
-        return ResponseEntity.ok(categories);
+        List<CategoryDto> categoryDtos = categories.stream()
+                .map(categoryMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(categoryDtos);
     }
     
     @GetMapping("/page")
-    public ResponseEntity<Page<Category>> getAllCategoriesPageable(Pageable pageable) {
+    public ResponseEntity<Page<CategoryDto>> getAllCategoriesPageable(Pageable pageable) {
         log.info("Getting all categories with pagination: {}", pageable);
         Page<Category> categories = categoryService.findAll(pageable);
-        return ResponseEntity.ok(categories);
+        Page<CategoryDto> categoryDtos = categories.map(categoryMapper::toDto);
+        return ResponseEntity.ok(categoryDtos);
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Category> updateCategory(@PathVariable UUID id, @RequestBody Category category) {
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable UUID id, @RequestBody CategoryDto categoryDto) {
         log.info("Updating category with id: {}", id);
         try {
             if (!categoryService.existsById(id)) {
                 return ResponseEntity.notFound().build();
             }
+            Category category = categoryMapper.toEntity(categoryDto);
             category.setId(id);
             Category updatedCategory = categoryService.update(category);
-            return ResponseEntity.ok(updatedCategory);
+            return ResponseEntity.ok(categoryMapper.toDto(updatedCategory));
         } catch (Exception e) {
             log.error("Error updating category: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -89,18 +98,21 @@ public class CategoryController {
     }
     
     @GetMapping("/search/name")
-    public ResponseEntity<Category> getCategoryByName(@RequestParam String name) {
+    public ResponseEntity<CategoryDto> getCategoryByName(@RequestParam String name) {
         log.info("Getting category by name: {}", name);
         Optional<Category> category = categoryService.findByCategoryName(name);
-        return category.map(value -> ResponseEntity.ok().body(value))
+        return category.map(value -> ResponseEntity.ok().body(categoryMapper.toDto(value)))
                       .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping("/search/name-containing")
-    public ResponseEntity<List<Category>> getCategoriesByNameContaining(@RequestParam String keyword) {
+    public ResponseEntity<List<CategoryDto>> getCategoriesByNameContaining(@RequestParam String keyword) {
         log.info("Getting categories by name containing: {}", keyword);
         List<Category> categories = categoryService.findByCategoryNameContaining(keyword);
-        return ResponseEntity.ok(categories);
+        List<CategoryDto> categoryDtos = categories.stream()
+                .map(categoryMapper::toDto)
+                .toList();
+        return ResponseEntity.ok(categoryDtos);
     }
     
     @GetMapping("/count")
