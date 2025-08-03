@@ -1,1 +1,1 @@
-// Layout dùng chung như DefaultLayout, AdminLayout
+export { default } from "./DefaultLayout";
