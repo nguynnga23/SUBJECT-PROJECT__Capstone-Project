@@ -127,6 +127,14 @@ public class ArticleController {
         return ResponseEntity.ok(articleDtos);
     }
     
+    @GetMapping("/search/external-url")
+    public ResponseEntity<ArticleDto> getArticleByExternalUrl(@RequestParam String url) {
+        log.info("Getting article by external URL: {}", url);
+        Optional<Article> article = articleService.findByExternalUrl(url);
+        return article.map(value -> ResponseEntity.ok().body(articleMapper.toDto(value)))
+                     .orElse(ResponseEntity.notFound().build());
+    }
+    
     @GetMapping("/count")
     public ResponseEntity<Long> getArticleCount() {
         log.info("Getting total article count");

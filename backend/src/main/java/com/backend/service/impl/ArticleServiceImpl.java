@@ -110,4 +110,13 @@ public class ArticleServiceImpl implements ArticleService {
                        .contains(keyword.toLowerCase()))
                 .toList();
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Article> findByExternalUrl(String externalUrl) {
+        log.debug("Finding article by external URL: {}", externalUrl);
+        return articleRepository.findAll().stream()
+                .filter(article -> externalUrl.equals(article.getExternalUri()))
+                .findFirst();
+    }
 }

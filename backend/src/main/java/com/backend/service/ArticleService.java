@@ -30,4 +30,6 @@ public interface ArticleService {
     List<Article> findByTitle(String title);
     
     List<Article> findByTitleContaining(String keyword);
+    
+    Optional<Article> findByExternalUrl(String externalUrl);
 }
