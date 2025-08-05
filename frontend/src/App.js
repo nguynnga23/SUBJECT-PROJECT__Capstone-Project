@@ -1,9 +1,10 @@
+import Department from "./pages/Department";
 import DefaultLayout from "./layouts";
 
 function App() {
   return (
-    <div className="App">
-      <DefaultLayout />
+    <div className="flex justify-center">
+      <DefaultLayout children={<Department />} />
     </div>
   );
 }

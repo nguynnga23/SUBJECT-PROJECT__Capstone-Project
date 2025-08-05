@@ -1,7 +1,84 @@
+import { FaSearch, FaRegUser, FaRegBookmark } from "react-icons/fa";
+import { IoExitOutline } from "react-icons/io5";
+import HoverDropdown from "../../components/HoverDropdown.js";
+import { useState } from "react";
+import { user, departments } from "../../assets/sampleData.js";
 function Header() {
+  const user_profile = [
+    {
+      icon: <FaRegUser />,
+      name: "Profile",
+    },
+    {
+      icon: <FaRegBookmark />,
+      name: "Marked",
+    },
+    {
+      icon: <IoExitOutline />,
+      name: "Exit",
+    },
+  ];
+
+  const [department, setDepartment] = useState(departments[0] || null);
+  const [category, setCategory] = useState("Loại tin tức" || null);
+
+  const handleDepartmentSelect = (dept) => {
+    setDepartment(dept);
+    setCategory("Loại tin tức");
+  };
+
+  const handleCategorySelect = (cat) => {
+    setCategory(cat);
+  };
+
   return (
-    <div className="">
-      <h1 className="text-3xl font-bold text-blue-500">Hello Tailwind CSS!</h1>
+    <div className="w-[1200px] flex items-center justify-between py-4">
+      <div className="flex items-center gap-8">
+        <h1 className="text-red-500 font-bold text-sm cursor-pointer">
+          UNIFEED.news
+        </h1>
+        <div className="flex items-center gap-6 text-sm text-gray-700">
+          <div className="flex gap-4 ">
+            <HoverDropdown
+              label={department.name || "Không có thông tin khoa nào"}
+              items={departments}
+              onSelect={handleDepartmentSelect}
+            />
+          </div>
+          <div className="flex gap-4 ">
+            <HoverDropdown
+              label={category.name || "Loại tin tức"}
+              items={department.categories}
+              onSelect={handleCategorySelect}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="flex items-center border rounded-[10px] px-3 py-1 text-sm bg-gray-100">
+          <input
+            className="bg-transparent focus:outline-none w-[260px] h-[30px] pr-2"
+            placeholder="Tìm kiếm tin tức"
+          />
+          <FaSearch size={16} className="mr-1 text-gray-600" />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <img
+            src={user.avatar}
+            alt="avatar"
+            className="w-8 h-8 rounded-full"
+          />
+          <div className="flex gap-4 cursor-pointer">
+            <HoverDropdown label={user.name} items={user_profile} />
+          </div>
+        </div>
+
+        <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
+          <FaRegBookmark className="text-gray-500 hover:text-red-500" />
+        </div>
+      </div>
     </div>
   );
 }
