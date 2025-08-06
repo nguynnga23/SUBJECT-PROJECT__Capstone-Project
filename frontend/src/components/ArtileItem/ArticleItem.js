@@ -1,9 +1,21 @@
 import { FaRegBookmark } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 function ArticleItem({ article }) {
+  const navigate = useNavigate();
+
+  const handleClick = (articleId) => {
+    navigate(`/article/${articleId}`);
+  };
+
   return (
-    <div className="p-3 bg-white rounded shadow-sm hover:shadow-md ">
-      <div className="flex gap-2 cursor-pointer">
+    <div className="p-3 bg-white rounded shadow-md hover:shadow-lg ">
+      <div
+        className="flex gap-2 cursor-pointer"
+        onClick={() => {
+          handleClick(article.id);
+        }}
+      >
         <img
           src={article.thumbnail}
           alt={article.title}
@@ -14,11 +26,11 @@ function ArticleItem({ article }) {
             {article.title}
           </h3>
           <p className="text-xs text-gray-600 line-clamp-3 max-w-[250px]">
-            {article.description}
+            {article?.summary}
           </p>
         </div>
       </div>
-      <div className="p-3 flex justify-between items-center">
+      <div className="p-1 flex justify-between items-center">
         <p className="text-[13px]">{article.publishDate}</p>
         <FaRegBookmark className="text-gray-500 hover:text-red-500 cursor-pointer" />
       </div>

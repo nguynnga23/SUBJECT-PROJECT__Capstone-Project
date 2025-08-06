@@ -1,11 +1,24 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Department from "./pages/Department";
+import Article from "./pages/Article";
 import DefaultLayout from "./layouts";
 
 function App() {
   return (
-    <div className="flex justify-center">
-      <DefaultLayout children={<Department />} />
-    </div>
+    <Router>
+      <div className="flex justify-center">
+        <Routes>
+          <Route
+            path="/"
+            element={<DefaultLayout children={<Department />} />}
+          />
+          <Route
+            path="/article/:id"
+            element={<DefaultLayout children={<Article />} />}
+          />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

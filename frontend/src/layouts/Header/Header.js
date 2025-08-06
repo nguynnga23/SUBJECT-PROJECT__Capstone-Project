@@ -32,7 +32,7 @@ function Header() {
   };
 
   return (
-    <div className="w-[1200px] flex items-center justify-between py-4">
+    <div className="p-2 w-[1200px] flex items-center justify-between py-4">
       <div className="flex items-center gap-8">
         <h1 className="text-red-500 font-bold text-sm cursor-pointer">
           UNIFEED.news
