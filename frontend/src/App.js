@@ -13,6 +13,14 @@ function App() {
             element={<DefaultLayout children={<Department />} />}
           />
           <Route
+            path="/department/:id"
+            element={<DefaultLayout children={<Department />} />}
+          />
+          <Route
+            path="/department/:id/category/:cat_id"
+            element={<DefaultLayout children={<Department />} />}
+          />
+          <Route
             path="/article/:id"
             element={<DefaultLayout children={<Article />} />}
           />

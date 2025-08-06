@@ -10,7 +10,7 @@ function Article() {
   const foundArticle = list.find((l) => l.id.toString() === id);
 
   return foundArticle ? (
-    <div className="flex justify-between mt-3 text-[12px] h-[600px]">
+    <div className="flex justify-between mt-3 text-[12px] ">
       <div className="w-[73%]">
         <h1 className="font-bold text-[26px] p-4">{foundArticle.title}</h1>
         <div
@@ -19,7 +19,7 @@ function Article() {
         ></div>
       </div>
       <div className="w-[26%] h-[600px] p-1 ">
-        <div className="flex">
+        <div className="flex border-b">
           <div className="flex items-center justify-center p-2 bg-gray-200 rounded m-2 mr-0 text-gray-500 hover:text-red-500 cursor-pointer">
             <BsSend className="mr-2" />
             <span>Share</span>
@@ -29,7 +29,7 @@ function Article() {
             <span>Mark</span>
           </div>
         </div>
-        <div className="max-h-[650px] overflow-auto mt-2">
+        <div className="max-h-[550px] overflow-auto mt-2">
           <div className="flex items-center p-2 ">
             <span className="text-red-500 font-bold mr-2">■</span>
             <p className="font-medium">Tin tức tương tự</p>
@@ -44,7 +44,7 @@ function Article() {
       </div>
     </div>
   ) : (
-    <div className="flex justify-center">
+    <div className="flex justify-center p-5">
       <i>Xin lỗi. Chúng tôi không tìm được thông tin bài viết này!</i>
     </div>
   );

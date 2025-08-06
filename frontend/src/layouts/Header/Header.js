@@ -3,7 +3,9 @@ import { IoExitOutline } from "react-icons/io5";
 import HoverDropdown from "../../components/HoverDropdown.js";
 import { useState } from "react";
 import { user, departments } from "../../assets/sampleData.js";
+import { useNavigate } from "react-router-dom";
 function Header() {
+  const navigate = useNavigate();
   const user_profile = [
     {
       icon: <FaRegUser />,
@@ -20,21 +22,26 @@ function Header() {
   ];
 
   const [department, setDepartment] = useState(departments[0] || null);
-  const [category, setCategory] = useState("Loại tin tức" || null);
+  const [category, setCategory] = useState(null);
 
   const handleDepartmentSelect = (dept) => {
     setDepartment(dept);
-    setCategory("Loại tin tức");
+    navigate(`/department/${dept.id}`);
+    setCategory(null);
   };
 
   const handleCategorySelect = (cat) => {
     setCategory(cat);
+    navigate(`/department/${department.id}/category/${cat.id}`);
   };
 
   return (
     <div className="p-2 w-[1200px] flex items-center justify-between py-4">
       <div className="flex items-center gap-8">
-        <h1 className="text-red-500 font-bold text-sm cursor-pointer">
+        <h1
+          className="text-red-500 font-bold text-sm cursor-pointer"
+          onClick={() => navigate(`/`)}
+        >
           UNIFEED.news
         </h1>
         <div className="flex items-center gap-6 text-sm text-gray-700">
@@ -47,7 +54,7 @@ function Header() {
           </div>
           <div className="flex gap-4 ">
             <HoverDropdown
-              label={category.name || "Loại tin tức"}
+              label={category?.name || "Loại tin tức"}
               items={department.categories}
               onSelect={handleCategorySelect}
             />

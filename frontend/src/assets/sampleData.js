@@ -281,10 +281,10 @@ const departments = [
       picture6,
     ],
     categories: [
-      { name: "Tin tức sự kiện", list: list },
-      { name: "Thông báo sinh viên", list: list },
-      { name: "Thông tin tuyển dụng", list: list },
-      { name: "Thông tin tuyển sinh", list: list },
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
+      { id: 3, name: "Thông tin tuyển dụng", list: list },
+      { id: 4, name: "Thông tin tuyển sinh", list: list },
     ],
   },
   {
@@ -306,8 +306,8 @@ const departments = [
       picture6,
     ],
     categories: [
-      { name: "Tin tức sự kiện", list: list },
-      { name: "Thông báo sinh viên", list: list },
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
     ],
   },
   {
@@ -329,8 +329,8 @@ const departments = [
       picture6,
     ],
     categories: [
-      { name: "Tin tức sự kiện", list: list },
-      { name: "Thông báo sinh viên", list: list },
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
     ],
   },
   {
@@ -352,8 +352,8 @@ const departments = [
       picture6,
     ],
     categories: [
-      { name: "Tin tức sự kiện", list: list },
-      { name: "Thông báo sinh viên", list: list },
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
     ],
   },
 ];

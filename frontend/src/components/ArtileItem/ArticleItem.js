@@ -31,7 +31,7 @@ function ArticleItem({ article }) {
         </div>
       </div>
       <div className="p-1 flex justify-between items-center">
-        <p className="text-[13px]">{article.publishDate}</p>
+        <i className="text-[11px]">{article.publishDate}</i>
         <FaRegBookmark className="text-gray-500 hover:text-red-500 cursor-pointer" />
       </div>
     </div>
