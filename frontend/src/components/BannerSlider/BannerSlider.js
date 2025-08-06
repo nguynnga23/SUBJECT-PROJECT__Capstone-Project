@@ -16,19 +16,29 @@ const BannerSlider = ({ list }) => {
   };
 
   const resetInterval = () => {
+    if (totalSlides <= 1) return;
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(nextSlide, 10000);
   };
 
   useEffect(() => {
+    if (totalSlides <= 1) return;
     resetInterval();
     return () => clearInterval(intervalRef.current);
-  }, []);
+  }, [totalSlides]);
+
+  useEffect(() => {
+    if (currentSlide >= totalSlides) {
+      setCurrentSlide(0);
+    }
+  }, [totalSlides]);
 
   const handleManualNav = (direction) => {
     direction === "next" ? nextSlide() : prevSlide();
     resetInterval(); // reset timer sau khi bấm
   };
+
+  if (list.length === 0) return null;
 
   return (
     <div className="relative overflow-hidden w-full ">

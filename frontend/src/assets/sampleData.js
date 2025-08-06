@@ -6,6 +6,10 @@ import {
   picture4,
   picture5,
   picture6,
+  iuhPicture1,
+  iuhPicture2,
+  ctsvPicture1,
+  ctsvPicture2,
 } from "../assets";
 
 const user = {
@@ -267,19 +271,11 @@ const departments = [
     name: "Trang thông tin chính thức",
     info: {
       number: "0283 8940 390",
-      location:
-        "Lầu 1 Nhà H - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-      website: "fit.iuh.edu.vn",
-      email: "ketnoi.fit@iuh.edu.vn",
+      location: "12 Nguyễn Văn Bảo, Phường 4, Quận Gò Vấp",
+      website: "iuh.edu.vn",
+      email: "dhcn@iuh.edu.vn",
     },
-    bannerSliderList: [
-      picture1,
-      picture2,
-      picture3,
-      picture4,
-      picture5,
-      picture6,
-    ],
+    bannerSliderList: [iuhPicture1, iuhPicture2],
     categories: [
       { id: 1, name: "Tin tức sự kiện", list: list },
       { id: 2, name: "Thông báo sinh viên", list: list },
@@ -314,20 +310,13 @@ const departments = [
     id: 3,
     name: "Phòng đào tạo",
     info: {
-      number: "0283 8940 390",
+      number: "0283 9851 932",
       location:
-        "Lầu 1 Nhà H - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-      website: "fit.iuh.edu.vn",
-      email: "ketnoi.fit@iuh.edu.vn",
+        "Tầng trệt nhà B - 12 Nguyễn Văn Bảo, phường Hạnh Thông, Thành phố Hồ Chí Minh",
+      website: "pdt.iuh.edu.vn",
+      email: "phongdaotao@iuh.edu.vn",
     },
-    bannerSliderList: [
-      picture1,
-      picture2,
-      picture3,
-      picture4,
-      picture5,
-      picture6,
-    ],
+    bannerSliderList: [picture4, picture6],
     categories: [
       { id: 1, name: "Tin tức sự kiện", list: list },
       { id: 2, name: "Thông báo sinh viên", list: list },
@@ -339,21 +328,15 @@ const departments = [
     info: {
       number: "0283 8940 390",
       location:
-        "Lầu 1 Nhà H - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-      website: "fit.iuh.edu.vn",
-      email: "ketnoi.fit@iuh.edu.vn",
+        "Tầng trệt nhà D - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
+      website: "ctsv.iuh.edu.vn",
+      email: "đang cập nhật...",
     },
-    bannerSliderList: [
-      picture1,
-      picture2,
-      picture3,
-      picture4,
-      picture5,
-      picture6,
-    ],
+    bannerSliderList: [ctsvPicture1, ctsvPicture2],
     categories: [
       { id: 1, name: "Tin tức sự kiện", list: list },
       { id: 2, name: "Thông báo sinh viên", list: list },
+      { id: 3, name: "Hoạt động phong trào", list: list },
     ],
   },
 ];

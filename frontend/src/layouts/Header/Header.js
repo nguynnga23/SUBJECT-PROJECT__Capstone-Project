@@ -4,6 +4,8 @@ import HoverDropdown from "../../components/HoverDropdown.js";
 import { useState } from "react";
 import { user, departments } from "../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
+import ProfileForm from "../../components/Form/ProfileForm/ProfileForm.js";
+import MarkedForm from "../../components/Form/MarkedForm/MarkedForm.js";
 function Header() {
   const navigate = useNavigate();
   const user_profile = [
@@ -23,6 +25,7 @@ function Header() {
 
   const [department, setDepartment] = useState(departments[0] || null);
   const [category, setCategory] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   const handleDepartmentSelect = (dept) => {
     setDepartment(dept);
@@ -33,6 +36,14 @@ function Header() {
   const handleCategorySelect = (cat) => {
     setCategory(cat);
     navigate(`/department/${department.id}/category/${cat.id}`);
+  };
+
+  const handleUserProfileSelect = (up) => {
+    if (up?.name === "Exit") {
+      navigate("/");
+      return;
+    }
+    setUserProfile(up);
   };
 
   return (
@@ -77,8 +88,26 @@ function Header() {
             alt="avatar"
             className="w-8 h-8 rounded-full"
           />
-          <div className="flex gap-4 cursor-pointer">
-            <HoverDropdown label={user.name} items={user_profile} />
+          <div className="flex gap-4 cursor-pointer relative">
+            <HoverDropdown
+              label={user.name}
+              items={user_profile}
+              onSelect={handleUserProfileSelect}
+            />
+            {userProfile?.name === "Profile" && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                  <ProfileForm setUserProfile={setUserProfile} />
+                </div>
+              </div>
+            )}
+            {userProfile?.name === "Marked" && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+                  <MarkedForm setUserProfile={setUserProfile} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
