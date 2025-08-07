@@ -1,12 +1,14 @@
 import { FaSearch, FaRegUser, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
-import HoverDropdown from "../../components/HoverDropdown.js";
+import HoverDropdown from "../../../components/HoverDropdown.js";
 import { useState } from "react";
-import { user, departments } from "../../assets/sampleData.js";
+import { departments } from "../../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
-import ProfileForm from "../../components/Form/ProfileForm/ProfileForm.js";
-import MarkedForm from "../../components/Form/MarkedForm/MarkedForm.js";
+import ProfileForm from "../../../components/Form/ProfileForm";
+import MarkedForm from "../../../components/Form/MarkedForm";
+import { useSelector } from "react-redux";
 function Header() {
+  const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
   const user_profile = [
     {
@@ -84,13 +86,13 @@ function Header() {
 
         <div className="flex items-center gap-2">
           <img
-            src={user.avatar}
+            src={currentUser?.avatar}
             alt="avatar"
             className="w-8 h-8 rounded-full"
           />
           <div className="flex gap-4 cursor-pointer relative">
             <HoverDropdown
-              label={user.name}
+              label={currentUser?.username}
               items={user_profile}
               onSelect={handleUserProfileSelect}
             />

@@ -12,17 +12,31 @@ import {
   ctsvPicture2,
 } from "../assets";
 
-const user = {
-  name: "Huy Nguyễn",
-  avatar: "https://i.pravatar.cc/40",
-};
+const user = [
+  {
+    username: "Huy Nguyễn",
+    email: "huynguyen@gmail.com",
+    password: "123",
+    role: "USER",
+    avatar: "https://i.pravatar.cc/40",
+  },
+  {
+    username: "Nga Nguyễn",
+    email: "nganguyen@gmail.com",
+    password: "123",
+    role: "ADMIN",
+    avatar: "https://i.pravatar.cc/40",
+  },
+];
 
 const list = [
   {
     id: 1,
     title:
       "APSIPA 2025 – Diễn đàn quốc tế về Xử lý tín hiệu và Thông tin diễn ra tại IUH",
-    summary: "",
+    summary: `Trong bối cảnh công nghệ thông tin và trí tuệ nhân tạo (AI) không ngừng phát
+triển, lĩnh vực xử lý tín hiệu và thông tin đang đứng trước những chuyển biến
+sâu rộng với nhiều cơ hội và thách thức mới.`,
     content: `_Trong bối cảnh công nghệ thông tin và trí tuệ nhân tạo (AI) không ngừng phát
 triển, lĩnh vực xử lý tín hiệu và thông tin đang đứng trước những chuyển biến
 sâu rộng với nhiều cơ hội và thách thức mới. Các xu hướng công nghệ như học
@@ -140,7 +154,8 @@ thức khu vực và quốc tế.
     id: 2,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
-    summary: "abc",
+    summary:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
       "[ Tải về và Xem ](http://localhost:1337/uploads/kh_38_2025_28719968eb.pdf)",
     thumbnail: thumnailDefault,
@@ -149,7 +164,8 @@ thức khu vực và quốc tế.
   {
     id: 3,
     title: "[KTPM]: Đánh giá khóa luận tốt nghiệp HK2 2024-2025",
-    summary: "abc",
+    summary: `Sáng ngày 28/05/2025, sinh viên khoa CNTT của tất cả các chuyên ngành có buổi
+đánh giá khóa luận tốt nghiệp (KLTN), từ lúc 8g00.`,
     content: `
 Chào các bạn,
 Sáng ngày 28/05/2025, sinh viên khoa CNTT của tất cả các chuyên ngành có buổi
@@ -203,7 +219,7 @@ Một số hình ảnh buổi báo cáo KLTN và Hội thảo khoa học SV
   {
     id: 4,
     title: "TB2. Thông báo thời gian và danh sách pretest đợt tháng 7/2025",
-    summary: "abc",
+    summary: `Các bạn SV đã đăng ký Pretest đợt tháng 7/2025`,
     content: `
 Khoa CNTT thông báo: 
 Các bạn SV đã đăng ký Pretest đợt tháng 7/2025 xem
@@ -237,7 +253,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 5,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
-    summary: "abc",
+    summary:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
       "[ Tải về và Xem ](http://localhost:1337/uploads/kh_38_2025_28719968eb.pdf)",
     thumbnail: thumnailDefault,
@@ -247,7 +264,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 6,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
-    summary: "abc",
+    summary:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
       "[ Tải về và Xem ](http://localhost:1337/uploads/kh_38_2025_28719968eb.pdf)",
     thumbnail: thumnailDefault,
@@ -257,7 +275,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 7,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
-    summary: "abc",
+    summary:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
       "[ Tải về và Xem ](http://localhost:1337/uploads/kh_38_2025_28719968eb.pdf)",
     thumbnail: thumnailDefault,

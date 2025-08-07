@@ -25,7 +25,7 @@ function ArticleItem({ article }) {
           <h3 className="font-semibold text-sm text-gray-800 line-clamp-2 max-w-[250px]">
             {article.title}
           </h3>
-          <p className="text-xs text-gray-600 line-clamp-3 max-w-[250px]">
+          <p className="text-xs text-gray-600 line-clamp-2 max-w-[250px]">
             {article?.summary}
           </p>
         </div>

@@ -2,17 +2,42 @@ import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { departments } from "../../assets/sampleData";
 import { useNavigate } from "react-router-dom";
+import { user } from "../../assets/sampleData";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../store/slices/authSlice";
 
 function Login() {
+  const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
   const department_default = departments[0];
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    navigate(`/department/${department_default.id}`);
-  };
+    try {
+      const currentUser = user.find(
+        (u) => u.email === email && u.password === password
+      );
+      if (!currentUser) {
+        alert("Sai tài khoản hoặc mật khẩu.");
+        return;
+      }
 
+      dispatch(setUser({ user: currentUser }));
+
+      if (currentUser.role === "ADMIN") {
+        navigate(`/admin`);
+      } else {
+        navigate(`/department/${department_default.id}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+    }
+  };
   const handleSignup = () => {
     navigate(`/signup`);
   };
@@ -36,6 +61,8 @@ function Login() {
             type="text"
             placeholder="Username or email address"
             className="w-full border border-blue-400 rounded-lg px-4 py-2 outline-none"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
           />
         </div>
 
@@ -48,6 +75,8 @@ function Login() {
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 outline-none"
+              onChange={(e) => setPassword(e.target.value)}
+              value={password}
             />
             <span
               className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"

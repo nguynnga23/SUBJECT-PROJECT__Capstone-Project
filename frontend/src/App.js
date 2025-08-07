@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import Department from "./pages/Department";
 import Article from "./pages/Article";
-import DefaultLayout from "./layouts";
+import DefaultLayout from "./layouts/DefaultLayout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -18,6 +18,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<Navigate to="/login" />} />
           <Route path="/signup" element={<Signup />} />
+
+          <Route path="/admin" element={<DefaultLayout />} />
 
           <Route
             path="/department/:id"
