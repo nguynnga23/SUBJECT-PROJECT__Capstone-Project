@@ -34,6 +34,8 @@ const list = [
     id: 1,
     title:
       "APSIPA 2025 – Diễn đàn quốc tế về Xử lý tín hiệu và Thông tin diễn ra tại IUH",
+    external_url:
+      "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11/apsipa-2025-dien-dan-quoc-te-ve-xu-ly-tin-hieu-va-thong-tin-dien-ra-tai-iuh-a2534.html",
     summary: `Trong bối cảnh công nghệ thông tin và trí tuệ nhân tạo (AI) không ngừng phát
 triển, lĩnh vực xử lý tín hiệu và thông tin đang đứng trước những chuyển biến
 sâu rộng với nhiều cơ hội và thách thức mới.`,
@@ -154,6 +156,8 @@ thức khu vực và quốc tế.
     id: 2,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/ke-hoach-to-chuc-giai-thuong-sinh-vien-nghien-cuu-khoa-hoc-eureka-cap-truong-nam-2025-a2506.html",
     summary:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
@@ -164,6 +168,8 @@ thức khu vực và quốc tế.
   {
     id: 3,
     title: "[KTPM]: Đánh giá khóa luận tốt nghiệp HK2 2024-2025",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@102@3417@%5BKTPM%5D-Danh-gia-khoa-luan-tot-nghiep-HK2-2024-2025",
     summary: `Sáng ngày 28/05/2025, sinh viên khoa CNTT của tất cả các chuyên ngành có buổi
 đánh giá khóa luận tốt nghiệp (KLTN), từ lúc 8g00.`,
     content: `
@@ -219,6 +225,8 @@ Một số hình ảnh buổi báo cáo KLTN và Hội thảo khoa học SV
   {
     id: 4,
     title: "TB2. Thông báo thời gian và danh sách pretest đợt tháng 7/2025",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3432@TB2.-Thong-bao-thoi-gian-va-danh-sach-pretest-dot-thang-7-2025",
     summary: `Các bạn SV đã đăng ký Pretest đợt tháng 7/2025`,
     content: `
 Khoa CNTT thông báo: 
@@ -253,6 +261,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 5,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/ke-hoach-to-chuc-giai-thuong-sinh-vien-nghien-cuu-khoa-hoc-eureka-cap-truong-nam-2025-a2506.html",
     summary:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
@@ -264,6 +274,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 6,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/ke-hoach-to-chuc-giai-thuong-sinh-vien-nghien-cuu-khoa-hoc-eureka-cap-truong-nam-2025-a2506.html",
     summary:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
@@ -275,6 +287,8 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     id: 7,
     title:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/ke-hoach-to-chuc-giai-thuong-sinh-vien-nghien-cuu-khoa-hoc-eureka-cap-truong-nam-2025-a2506.html",
     summary:
       "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
     content:
@@ -287,6 +301,16 @@ CNTT: **FIT_IUH@iuh.edu.vn**
 const departments = [
   {
     id: 1,
+    name: "Trang tổng hợp tin tức",
+    categories: [
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
+      { id: 3, name: "Thông tin tuyển dụng", list: list },
+      { id: 4, name: "Thông tin tuyển sinh", list: list },
+    ],
+  },
+  {
+    id: 2,
     name: "Trang thông tin chính thức",
     info: {
       number: "0283 8940 390",
@@ -303,7 +327,7 @@ const departments = [
     ],
   },
   {
-    id: 2,
+    id: 3,
     name: "Khoa Công Nghệ Thông Tin",
     info: {
       number: "0283 8940 390",
@@ -326,7 +350,7 @@ const departments = [
     ],
   },
   {
-    id: 3,
+    id: 4,
     name: "Phòng đào tạo",
     info: {
       number: "0283 9851 932",
@@ -342,7 +366,7 @@ const departments = [
     ],
   },
   {
-    id: 4,
+    id: 5,
     name: "Phòng công tác sinh viên",
     info: {
       number: "0283 8940 390",

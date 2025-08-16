@@ -11,18 +11,18 @@ function Department() {
     (dept) => dept.id.toString() === departmentId
   );
 
-  const foundCategory = foundDepartment.categories.find(
+  const foundCategory = foundDepartment?.categories.find(
     (cat) => cat.id.toString() === cat_id
   );
 
   return foundDepartment ? (
     <div>
-      <div className="flex items-center h-[300px]">
-        <BannerSlider list={foundDepartment.bannerSliderList} />
-      </div>
-      <div>
-        <ContactInfo info={foundDepartment.info} />
-      </div>
+      {foundDepartment?.bannerSliderList && (
+        <div className="flex items-center h-[300px]">
+          <BannerSlider list={foundDepartment.bannerSliderList} />
+        </div>
+      )}
+
       <div className="bg-gray-50">
         {!foundCategory ? (
           foundDepartment?.categories?.map((category, idx) => (
@@ -41,6 +41,11 @@ function Department() {
           </div>
         )}
       </div>
+      {foundDepartment?.info && (
+        <div>
+          <ContactInfo info={foundDepartment.info} />
+        </div>
+      )}
     </div>
   ) : (
     <div className="flex justify-center p-5">

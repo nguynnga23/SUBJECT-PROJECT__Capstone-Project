@@ -34,6 +34,14 @@ function ArticleItem({ article }) {
         <i className="text-[11px]">{article.publishDate}</i>
         <FaRegBookmark className="text-gray-500 hover:text-red-500 cursor-pointer" />
       </div>
+      <i>
+        <a
+          href={article?.external_url}
+          className="text-[12px] text-blue-500 hover:border-b"
+        >
+          Link đến bài viết gốc
+        </a>
+      </i>
     </div>
   );
 }

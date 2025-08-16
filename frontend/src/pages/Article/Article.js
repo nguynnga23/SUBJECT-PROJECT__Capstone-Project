@@ -13,6 +13,17 @@ function Article() {
     <div className="flex justify-between mt-3 text-[12px] ">
       <div className="w-[73%]">
         <h1 className="font-bold text-[26px] p-4">{foundArticle.title}</h1>
+        <div className="pl-4 pr-4 pb-4 flex justify-between items-center">
+          <i className="text-[13px]">{foundArticle.publishDate}</i>
+          <i>
+            <a
+              href={foundArticle?.external_url}
+              className="text-[13px] text-blue-500 hover:border-b"
+            >
+              Link đến bài viết gốc
+            </a>
+          </i>
+        </div>
         <div
           dangerouslySetInnerHTML={{ __html: marked(foundArticle.content) }}
           className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 "

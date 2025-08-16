@@ -3,7 +3,7 @@ import { MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
 
 const BannerSlider = ({ list }) => {
   const ITEMS_PER_SLIDE = 2;
-  const totalSlides = Math.ceil(list.length / ITEMS_PER_SLIDE);
+  const totalSlides = Math.ceil(list?.length / ITEMS_PER_SLIDE);
   const [currentSlide, setCurrentSlide] = useState(0);
   const intervalRef = useRef(null);
 

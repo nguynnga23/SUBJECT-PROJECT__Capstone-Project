@@ -29,7 +29,7 @@ function Login() {
       dispatch(setUser({ user: currentUser }));
 
       if (currentUser.role === "ADMIN") {
-        navigate(`/admin`);
+        navigate(`/admin/dashboard`);
       } else {
         navigate(`/department/${department_default.id}`);
       }
