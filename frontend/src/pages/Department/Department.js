@@ -17,11 +17,11 @@ function Department() {
 
   return foundDepartment ? (
     <div>
-      {foundDepartment?.bannerSliderList && (
+      {/* {foundDepartment?.bannerSliderList && (
         <div className="flex items-center h-[300px]">
           <BannerSlider list={foundDepartment.bannerSliderList} />
         </div>
-      )}
+      )} */}
 
       <div className="bg-gray-50">
         {!foundCategory ? (

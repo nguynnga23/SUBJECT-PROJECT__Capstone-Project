@@ -1,6 +1,6 @@
 import { FaSearch, FaRegUser } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
-import HoverDropdown from "../../../components/HoverDropdown.js";
+import HoverDropdown from "../../../components/HoverDropdown";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
@@ -31,7 +31,7 @@ function Header() {
 
   return (
     <div className="w-full">
-      <div className="p-2 wfull flex items-center justify-between py-4">
+      <div className="p-2 w-full flex items-center justify-between py-4">
         <div className="flex items-center gap-8">
           <h1
             className="text-red-500 font-bold text-sm cursor-pointer"

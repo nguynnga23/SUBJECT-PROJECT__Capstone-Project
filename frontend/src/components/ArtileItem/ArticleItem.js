@@ -9,9 +9,9 @@ function ArticleItem({ article }) {
   };
 
   return (
-    <div className="p-3 bg-white rounded shadow-md hover:shadow-lg ">
+    <div className=" p-3 bg-white rounded shadow-md hover:shadow-lg ">
       <div
-        className="flex gap-2 cursor-pointer"
+        className=" flex gap-2 cursor-pointer"
         onClick={() => {
           handleClick(article.id);
         }}
@@ -19,7 +19,7 @@ function ArticleItem({ article }) {
         <img
           src={article.thumbnail}
           alt={article.title}
-          className="w-20 h-20 object-contain rounded"
+          className="w-20 h-20 object-contain rounded truncate"
         />
         <div className="flex flex-col justify-between">
           <h3 className="font-semibold text-sm text-gray-800 line-clamp-2 max-w-[250px]">

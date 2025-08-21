@@ -1,6 +1,6 @@
 import { FaSearch, FaRegUser, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
-import HoverDropdown from "../../../components/HoverDropdown.js";
+import HoverDropdown from "../../../components/HoverDropdown";
 import { useState } from "react";
 import { departments } from "../../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
