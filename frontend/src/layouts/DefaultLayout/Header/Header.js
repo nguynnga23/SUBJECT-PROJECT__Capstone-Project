@@ -1,4 +1,4 @@
-import { FaSearch, FaRegUser, FaRegBookmark } from "react-icons/fa";
+import { FaSearch, FaRegUser, FaRegBell, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
 import HoverDropdown from "../../../components/HoverDropdown";
 import { useState } from "react";
@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
 import MarkedForm from "../../../components/Form/MarkedForm";
 import { useSelector } from "react-redux";
+import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword.js";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -27,7 +28,8 @@ function Header() {
 
   const [department, setDepartment] = useState(departments[0] || null);
   const [category, setCategory] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
+  const [userProfile, setUserProfile] = useState(false);
+  const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
 
   const handleDepartmentSelect = (dept) => {
     setDepartment(dept);
@@ -96,17 +98,33 @@ function Header() {
               items={user_profile}
               onSelect={handleUserProfileSelect}
             />
-            {userProfile?.name === "Profile" && (
+            {userProfile?.name === "Marked" ? (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
-                  <ProfileForm setUserProfile={setUserProfile} />
+                <div className="opacity-0 animate-fadeIn">
+                  <MarkedForm setUserProfile={setUserProfile} />
                 </div>
               </div>
+            ) : (
+              (userProfile?.name === "Profile" || userProfile) && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                  <div className="opacity-0 animate-fadeIn">
+                    <ProfileForm
+                      setUserProfile={setUserProfile}
+                      setShowUpdatePasswordForm={setShowUpdatePasswordForm}
+                      currentUser={currentUser}
+                    />
+                  </div>
+                </div>
+              )
             )}
-            {userProfile?.name === "Marked" && (
+
+            {showUpdatePasswordForm && (
               <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
-                  <MarkedForm setUserProfile={setUserProfile} />
+                <div className="opacity-0 animate-fadeIn">
+                  <UpdatePassword
+                    setShowUpdatePasswordForm={setShowUpdatePasswordForm}
+                    setUserProfile={setUserProfile}
+                  />
                 </div>
               </div>
             )}
@@ -114,7 +132,7 @@ function Header() {
         </div>
 
         <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
-          <FaRegBookmark className="text-gray-500 hover:text-red-500" />
+          <FaRegBell className="text-gray-500 hover:text-red-500" />
         </div>
       </div>
     </div>

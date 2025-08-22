@@ -1,4 +1,3 @@
-import BannerSlider from "../../components/BannerSlider";
 import ContactInfo from "../../components/ContactInfo";
 import CategoryList from "../../components/CategoryList";
 import { useParams } from "react-router-dom";

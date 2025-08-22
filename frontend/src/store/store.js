@@ -3,6 +3,7 @@ import storage from "redux-persist/lib/storage";
 import { persistStore, persistReducer } from "redux-persist";
 import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
+import articleReducer from "./slices/articleSlice";
 
 const persistConfig = {
   key: "root", // key 'root' để đảm bảo redux-persist lưu toàn bộ store
@@ -12,6 +13,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  article: articleReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

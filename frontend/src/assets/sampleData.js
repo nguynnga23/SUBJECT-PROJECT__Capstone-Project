@@ -19,6 +19,10 @@ const user = [
     password: "123",
     role: "USER",
     avatar: "https://i.pravatar.cc/40",
+    number: "0384784472",
+    department: "Khoa Công Nghệ Thông Tin",
+    studentId: "21128101",
+    classRoom: "DHKTPM17B",
   },
   {
     username: "Nga Nguyễn",
@@ -26,6 +30,10 @@ const user = [
     password: "123",
     role: "ADMIN",
     avatar: "https://i.pravatar.cc/40",
+    number: "0384784472",
+    department: "Khoa Công Nghệ Thông Tin",
+    studentId: "21128101",
+    classRoom: "DHKTPM17C",
   },
 ];
 
