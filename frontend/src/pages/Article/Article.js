@@ -67,7 +67,7 @@ function Article() {
           className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0"
         ></div>
       </div>
-      <div className="sticky top-[75px] w-[26%] h-[600px] p-1 ">
+      <div className="sticky top-[85px] w-[26%] h-[500px] border-b p-1 ">
         <div className="flex border-b">
           <div className="flex items-center justify-center p-2 bg-gray-200 rounded m-2 mr-0 text-gray-500 hover:text-red-500 cursor-pointer">
             <BsSend className="mr-2" />

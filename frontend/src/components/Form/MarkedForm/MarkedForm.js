@@ -2,8 +2,10 @@ import { useSelector } from "react-redux";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
 import { RiDraggable } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 function MarkedForm({ setUserProfile }) {
+  const navigate = useNavigate();
   const markedListId = useSelector((state) => state.article.listMarked);
   const articles = useSelector((state) => state.article.allArticles);
 
@@ -26,6 +28,11 @@ function MarkedForm({ setUserProfile }) {
     reordered.splice(result.destination.index, 0, removed);
 
     setList(reordered);
+  };
+
+  const handleClickArticle = (articleId) => {
+    navigate(`/article/${articleId}`);
+    setUserProfile(false);
   };
 
   return (
@@ -66,13 +73,14 @@ function MarkedForm({ setUserProfile }) {
                             ? "bg-blue-50 shadow-lg"
                             : "hover:bg-gray-50"
                         }`}
+                        onClick={() => handleClickArticle(article.id)}
                       >
                         <div className="flex items-center">
                           <span className="cursor-grab pr-2">
                             <RiDraggable size={20} />
                           </span>
                           <div>
-                            <h3 className="text-[12px] font-medium truncate max-w-[400px]">
+                            <h3 className="text-[12px] font-medium truncate max-w-[430px]">
                               {article.title}
                             </h3>
                             <i className="text-[10px] text-gray-500">

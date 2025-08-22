@@ -8,6 +8,7 @@ import ProfileForm from "../../../components/Form/ProfileForm";
 import MarkedForm from "../../../components/Form/MarkedForm";
 import { useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword.js";
+import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ function Header() {
   const [category, setCategory] = useState(null);
   const [userProfile, setUserProfile] = useState(false);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
+  const [showNotifyForm, setShowNotifyForm] = useState(false);
 
   const handleDepartmentSelect = (dept) => {
     setDepartment(dept);
@@ -132,7 +134,17 @@ function Header() {
         </div>
 
         <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
-          <FaRegBell className="text-gray-500 hover:text-red-500" />
+          <FaRegBell
+            className={`${
+              showNotifyForm ? "text-red-500" : "text-gray-500"
+            } hover:text-red-500`}
+            onClick={() => setShowNotifyForm(!showNotifyForm)}
+          />
+          {showNotifyForm && (
+            <div className="absolute top-[35px] right-0 animate-slideUp">
+              <NotifyForm setShowNotifyForm={setShowNotifyForm} />
+            </div>
+          )}
         </div>
       </div>
     </div>

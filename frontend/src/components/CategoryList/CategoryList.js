@@ -22,10 +22,9 @@ const CategoryList = ({ categoryName, list }) => {
 
   return (
     <div className="p-2 overflow-hidden w-full">
-      <div className="flex justify-between items-center m-2">
+      <div className="flex justify-between items-center p-3">
         <h2 className="text-base font-semibold text-gray-800">
-          <span className="text-red-500 font-bold pl-4 mr-2">■</span>{" "}
-          {categoryName}
+          <span className="text-red-500 font-bold">■</span> {categoryName}
         </h2>
         <div className="flex text-gray-500">
           <button
@@ -85,6 +84,24 @@ const CategoryList = ({ categoryName, list }) => {
           </i>
         )}
       </div>
+      {/* Pagination số */}
+      {totalPages > 1 && (
+        <div className="flex justify-end m-3 mb-0 space-x-1">
+          {Array.from({ length: totalPages }).map((_, pageIdx) => (
+            <button
+              key={pageIdx}
+              onClick={() => setCurrentPage(pageIdx)}
+              className={` flex items-center justicy-center text-[9px] p-2 w-[20px] h-[20px] rounded-full ${
+                currentPage === pageIdx
+                  ? "bg-blue-400 text-white"
+                  : "bg-gray-200 hover:bg-gray-300"
+              }`}
+            >
+              {pageIdx + 1}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

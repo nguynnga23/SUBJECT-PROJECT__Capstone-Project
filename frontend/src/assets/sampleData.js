@@ -304,6 +304,19 @@ CNTT: **FIT_IUH@iuh.edu.vn**
     thumbnail: thumnailDefault,
     publishDate: "06/17/2025",
   },
+  {
+    id: 8,
+    title:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/ke-hoach-to-chuc-giai-thuong-sinh-vien-nghien-cuu-khoa-hoc-eureka-cap-truong-nam-2025-a2506.html",
+    summary:
+      "Kế hoạch tổ chức Giải thưởng sinh viên nghiên cứu khoa học Euréka cấp Trường năm 2025",
+    content:
+      "[ Tải về và Xem ](http://localhost:1337/uploads/kh_38_2025_28719968eb.pdf)",
+    thumbnail: thumnailDefault,
+    publishDate: "06/17/2025",
+  },
 ];
 
 const departments = [
