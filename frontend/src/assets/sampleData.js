@@ -405,4 +405,51 @@ const departments = [
   },
 ];
 
-export { departments, user, list };
+const mockDepartments = [
+  {
+    id: 1,
+    name: "Trang thông tin chính thức",
+    code: "iuh",
+    number: "0283 8940 390",
+    leader: "",
+    email: "",
+    website: "iuh.edu.vn",
+    location: "",
+    categories: [
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
+      { id: 3, name: "Thông tin tuyển dụng", list: list },
+      { id: 4, name: "Thông tin tuyển sinh", list: list },
+    ],
+  },
+  {
+    id: 2,
+    name: "Khoa Công nghệ thông tin",
+    code: "fit",
+    number: "0283 8940 390",
+    leader: "Nguyễn Thị Nga",
+    email: "fit@iuh.edu.vn",
+    website: "fit.iuh.edu.vn",
+    location: "Nhà E, 12 Nguyễn Văn Bảo, Gò Vấp, Tp. HCM",
+    categories: [
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
+    ],
+  },
+  {
+    id: 3,
+    name: "Phòng công tác sinh viên",
+    code: "ctsv",
+    number: "0283 8940 390",
+    leader: "Nguyễn Thị Nga",
+    email: "ctsv@iuh.edu.vn",
+    website: "ctsv.iuh.edu.vn",
+    location: "Nhà D, 12 Nguyễn Văn Bảo, Gò Vấp, Tp. HCM",
+    categories: [
+      { id: 1, name: "Tin tức sự kiện", list: list },
+      { id: 2, name: "Thông báo sinh viên", list: list },
+    ],
+  },
+];
+
+export { departments, user, list, mockDepartments };

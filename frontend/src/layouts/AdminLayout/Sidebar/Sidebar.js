@@ -10,7 +10,11 @@ import {
 
 const menuItems = [
   { label: "Dashboard", icon: <FaTachometerAlt />, path: "/admin/dashboard" },
-  { label: "Quản lý Khoa", icon: <FaBuilding />, path: "/admin/department" },
+  {
+    label: "Quản lý Khoa/Viện",
+    icon: <FaBuilding />,
+    path: "/admin/department",
+  },
   { label: "Bài Viết", icon: <FaNewspaper />, path: "/admin/article" },
   { label: "Người Dùng", icon: <FaUsers />, path: "/admin/user" },
   { label: "Thống kê", icon: <FaChartBar />, path: "/admin/statistic" },

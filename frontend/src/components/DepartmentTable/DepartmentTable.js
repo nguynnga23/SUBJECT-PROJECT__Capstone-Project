@@ -1,221 +1,180 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
+import { IoIosArrowDown } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
+import { mockDepartments } from "../../assets/sampleData";
 
-const mockDepartments = [
-  {
-    id: 1,
-    name: "Trang thông tin chính thức",
-    code: "iuh",
-    number: "0283 8940 390",
-    leader: "Nguyễn Thị Nga",
-    email: "đang cập nhật...",
-    website: "ctsv.iuh.edu.vn",
-    location:
-      "Tầng trệt nhà D - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-  },
-  {
-    id: 2,
-    name: "Khoa Công nghệ thông tin",
-    code: "fit",
-    number: "0283 8940 390",
-    leader: "Nguyễn Thị Nga",
-    email: "đang cập nhật...",
-    website: "ctsv.iuh.edu.vn",
-    location:
-      "Tầng trệt nhà D - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-  },
-  {
-    id: 3,
-    name: "Phòng công tác sinh viên",
-    code: "ctsv",
-    number: "0283 8940 390",
-    leader: "Nguyễn Thị Nga",
-    email: "đang cập nhật...",
-    website: "ctsv.iuh.edu.vn",
-    location:
-      "Tầng trệt nhà D - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-  },
-  {
-    id: 3,
-    name: "Phòng đào tạo",
-    code: "pdt",
-    number: "0283 8940 390",
-    leader: "Nguyễn Thị Nga",
-    email: "đang cập nhật...",
-    website: "ctsv.iuh.edu.vn",
-    location:
-      "Tầng trệt nhà D - 12 Nguyễn Văn Bảo, Phường 1, Quận Gò Vấp, Tp. HCM",
-  },
+const allColumns = [
+  { key: "name", label: "Tên Khoa" },
+  { key: "code", label: "Mã Khoa" },
+  { key: "leader", label: "Trưởng khoa" },
+  { key: "website", label: "Website" },
+  { key: "email", label: "Email" },
+  { key: "number", label: "Số điện thoại" },
+  { key: "location", label: "Văn phòng" },
 ];
 
 const DepartmentTable = () => {
-  const [departments, setDepartments] = useState(mockDepartments);
+  const [departments] = useState(mockDepartments);
+  const navigate = useNavigate();
+  const [visibleCols, setVisibleCols] = useState(allColumns.map((c) => c.key));
+
   const [showModal, setShowModal] = useState(false);
-  const [newDept, setNewDept] = useState({ name: "", code: "" });
 
-  const handleAdd = () => {
-    setDepartments([
-      ...departments,
-      { ...newDept, id: departments.length + 1 },
-    ]);
-    setShowModal(false);
-    setNewDept({ name: "", code: "" });
+  // filter
+  const [filterField, setFilterField] = useState("name");
+  const [filterValue, setFilterValue] = useState("");
+
+  // sort
+  const [sortField, setSortField] = useState("");
+  const [sortDir, setSortDir] = useState("asc");
+
+  // dropdown toggle
+  const [openCols, setOpenCols] = useState(false);
+
+  // lọc
+  let filtered = departments.filter((d) =>
+    String(d[filterField]).toLowerCase().includes(filterValue.toLowerCase())
+  );
+
+  // sắp xếp
+  if (sortField) {
+    filtered = [...filtered].sort((a, b) => {
+      let valA = a[sortField] || "";
+      let valB = b[sortField] || "";
+      if (valA < valB) return sortDir === "asc" ? -1 : 1;
+      if (valA > valB) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const toggleColumn = (key) => {
+    setVisibleCols((prev) =>
+      prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
+    );
   };
 
-  const tableRef = useRef(null);
-
-  const initResize = (e, colIndex) => {
-    const startX = e.clientX;
-    const table = tableRef.current;
-    const th = table.querySelectorAll("th")[colIndex];
-    const startWidth = th.offsetWidth;
-
-    const onMouseMove = (e) => {
-      const newWidth = startWidth + (e.clientX - startX);
-      th.style.width = `${newWidth}px`;
-
-      // Resize all corresponding <td> in that column
-      table.querySelectorAll("tr").forEach((row) => {
-        const cell = row.children[colIndex];
-        if (cell) cell.style.width = `${newWidth}px`;
-      });
-    };
-
-    const onMouseUp = () => {
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-
-    document.addEventListener("mousemove", onMouseMove);
-    document.addEventListener("mouseup", onMouseUp);
+  const handleShowDepartmentDetail = (departmentId) => {
+    navigate(`${departmentId}`);
   };
+
   return (
-    <div className="p-1 w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Danh sách Khoa</h2>
+    <div className="p-3">
+      <div className="flex w-full pb-2 justify-between  text-sm">
+        <div className="flex gap-2 mb-3 items-center p-2 border rounded">
+          <select
+            value={filterField}
+            onChange={(e) => setFilterField(e.target.value)}
+            className="focus:outline-none cursor-pointer"
+          >
+            {allColumns.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <input
+            type="text"
+            placeholder="Nhập giá trị tìm kiếm ..."
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            className="border-l px-2  focus:outline-none w-[300px]"
+          />
+        </div>
+
+        <div className="flex gap-2 mb-3 items-center border rounded p-2">
+          <select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value)}
+            className=" focus:outline-none cursor-pointer "
+          >
+            <option value="">-- Chọn cột sắp xếp --</option>
+            {allColumns.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortDir}
+            onChange={(e) => setSortDir(e.target.value)}
+            className="border-l px-2 focus:outline-none cursor-pointer"
+          >
+            <option value="asc">Tăng dần</option>
+            <option value="desc">Giảm dần</option>
+          </select>
+        </div>
+
+        <div className="relative inline-block mb-3">
+          <div
+            onClick={() => setOpenCols(!openCols)}
+            className="border rounded p-2 bg-white  relative w-[160px] cursor-pointer"
+          >
+            Chọn cột hiển thị{" "}
+            <IoIosArrowDown className="absolute right-[5px] top-3" />
+          </div>
+          {openCols && (
+            <div className="absolute mt-1 border bg-white rounded shadow p-2 z-10 w-[180px] max-h-60 overflow-y-auto">
+              {allColumns.map((c) => (
+                <label
+                  key={c.key}
+                  className="flex items-center gap-2 text-sm py-2"
+                >
+                  <input
+                    type="checkbox"
+                    checked={visibleCols.includes(c.key)}
+                    onChange={() => toggleColumn(c.key)}
+                  />
+                  {c.label}
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-[12px] px-2 py-2 rounded"
+          className="bg-blue-400 hover:bg-blue-700 text-white text-[12px] h-[35px] p-2 rounded"
         >
-          Thêm Khoa
+          Thêm mới
         </button>
       </div>
 
-      <table ref={tableRef} className=" border text-[14px] table-auto">
+      {/* Table */}
+      <table className="border w-full text-sm table-auto">
         <thead>
           <tr className="bg-gray-100">
             <th className="border p-2 w-[50px]">STT</th>
-            <th className="border p-2 relative group ">
-              Tên Khoa
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 1)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Mã Khoa{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 2)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Trưởng khoa{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 3)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Website{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 4)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Email{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 5)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Số điện thoại{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 6)}
-              ></div>
-            </th>
-            <th className="border p-2 relative group">
-              Văn phòng{" "}
-              <div
-                className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-transparent group-hover:bg-blue-300"
-                onMouseDown={(e) => initResize(e, 7)}
-              ></div>
-            </th>
+            {allColumns
+              .filter((c) => visibleCols.includes(c.key))
+              .map((col) => (
+                <th key={col.key} className="border p-2">
+                  {col.label}
+                </th>
+              ))}
           </tr>
         </thead>
         <tbody>
-          {departments.map((dept, index) => (
-            <tr key={dept.id}>
+          {filtered.map((dept, index) => (
+            <tr key={dept.id} className="hover:bg-blue-50 cursor-pointer">
               <td className="border p-2">{index + 1}</td>
-              <td className="border p-2 truncate max-w-[300px]">{dept.name}</td>
-              <td className="border p-2 truncate min-w-[100px]">{dept.code}</td>
-              <td className="border p-2 truncate min-w-[150px]">
-                {dept.leader}
-              </td>
-              <td className="border p-2 truncate min-w-[100px]">
-                {dept.website}
-              </td>
-              <td className="border p-2 truncate min-w-[100px]">
-                {dept.email}
-              </td>
-              <td className="border p-2 truncate min-w-[100px]">
-                {dept.number}
-              </td>
-              <td className="border p-2 truncate max-w-[300px]">
-                {dept.location}
-              </td>
+              {allColumns
+                .filter((c) => visibleCols.includes(c.key))
+                .map((col) => (
+                  <td
+                    key={col.key}
+                    className={`border p-2 ${
+                      dept[col.key].length !== 0 ? "" : "italic"
+                    }`}
+                    onClick={() => handleShowDepartmentDetail(dept.id)}
+                  >
+                    {dept[col.key].length !== 0
+                      ? dept[col.key]
+                      : "Đang cập nhật ..."}
+                  </td>
+                ))}
             </tr>
           ))}
         </tbody>
       </table>
-
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="bg-white p-6 rounded w-96">
-            <h3 className="text-lg font-semibold mb-4">Thêm Khoa Mới</h3>
-            <input
-              type="text"
-              placeholder="Tên khoa"
-              value={newDept.name}
-              onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
-              className="w-full border px-3 py-2 mb-3 rounded"
-            />
-            <input
-              type="text"
-              placeholder="Mã khoa"
-              value={newDept.code}
-              onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
-              className="w-full border px-3 py-2 mb-3 rounded"
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 bg-gray-300 rounded"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleAdd}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Lưu
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
