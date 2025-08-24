@@ -1,0 +1,28 @@
+name: Epic
+description: Track a set of related features/tasks
+labels: [Epic]
+body:
+  - type: input
+    id: goal
+    attributes:
+      label: Goal
+      description: What outcome does this Epic achieve?
+      placeholder: e.g., Realtime sync from Strapi to AppDB
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      description: Clear, testable outcomes
+      value: |
+        - Realtime webhook (<3s) + Pull fallback (≤10m)
+        - Idempotent upsert (strapi_id, updated_at_src, hash)
+        - FE list/detail p95 < 500ms
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope (Tasklist)
+      description: Link or create child issues
+      value: |
+        - [ ] #123
+        - [ ] #124
+        - [ ] #125
