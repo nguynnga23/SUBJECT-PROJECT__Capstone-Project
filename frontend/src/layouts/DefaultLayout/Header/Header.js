@@ -9,6 +9,7 @@ import MarkedForm from "../../../components/Form/MarkedForm";
 import { useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword.js";
 import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
+import { logo } from "../../../assets/index.js";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -55,12 +56,12 @@ function Header() {
   return (
     <div className="p-2 w-[1200px] flex items-center justify-between py-4">
       <div className="flex items-center gap-8">
-        <h1
-          className="text-red-500 font-bold text-sm cursor-pointer"
+        <img
+          className="h-[50px] cursor-pointer"
           onClick={() => navigate(`/`)}
-        >
-          UNIFEED.news
-        </h1>
+          src={logo}
+        />
+
         <div className="flex items-center gap-6 text-sm text-gray-700">
           <div className="flex gap-4 ">
             <HoverDropdown

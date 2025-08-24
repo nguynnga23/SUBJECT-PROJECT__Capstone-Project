@@ -70,27 +70,15 @@ function AnimatedRoutes() {
 
         <Route
           path="/department/:id"
-          element={
-            <PageWrapper>
-              <DefaultLayout children={<Department />} />
-            </PageWrapper>
-          }
+          element={<DefaultLayout children={<Department />} />}
         />
         <Route
           path="/department/:id/category/:cat_id"
-          element={
-            <PageWrapper>
-              <DefaultLayout children={<Department />} />
-            </PageWrapper>
-          }
+          element={<DefaultLayout children={<Department />} />}
         />
         <Route
           path="/article/:id"
-          element={
-            <PageWrapper>
-              <DefaultLayout children={<Article />} />
-            </PageWrapper>
-          }
+          element={<DefaultLayout children={<Article />} />}
         />
       </Routes>
     </AnimatePresence>

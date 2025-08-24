@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
 import { useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword";
+import { logo } from "../../../assets";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
@@ -36,12 +37,11 @@ function Header() {
     <div className="w-full">
       <div className="p-2 w-full flex items-center justify-between py-4">
         <div className="flex items-center gap-8">
-          <h1
-            className="text-red-500 font-bold text-sm cursor-pointer"
+          <img
+            className="h-[50px] cursor-pointer"
             onClick={() => navigate(`/`)}
-          >
-            UNIFEED.news
-          </h1>
+            src={logo}
+          />
         </div>
 
         <div className="flex items-center gap-4">

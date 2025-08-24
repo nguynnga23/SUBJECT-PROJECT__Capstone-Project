@@ -5,7 +5,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 function App() {
   return (
     <Router>
-      <div className="flex w-full page-container">
+      <div className="flex w-full">
         <AnimatedRoutes />
       </div>
     </Router>

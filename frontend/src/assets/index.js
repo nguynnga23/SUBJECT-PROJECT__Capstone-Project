@@ -1,4 +1,5 @@
 // Hình ảnh, font, icon, ...
+import logo from "./logo_iuh_png.jpg";
 import picture1 from "./fit/picture1.jpg";
 import picture2 from "./fit/picture2.jpg";
 import picture3 from "./fit/picture3.jpg";
@@ -15,6 +16,7 @@ import ctsvPicture2 from "./ctsv/ctsvPicture2.png";
 import thumnailDefault from "./thumbail_default.png";
 
 export {
+  logo,
   picture1,
   picture2,
   picture3,

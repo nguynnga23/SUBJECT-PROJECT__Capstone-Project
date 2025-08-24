@@ -19,7 +19,7 @@ function Article() {
   };
 
   return foundArticle ? (
-    <div className=" flex justify-between mt-3 text-[12px] ">
+    <div className="h-full flex justify-between mt-3 text-[12px] ">
       <div className="w-[73%]">
         <h2 className="w-[100%] items-center flex truncate text-[14px] p-4 pb-0 h-[45px]">
           <a
