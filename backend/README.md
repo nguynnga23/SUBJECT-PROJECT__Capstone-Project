@@ -37,13 +37,12 @@ This project integrates Swagger UI for easy API documentation and testing.
 
 After starting the application, access Swagger UI at:
 
-```
-http://localhost:8080/swagger-ui.html
-```
+`http://localhost:8080/swagger-ui.html`
+
 or
-```
-http://localhost:8080/swagger-ui/
-```
+
+`http://localhost:8080/swagger-ui/`
+
 
 You can view all available endpoints and interactively test the APIs directly from the browser.
 
