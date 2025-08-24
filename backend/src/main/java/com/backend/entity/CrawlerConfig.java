@@ -1,11 +1,11 @@
 package com.backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.*;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,8 +16,9 @@ import java.util.UUID;
 @Table(name = "crawler_configs")
 public class CrawlerConfig {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
-    @Column(name = "id", nullable = false)
+    @UuidGenerator
+    @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID id;
 
     @Column(name = "relative_url_list", length = Integer.MAX_VALUE)

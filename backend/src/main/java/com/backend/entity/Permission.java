@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
@@ -20,8 +21,9 @@ import java.util.UUID;
 @Table(name = "permissions")
 public class Permission {
     @Id
-    @ColumnDefault("uuid_generate_v4()")
-    @Column(name = "id", nullable = false)
+    @UuidGenerator
+    @JdbcTypeCode(SqlTypes.UUID)
+    @Column(name = "id", nullable = false, updatable = false, columnDefinition = "uuid")
     private UUID id;
 
     @Column(name = "action", length = 50)
