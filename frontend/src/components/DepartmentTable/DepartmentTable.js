@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { mockDepartments } from "../../assets/sampleData";
+import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
+import { useSelector } from "react-redux";
 
 const allColumns = [
-  { key: "name", label: "Tên Khoa" },
+  { key: "name", label: "Tên Khoa/Viện" },
   { key: "code", label: "Mã Khoa" },
   { key: "leader", label: "Trưởng khoa" },
   { key: "website", label: "Website" },
@@ -14,7 +15,7 @@ const allColumns = [
 ];
 
 const DepartmentTable = () => {
-  const [departments] = useState(mockDepartments);
+  const departments = useSelector((state) => state.department.listDepartment);
   const navigate = useNavigate();
   const [visibleCols, setVisibleCols] = useState(allColumns.map((c) => c.key));
 
@@ -130,12 +131,21 @@ const DepartmentTable = () => {
             </div>
           )}
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-blue-400 hover:bg-blue-700 text-white text-[12px] h-[35px] p-2 rounded"
-        >
-          Thêm mới
-        </button>
+        <div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-blue-400 hover:bg-blue-700 text-white text-[12px] h-[35px] p-2 rounded"
+          >
+            Thêm mới
+          </button>
+          {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div className="opacity-0 animate-fadeIn">
+                <AdditionalDepartmentForm setShowModal={setShowModal} />
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Table */}

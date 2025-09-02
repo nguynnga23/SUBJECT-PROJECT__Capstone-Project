@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { mockDepartments } from "../../assets/sampleData";
+import { useDispatch, useSelector } from "react-redux";
+import { updateDepartment } from "../../store/slices/departmentSlice";
 
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const department = mockDepartments.find((a) => a.id.toString() === id);
+  const dispatch = useDispatch();
+  const departments = useSelector((state) => state.department.listDepartment);
+  const department = departments.find((a) => a.id.toString() === id);
 
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(department || {});
@@ -18,9 +20,13 @@ function DepartmentDetail() {
   };
 
   const handleSave = () => {
-    console.log("Dữ liệu cập nhật:", formData);
+    dispatch(
+      updateDepartment({
+        id: department.id,
+        data: formData,
+      })
+    );
     setEditMode(false);
-    // TODO: Gọi API lưu dữ liệu ở đây
   };
 
   if (!department) {
@@ -166,7 +172,7 @@ function DepartmentDetail() {
               <ul className="space-y-2 relative">
                 {(formData.categories || []).map((c) => (
                   <li
-                    key={c.key}
+                    key={c.id}
                     className="border rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
                   >
                     {c.name}
