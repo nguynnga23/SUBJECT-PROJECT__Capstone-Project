@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDepartment } from "../../store/slices/departmentSlice";
+import { toast } from "react-toastify";
 
 function DepartmentDetail() {
   const { id } = useParams();
@@ -14,18 +15,28 @@ function DepartmentDetail() {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(department || {});
 
+  const isValid =
+    formData.website.trim() !== "" &&
+    formData.code.trim() !== "" &&
+    formData.name.trim() !== "";
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
   const handleSave = () => {
-    dispatch(
-      updateDepartment({
-        id: department.id,
-        data: formData,
-      })
-    );
+    try {
+      dispatch(
+        updateDepartment({
+          id: department.id,
+          data: formData,
+        })
+      );
+      toast.success(`Đã cập nhật thành công!`);
+    } catch (error) {
+      toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
+    }
     setEditMode(false);
   };
 
@@ -55,9 +66,27 @@ function DepartmentDetail() {
           <div className="p-6 grid grid-cols-3 gap-6">
             {/* ====== Cột 1 + 2: Thông tin chi tiết ====== */}
             <div className="col-span-2 grid grid-cols-2 gap-6">
+              {/* Website */}
+              <div>
+                <label className="block text-blue-700 font-bold mb-1">
+                  Website <span className="text-red-500">(*)</span>
+                </label>
+                <input
+                  type="text"
+                  name="website"
+                  value={formData.website || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
               {/* Tên khoa */}
               <div>
-                <label className="block text-blue-700 mb-1">Tên Khoa</label>
+                <label className="block text-blue-700 font-bold mb-1">
+                  Tên Khoa <span className="text-red-500">(*)</span>
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -72,7 +101,9 @@ function DepartmentDetail() {
 
               {/* Mã khoa */}
               <div>
-                <label className="block text-blue-700 mb-1">Mã Khoa</label>
+                <label className="block text-blue-700 font-bold mb-1">
+                  Mã Khoa <span className="text-red-500">(*)</span>
+                </label>
                 <input
                   type="text"
                   name="code"
@@ -87,7 +118,9 @@ function DepartmentDetail() {
 
               {/* Trưởng khoa */}
               <div>
-                <label className="block text-blue-700 mb-1">Trưởng khoa</label>
+                <label className="block text-blue-700 font-bold mb-1">
+                  Trưởng khoa
+                </label>
                 <input
                   type="text"
                   name="leader"
@@ -100,24 +133,11 @@ function DepartmentDetail() {
                 />
               </div>
 
-              {/* Website */}
-              <div>
-                <label className="block text-blue-700 mb-1">Website</label>
-                <input
-                  type="text"
-                  name="website"
-                  value={formData.website || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-
               {/* Email */}
               <div>
-                <label className="block text-blue-700 mb-1">Email</label>
+                <label className="block text-blue-700 font-bold mb-1">
+                  Email
+                </label>
                 <input
                   type="text"
                   name="email"
@@ -132,7 +152,7 @@ function DepartmentDetail() {
 
               {/* Số điện thoại */}
               <div>
-                <label className="block text-blue-700 mb-1">
+                <label className="block text-blue-700 font-bold mb-1">
                   Số điện thoại
                 </label>
                 <input
@@ -149,7 +169,9 @@ function DepartmentDetail() {
 
               {/* Văn phòng */}
               <div className="col-span-2">
-                <label className="block text-blue-700 mb-1">Văn phòng</label>
+                <label className="block text-blue-700 font-bold font-bold mb-1">
+                  Văn phòng
+                </label>
                 <input
                   type="text"
                   name="location"
@@ -165,19 +187,30 @@ function DepartmentDetail() {
 
             {/* ====== Cột 3: Danh sách loại tin tức ====== */}
             <div className="col-span-1">
-              <label className="block text-blue-700 mb-1">
+              <label className="block text-blue-700 font-bold mb-1">
                 Các loại thông tin bài viết
               </label>
 
               <ul className="space-y-2 relative">
-                {(formData.categories || []).map((c) => (
-                  <li
-                    key={c.id}
-                    className="border rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                  >
-                    {c.name}
-                  </li>
-                ))}
+                {formData.categories?.length > 0 ? (
+                  (formData.categories || []).map((c) => (
+                    <li
+                      key={c.id}
+                      className="border rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          `/admin/department/${department.id}/category/${c.id}`
+                        )
+                      }
+                    >
+                      {c.name}
+                    </li>
+                  ))
+                ) : (
+                  <i className="text-[12px] text-center">
+                    Chưa có loại tin tức nào
+                  </i>
+                )}
                 {editMode && (
                   <button
                     className="absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800"
@@ -206,13 +239,16 @@ function DepartmentDetail() {
                     setFormData(department); // reset
                     setEditMode(false);
                   }}
-                  className="px-4 py-2 bg-gray-300 rounded"
+                  className="px-8 py-2 bg-gray-300 rounded"
                 >
                   Hủy
                 </button>
                 <button
+                  className={`px-8 py-2 text-white rounded ${
+                    isValid ? "bg-green-600" : "bg-gray-300"
+                  }`}
                   onClick={handleSave}
-                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  disabled={!isValid}
                 >
                   Lưu
                 </button>

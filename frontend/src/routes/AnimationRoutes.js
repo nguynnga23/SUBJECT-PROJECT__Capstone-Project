@@ -14,6 +14,7 @@ import Statistic from "../pages/Statistic/Statistic";
 import Setting from "../pages/Setting/Setting";
 import Dashboard from "../pages/Dashboard";
 import DepartmentDetail from "../pages/DepartmentDetail";
+import CategoryDetail from "../pages/CategoryDetail";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -38,7 +39,6 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
-
         <Route
           path="/admin/dashboard"
           element={<AdminLayout children={<Dashboard />} />}
@@ -50,6 +50,10 @@ function AnimatedRoutes() {
         <Route
           path="/admin/department/:id"
           element={<AdminLayout children={<DepartmentDetail />} />}
+        />
+        <Route
+          path="/admin/department/:id/category/:cat_id"
+          element={<AdminLayout children={<CategoryDetail />} />}
         />
         <Route
           path="/admin/article"

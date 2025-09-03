@@ -7,8 +7,8 @@ import { useSelector } from "react-redux";
 const allColumns = [
   { key: "name", label: "Tên Khoa/Viện" },
   { key: "code", label: "Mã Khoa" },
-  { key: "leader", label: "Trưởng khoa" },
   { key: "website", label: "Website" },
+  { key: "leader", label: "Trưởng khoa" },
   { key: "email", label: "Email" },
   { key: "number", label: "Số điện thoại" },
   { key: "location", label: "Văn phòng" },
@@ -172,11 +172,11 @@ const DepartmentTable = () => {
                   <td
                     key={col.key}
                     className={`border p-2 ${
-                      dept[col.key].length !== 0 ? "" : "italic"
+                      dept[col.key]?.length !== 0 ? "" : "italic"
                     }`}
                     onClick={() => handleShowDepartmentDetail(dept.id)}
                   >
-                    {dept[col.key].length !== 0
+                    {dept[col.key]?.length !== 0
                       ? dept[col.key]
                       : "Đang cập nhật ..."}
                   </td>
