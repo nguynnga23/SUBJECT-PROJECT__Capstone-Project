@@ -14,22 +14,19 @@
     "department_name": {
       "type": "string"
     },
-    "categories": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::category.category",
-      "mappedBy": "department"
-    },
     "key_department": {
       "type": "string"
     },
-    "department_url": {
-      "type": "string"
-    },
-    "crawler_config": {
+    "department_sources": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::crawler-config.crawler-config",
+      "relation": "oneToMany",
+      "target": "api::department-source.department-source",
+      "mappedBy": "department"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "plugin::users-permissions.user",
       "mappedBy": "department"
     }
   }

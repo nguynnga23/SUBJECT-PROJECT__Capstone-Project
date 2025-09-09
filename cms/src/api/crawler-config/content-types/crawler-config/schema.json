@@ -35,11 +35,11 @@
     "external_publish_date": {
       "type": "string"
     },
-    "department": {
+    "department_source": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "api::department.department",
-      "inversedBy": "crawler_config"
+      "target": "api::department-source.department-source",
+      "mappedBy": "crawler_config"
     }
   }
 }

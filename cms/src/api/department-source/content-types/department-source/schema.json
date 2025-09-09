@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "department_sources",
+  "info": {
+    "singularName": "department-source",
+    "pluralName": "department-sources",
+    "displayName": "DepartmentSource"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "url": {
+      "type": "string"
+    },
+    "categories": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::category.category",
+      "mappedBy": "department_source"
+    },
+    "crawler_config": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::crawler-config.crawler-config",
+      "inversedBy": "department_source"
+    },
+    "label": {
+      "type": "string"
+    },
+    "department": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::department.department",
+      "inversedBy": "department_sources"
+    }
+  }
+}
