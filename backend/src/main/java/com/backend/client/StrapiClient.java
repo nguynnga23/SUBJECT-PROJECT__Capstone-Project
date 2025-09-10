@@ -20,7 +20,7 @@ public class StrapiClient {
     private final String serviceToken; // API Token (tuỳ chọn, dùng cho tác vụ kỹ thuật)
 
     public StrapiClient(@Value("${strapi.base}") String base,
-                        @Value("${strapi.token:}") String serviceToken) {
+            @Value("${strapi.token:}") String serviceToken) {
 
         String apiBase = base.endsWith("/") ? base + "api" : base + "/api";
 
@@ -32,16 +32,16 @@ public class StrapiClient {
                 .baseUrl(apiBase)
                 .requestFactory(factory)
                 .build();
-
         this.serviceToken = (serviceToken == null ? "" : serviceToken);
     }
 
     /* ===== Low-level helpers ===== */
 
     private RestClient.RequestHeadersSpec<?> withAuth(RestClient.RequestHeadersSpec<?> spec,
-                                                      @Nullable String bearerOverride) {
+            @Nullable String bearerOverride) {
         String bearer = (bearerOverride != null && !bearerOverride.isBlank())
-                ? bearerOverride : (serviceToken.isBlank() ? null : serviceToken);
+                ? bearerOverride
+                : (serviceToken.isBlank() ? null : serviceToken);
         if (bearer != null) {
             spec = spec.headers(h -> h.setBearerAuth(bearer));
         }
@@ -51,44 +51,71 @@ public class StrapiClient {
     /* ===== Generic GET/POST ===== */
 
     public <T> T get(String path,
-                     ParameterizedTypeReference<T> typeRef,
-                     @Nullable MultiValueMap<String,String> params,
-                     @Nullable String bearerOverride) {
-        return withAuth(
-                rc.get().uri((UriBuilder b) -> {
-                    b.path(path);
-                    if (params != null) b.queryParams(params);
-                    return b.build();
-                }).accept(MediaType.APPLICATION_JSON),
-                bearerOverride
-        ).retrieve().body(typeRef);
+            ParameterizedTypeReference<T> typeRef,
+            @Nullable MultiValueMap<String, String> params,
+            @Nullable String bearerOverride) {
+        try {
+            return withAuth(
+                    rc.get().uri(b -> {
+                        b.path(path);
+                        if (params != null)
+                            b.queryParams(params);
+                        return b.build();
+                    }).accept(MediaType.APPLICATION_JSON),
+                    bearerOverride).retrieve().body(typeRef);
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            // In ra message Strapi trả về để biết field nào sai
+            String body = e.getResponseBodyAsString();
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.valueOf(e.getRawStatusCode()),
+                    "Strapi 4xx: " + body, e);
+        }
+    }
+
+    public <T> T delete(String path, @Nullable String bearerOverride) {
+        return withAuth(rc.delete().uri(path), bearerOverride)
+                .retrieve().body(new ParameterizedTypeReference<T>() {
+                });
+    }
+
+    public <B, T> T putJson(String path, B body,
+            ParameterizedTypeReference<T> typeRef,
+            @Nullable String bearerOverride) {
+        return withAuth(rc.put().uri(path).contentType(MediaType.APPLICATION_JSON).body(body), bearerOverride)
+                .retrieve().body(typeRef);
+    }
+
+    public <B, T> T patchJson(String path, B body,
+            ParameterizedTypeReference<T> typeRef,
+            @Nullable String bearerOverride) {
+        return withAuth(rc.patch().uri(path).contentType(MediaType.APPLICATION_JSON).body(body), bearerOverride)
+                .retrieve().body(typeRef);
     }
 
     public String getRaw(String path,
-                         @Nullable MultiValueMap<String,String> params,
-                         @Nullable String bearerOverride) {
+            @Nullable MultiValueMap<String, String> params,
+            @Nullable String bearerOverride) {
         return withAuth(
                 rc.get().uri(b -> {
                     b.path(path);
-                    if (params != null) b.queryParams(params);
+                    if (params != null)
+                        b.queryParams(params);
                     return b.build();
                 }),
-                bearerOverride
-        ).retrieve().body(String.class);
+                bearerOverride).retrieve().body(String.class);
     }
 
     public <B, T> T postJson(String path, B body,
-                             ParameterizedTypeReference<T> typeRef,
-                             @Nullable String bearerOverride) {
+            ParameterizedTypeReference<T> typeRef,
+            @Nullable String bearerOverride) {
         return withAuth(
                 rc.post().uri(path).contentType(MediaType.APPLICATION_JSON).body(body),
-                bearerOverride
-        ).retrieve().body(typeRef);
+                bearerOverride).retrieve().body(typeRef);
     }
 
     /* ===== Auth endpoints (KHÔNG gắn Bearer) ===== */
 
-    // POST /auth/local/register  { username, email, password, ... }
+    // POST /auth/local/register { username, email, password, ... }
     public <B, T> T register(B body, ParameterizedTypeReference<T> typeRef) {
         return rc.post().uri("/auth/local/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +123,7 @@ public class StrapiClient {
                 .retrieve().body(typeRef);
     }
 
-    // POST /auth/local  { identifier, password }
+    // POST /auth/local { identifier, password }
     public <B, T> T login(B body, ParameterizedTypeReference<T> typeRef) {
         return rc.post().uri("/auth/local")
                 .contentType(MediaType.APPLICATION_JSON)

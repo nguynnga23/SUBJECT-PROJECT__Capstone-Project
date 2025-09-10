@@ -8,15 +8,16 @@ import java.time.ZoneOffset;
 public class StrapiMapper {
 
     public static ArticleVM toVM(ArticleFlat a) {
-        if (a == null) return null;
+        if (a == null)
+            return null;
 
         String catName = null, keyCat = null, depName = null, keyDep = null;
         if (a.category() != null) {
             catName = a.category().category_name();
-            keyCat  = a.category().key_category();
+            keyCat = a.category().key_category();
             if (a.category().department() != null) {
                 depName = a.category().department().department_name();
-                keyDep  = a.category().department().key_department();
+                keyDep = a.category().department().key_department();
             }
         }
 
@@ -27,12 +28,12 @@ public class StrapiMapper {
         return new ArticleVM(
                 a.id(),
                 a.title(),
+                a.content(),
                 a.summary(),
                 a.thumbnail(),
                 a.external_url(),
                 a.external_slug(),
                 published,
-                catName, keyCat, depName, keyDep
-        );
+                catName, keyCat, depName, keyDep);
     }
 }
