@@ -1,47 +1,106 @@
 package com.backend.client;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.*;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriBuilder;
 
-import java.net.URI;
+import java.time.Duration;
 
 @Component
 public class StrapiClient {
 
-    @Value("${strapi.base}") String base;   // vd: http://localhost:1337
-    @Value("${strapi.token}") String token;
+    private final RestClient rc;
+    private final String serviceToken; // API Token (tuỳ chọn, dùng cho tác vụ kỹ thuật)
 
-    private final RestClient rc = RestClient.create();
+    public StrapiClient(@Value("${strapi.base}") String base,
+                        @Value("${strapi.token:}") String serviceToken) {
 
-    // StrapiClient.java
+        String apiBase = base.endsWith("/") ? base + "api" : base + "/api";
+
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout((int) Duration.ofSeconds(5).toMillis());
+        factory.setReadTimeout((int) Duration.ofSeconds(15).toMillis());
+
+        this.rc = RestClient.builder()
+                .baseUrl(apiBase)
+                .requestFactory(factory)
+                .build();
+
+        this.serviceToken = (serviceToken == null ? "" : serviceToken);
+    }
+
+    /* ===== Low-level helpers ===== */
+
+    private RestClient.RequestHeadersSpec<?> withAuth(RestClient.RequestHeadersSpec<?> spec,
+                                                      @Nullable String bearerOverride) {
+        String bearer = (bearerOverride != null && !bearerOverride.isBlank())
+                ? bearerOverride : (serviceToken.isBlank() ? null : serviceToken);
+        if (bearer != null) {
+            spec = spec.headers(h -> h.setBearerAuth(bearer));
+        }
+        return spec;
+    }
+
+    /* ===== Generic GET/POST ===== */
+
     public <T> T get(String path,
-                     org.springframework.core.ParameterizedTypeReference<T> typeRef,
-                     MultiValueMap<String,String> params) {
-
-        String url = UriComponentsBuilder.fromHttpUrl(base)
-                .path(path)
-                .queryParams(params)
-                .encode()
-                .build()
-                .toUriString();
-
-        return rc.get()
-                .uri(URI.create(url))
-                .accept(MediaType.APPLICATION_JSON)
-                .headers(h -> h.setBearerAuth(token))
-                .retrieve()
-                .body(typeRef);
+                     ParameterizedTypeReference<T> typeRef,
+                     @Nullable MultiValueMap<String,String> params,
+                     @Nullable String bearerOverride) {
+        return withAuth(
+                rc.get().uri((UriBuilder b) -> {
+                    b.path(path);
+                    if (params != null) b.queryParams(params);
+                    return b.build();
+                }).accept(MediaType.APPLICATION_JSON),
+                bearerOverride
+        ).retrieve().body(typeRef);
     }
 
-    public String getRaw(String path, MultiValueMap<String,String> params){
-        String url = UriComponentsBuilder.fromHttpUrl(base).path(path).queryParams(params).encode().build().toUriString();
-        return rc.get().uri(URI.create(url))
-                .headers(h -> h.setBearerAuth(token)).retrieve().body(String.class);
+    public String getRaw(String path,
+                         @Nullable MultiValueMap<String,String> params,
+                         @Nullable String bearerOverride) {
+        return withAuth(
+                rc.get().uri(b -> {
+                    b.path(path);
+                    if (params != null) b.queryParams(params);
+                    return b.build();
+                }),
+                bearerOverride
+        ).retrieve().body(String.class);
     }
 
+    public <B, T> T postJson(String path, B body,
+                             ParameterizedTypeReference<T> typeRef,
+                             @Nullable String bearerOverride) {
+        return withAuth(
+                rc.post().uri(path).contentType(MediaType.APPLICATION_JSON).body(body),
+                bearerOverride
+        ).retrieve().body(typeRef);
+    }
 
+    /* ===== Auth endpoints (KHÔNG gắn Bearer) ===== */
+
+    // POST /auth/local/register  { username, email, password, ... }
+    public <B, T> T register(B body, ParameterizedTypeReference<T> typeRef) {
+        return rc.post().uri("/auth/local/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve().body(typeRef);
+    }
+
+    // POST /auth/local  { identifier, password }
+    public <B, T> T login(B body, ParameterizedTypeReference<T> typeRef) {
+        return rc.post().uri("/auth/local")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body)
+                .retrieve().body(typeRef);
+    }
 }
