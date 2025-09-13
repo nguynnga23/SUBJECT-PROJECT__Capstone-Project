@@ -53,7 +53,6 @@ public class DepartmentController {
     @GetMapping("/{id}")
     public DepartmentVM one(@PathVariable String id) {
         var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate", "department_source");
         var resp = strapiClient.get(
                 "/departments/" + id,
                 new ParameterizedTypeReference<StrapiSingle<DepartmentFlat>>() {
