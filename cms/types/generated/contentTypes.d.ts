@@ -614,7 +614,6 @@ export interface ApiEmailTemplateEmailTemplate
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     html_body: Schema.Attribute.RichText;
-    key: Schema.Attribute.UID;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
