@@ -64,7 +64,6 @@ public class StrapiClient {
                     }).accept(MediaType.APPLICATION_JSON),
                     bearerOverride).retrieve().body(typeRef);
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            // In ra message Strapi trả về để biết field nào sai
             String body = e.getResponseBodyAsString();
             throw new org.springframework.web.server.ResponseStatusException(
                     org.springframework.http.HttpStatus.valueOf(e.getRawStatusCode()),

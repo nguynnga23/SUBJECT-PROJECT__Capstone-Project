@@ -5,7 +5,6 @@ import com.backend.strapi.mapper.StrapiMapper;
 import com.backend.strapi.model.ArticleFlat;
 import com.backend.strapi.model.StrapiPageFlat;
 import com.backend.strapi.vm.ArticleVM;
-import com.backend.strapi.vm.PageVM;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,9 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -91,10 +88,8 @@ public class ArticleController {
     @GetMapping
     public List<ArticleVM> list() {
         var p = new org.springframework.util.LinkedMultiValueMap<String, String>();
-        // populate quan hệ (nếu ArticleVM cần category/department)
         p.add("populate", "category");
 
-        // sort an toàn (nếu Article bật Draft & Publish thì dùng publishedAt, không thì dùng createdAt)
         p.add("sort[0]", "external_publish_date:desc");
         p.add("sort[1]", "createdAt:desc");
 

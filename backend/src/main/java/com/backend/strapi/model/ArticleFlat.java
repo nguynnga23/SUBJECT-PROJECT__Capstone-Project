@@ -3,6 +3,7 @@ package com.backend.strapi.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ArticleFlat(
@@ -18,5 +19,6 @@ public record ArticleFlat(
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
         OffsetDateTime publishedAt,
-        CategoryFlat category
+        CategoryFlat category,
+        List<BookMarkFlat> bookmarks
 ) {}

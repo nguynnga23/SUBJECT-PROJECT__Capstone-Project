@@ -1,6 +1,5 @@
 package com.backend.strapi.model;
 
-import java.time.Instant;
 import java.time.LocalDate;
 
 public record CrawlerConfigFlat(
