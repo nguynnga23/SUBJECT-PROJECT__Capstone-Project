@@ -6,9 +6,8 @@ import com.backend.entity.Department;
 import com.backend.mapper.DepartmentMapper;
 import com.backend.service.DepartmentService;
 import com.backend.strapi.mapper.StrapiMapper;
-import com.backend.strapi.model.ArticleFlat;
-import com.backend.strapi.model.DepartmentFlat;
-import com.backend.strapi.model.StrapiPageFlat;
+import com.backend.strapi.model.*;
+import com.backend.strapi.vm.CrawlerConfigVM;
 import com.backend.strapi.vm.DepartmentVM;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,5 +48,21 @@ public class DepartmentController {
                 .map(StrapiMapper::toVM)
                 .filter(java.util.Objects::nonNull)
                 .toList();
+    }
+
+    @GetMapping("/{id}")
+    public DepartmentVM one(@PathVariable String id) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "department_source");
+        var resp = strapiClient.get(
+                "/departments/" + id,
+                new ParameterizedTypeReference<StrapiSingle<DepartmentFlat>>() {
+                },
+                p,
+                null
+        );
+
+        StrapiMapper strapiMapper = new StrapiMapper();
+        return strapiMapper.toVM(resp.data());
     }
 }

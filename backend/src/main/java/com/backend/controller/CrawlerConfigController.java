@@ -6,9 +6,8 @@ import com.backend.entity.CrawlerConfig;
 import com.backend.mapper.CrawlerConfigMapper;
 import com.backend.service.CrawlerConfigService;
 import com.backend.strapi.mapper.StrapiMapper;
-import com.backend.strapi.model.CrawlerConfigFlat;
-import com.backend.strapi.model.DepartmentFlat;
-import com.backend.strapi.model.StrapiPageFlat;
+import com.backend.strapi.model.*;
+import com.backend.strapi.vm.CategoryVM;
 import com.backend.strapi.vm.CrawlerConfigVM;
 import com.backend.strapi.vm.DepartmentVM;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +50,22 @@ public class CrawlerConfigController {
                 .map(StrapiMapper::toVM)
                 .filter(java.util.Objects::nonNull)
                 .toList();
+    }
+
+    @GetMapping("/{id}")
+    public CrawlerConfigVM one(@PathVariable String id) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "department_source");
+        var resp = strapiClient.get(
+                "/crawler-configs/" + id,
+                new ParameterizedTypeReference<StrapiSingle<CrawlerConfigFlat>>() {
+                },
+                p,
+                null
+        );
+
+
+        StrapiMapper strapiMapper = new StrapiMapper();
+        return strapiMapper.toVM(resp.data());
     }
 }

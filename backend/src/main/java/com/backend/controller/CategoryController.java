@@ -2,8 +2,11 @@ package com.backend.controller;
 
 import com.backend.client.StrapiClient;
 import com.backend.strapi.mapper.StrapiMapper;
+import com.backend.strapi.model.ArticleFlat;
 import com.backend.strapi.model.CategoryFlat;
 import com.backend.strapi.model.StrapiPageFlat;
+import com.backend.strapi.model.StrapiSingle;
+import com.backend.strapi.vm.ArticleVM;
 import com.backend.strapi.vm.CategoryVM;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +47,22 @@ public class CategoryController {
                 .filter(Objects::nonNull)
                 .toList();
 
+    }
+
+    @GetMapping("/{id}")
+    public CategoryVM one(@PathVariable String id) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "department_source");
+        var resp = strapiClient.get(
+                "/categories/" + id,
+                new ParameterizedTypeReference<StrapiSingle<CategoryFlat>>() {
+                },
+                p,
+                null
+        );
+
+
+        StrapiMapper strapiMapper = new StrapiMapper();
+        return strapiMapper.toVM(resp.data());
     }
 }

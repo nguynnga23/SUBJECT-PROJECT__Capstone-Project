@@ -2,8 +2,7 @@ package com.backend.controller;
 
 import com.backend.client.StrapiClient;
 import com.backend.strapi.mapper.StrapiMapper;
-import com.backend.strapi.model.ArticleFlat;
-import com.backend.strapi.model.StrapiPageFlat;
+import com.backend.strapi.model.*;
 import com.backend.strapi.vm.ArticleVM;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.util.LinkedMultiValueMap;
@@ -108,38 +107,19 @@ public class ArticleController {
     }
 
     @GetMapping("/{id}")
-    // @Cacheable(cacheNames = "articles:one", key = "#id")
-    public ArticleVM one(@PathVariable long id) {
-        MultiValueMap<String, String> p = new LinkedMultiValueMap<>();
+    public ArticleVM one(@PathVariable String id) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "category");
+        var resp = client.get(
+                "/articles/" + id,
+                new ParameterizedTypeReference<StrapiSingle<ArticleFlat>>() {
+                },
+                p,
+                null
+        );
 
-        p.add("pagination[page]", "1");
-        p.add("pagination[pageSize]", "1");
 
-//        p.add("populate[category][populate]", "department");
-
-        p.add("filters[id][$eq]", String.valueOf(id));
-
-        try {
-            StrapiPageFlat<ArticleFlat> raw = client.get(
-                    "/articles",
-                    new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
-                    p, null
-            );
-
-            var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
-            if (data.isEmpty()) {
-                throw new ResponseStatusException(NOT_FOUND, "Article not found: id=" + id);
-            }
-
-            var vm = StrapiMapper.toVM(data.get(0));
-            if (vm == null) {
-                throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Failed to map article: id=" + id);
-            }
-            return vm;
-        } catch (ResponseStatusException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Upstream failure", ex);
-        }
+        StrapiMapper strapiMapper = new StrapiMapper();
+        return strapiMapper.toVM(resp.data());
     }
 }

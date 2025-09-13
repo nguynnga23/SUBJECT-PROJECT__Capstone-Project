@@ -3,13 +3,15 @@ package com.backend.controller;
 import com.backend.client.StrapiClient;
 import com.backend.dto.request.LoginReq;
 import com.backend.dto.request.RegisterReq;
+import com.backend.strapi.mapper.StrapiMapper;
+import com.backend.strapi.model.DepartmentFlat;
+import com.backend.strapi.model.StrapiSingle;
+import com.backend.strapi.vm.DepartmentVM;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.time.Duration;
@@ -24,7 +26,6 @@ public class AuthController {
     public AuthController(StrapiClient strapiClient) {
         this.strapiClient = strapiClient;
     }
-
     @PostMapping("/v1/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginReq req) {
         Map<String, Object> body = Map.of(
