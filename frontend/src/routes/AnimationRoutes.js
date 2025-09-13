@@ -15,6 +15,7 @@ import Setting from "../pages/Setting/Setting";
 import Dashboard from "../pages/Dashboard";
 import DepartmentDetail from "../pages/DepartmentDetail";
 import CategoryDetail from "../pages/CategoryDetail";
+import CrawlerConfig from "../pages/CrawlerConfig";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -54,6 +55,10 @@ function AnimatedRoutes() {
         <Route
           path="/admin/department/:id/category/:cat_id"
           element={<AdminLayout children={<CategoryDetail />} />}
+        />
+        <Route
+          path="/admin/department/:id/crawler_config"
+          element={<AdminLayout children={<CrawlerConfig />} />}
         />
         <Route
           path="/admin/article"

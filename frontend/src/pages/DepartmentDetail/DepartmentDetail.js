@@ -4,6 +4,7 @@ import { MdChevronRight, MdAddCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
+import AdditionalCategoryForm from "../../components/Form/AdditionalCategoryForm";
 
 function DepartmentDetail() {
   const { id } = useParams();
@@ -15,10 +16,12 @@ function DepartmentDetail() {
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(department || {});
 
+  const [showFormCategory, setShowFormCategory] = useState(false);
+
   const isValid =
-    formData.website.trim() !== "" &&
-    formData.code.trim() !== "" &&
-    formData.name.trim() !== "";
+    formData.website?.trim() !== "" &&
+    formData.code?.trim() !== "" &&
+    formData.name?.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -68,7 +71,7 @@ function DepartmentDetail() {
             <div className="col-span-2 grid grid-cols-2 gap-6">
               {/* Website */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Website <span className="text-red-500">(*)</span>
                 </label>
                 <input
@@ -84,7 +87,7 @@ function DepartmentDetail() {
               </div>
               {/* Tên khoa */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Tên Khoa <span className="text-red-500">(*)</span>
                 </label>
                 <input
@@ -101,7 +104,7 @@ function DepartmentDetail() {
 
               {/* Mã khoa */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Mã Khoa <span className="text-red-500">(*)</span>
                 </label>
                 <input
@@ -118,7 +121,7 @@ function DepartmentDetail() {
 
               {/* Trưởng khoa */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Trưởng khoa
                 </label>
                 <input
@@ -135,7 +138,7 @@ function DepartmentDetail() {
 
               {/* Email */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Email
                 </label>
                 <input
@@ -152,7 +155,7 @@ function DepartmentDetail() {
 
               {/* Số điện thoại */}
               <div>
-                <label className="block text-blue-700 font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Số điện thoại
                 </label>
                 <input
@@ -169,7 +172,7 @@ function DepartmentDetail() {
 
               {/* Văn phòng */}
               <div className="col-span-2">
-                <label className="block text-blue-700 font-bold font-bold mb-1">
+                <label className="block text-blue-700 font-medium mb-1">
                   Văn phòng
                 </label>
                 <input
@@ -186,40 +189,70 @@ function DepartmentDetail() {
             </div>
 
             {/* ====== Cột 3: Danh sách loại tin tức ====== */}
-            <div className="col-span-1">
-              <label className="block text-blue-700 font-bold mb-1">
-                Các loại thông tin bài viết
-              </label>
 
-              <ul className="space-y-2 relative">
-                {formData.categories?.length > 0 ? (
-                  (formData.categories || []).map((c) => (
-                    <li
-                      key={c.id}
-                      className="border rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                      onClick={() =>
-                        navigate(
-                          `/admin/department/${department.id}/category/${c.id}`
-                        )
-                      }
+            <div className="col-span-1 grid grid-cols-1">
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  Cấu hình thu thập tin tức
+                </label>
+                <div
+                  className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                  onClick={() =>
+                    navigate(
+                      `/admin/department/${department.id}/crawler_config`
+                    )
+                  }
+                >
+                  {"Cập nhật"}
+                </div>
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  Các loại thông tin bài viết
+                </label>
+                <ul className="space-y-2 relative">
+                  {formData.categories?.length > 0 ? (
+                    (formData.categories || []).map((c) => (
+                      <li
+                        key={c.id}
+                        className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                        onClick={() =>
+                          navigate(
+                            `/admin/department/${department.id}/category/${c.id}`
+                          )
+                        }
+                      >
+                        {c.name}
+                      </li>
+                    ))
+                  ) : (
+                    <i className="text-[12px] text-center">
+                      Chưa có loại tin tức nào
+                    </i>
+                  )}
+                  {editMode && (
+                    <button
+                      className="absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800"
+                      title="Thêm loại tin tức mới"
                     >
-                      {c.name}
-                    </li>
-                  ))
-                ) : (
-                  <i className="text-[12px] text-center">
-                    Chưa có loại tin tức nào
-                  </i>
-                )}
-                {editMode && (
-                  <button
-                    className="absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800"
-                    title="Thêm loại tin tức mới"
-                  >
-                    <MdAddCircle size={24} />
-                  </button>
-                )}
-              </ul>
+                      <MdAddCircle size={24} />
+                    </button>
+                  )}
+                  {showFormCategory && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                      <div className="opacity-0 animate-fadeIn">
+                        <AdditionalCategoryForm
+                          setShowFormCategory={setShowFormCategory}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </ul>
+              </div>
+              <div className="col-span-1 mb-1">{""}</div>
+              <div className="col-span-1 mb-1">{""}</div>
+              <div className="col-span-1 mb-1">{""}</div>
+              <div className="col-span-1 mb-1">{""}</div>
             </div>
           </div>
 

@@ -5,23 +5,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
 
-function CategoryDetail() {
-  const { id, cat_id } = useParams();
+function CrawlerConfig() {
+  const { id, calwler_config_id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const departments = useSelector((state) => state.department.listDepartment);
   const department = departments.find((a) => a.id.toString() === id);
-  const category = department.categories.find(
-    (c) => c.id.toString() === cat_id
-  );
 
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(department || {});
 
   const isValid =
-    formData.website.trim() !== "" &&
-    formData.code.trim() !== "" &&
-    formData.name.trim() !== "";
+    formData.website?.trim() !== "" &&
+    formData.code?.trim() !== "" &&
+    formData.name?.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,7 +43,7 @@ function CategoryDetail() {
   if (!department) {
     return (
       <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center">
-        Không tìm thấy thông tin loại tin tức này này!
+        Không tìm thấy thông tin Khoa/Viện này!
       </h2>
     );
   }
@@ -70,16 +67,14 @@ function CategoryDetail() {
               {department.name}
             </span>
             <MdChevronRight />
-            <span className="font-medium">{category.name}</span>
+            <span className="font-medium">{"Cấu hình thu thập tin tức"}</span>
           </h2>
 
           <div className="p-6 grid grid-cols-2 gap-6">
-            {/* ====== Cột 1 + 2: Thông tin chi tiết ====== */}
             <div className="col-span-2 grid grid-cols-2 gap-6">
-              {/* Website */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  URL tin tức <span className="text-red-500">(*)</span>
+                  relative_url_list
                 </label>
                 <input
                   type="text"
@@ -92,10 +87,9 @@ function CategoryDetail() {
                   }`}
                 />
               </div>
-              {/* Tên tin tức */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Tên tin tức <span className="text-red-500">(*)</span>
+                  relative_url
                 </label>
                 <input
                   type="text"
@@ -108,16 +102,74 @@ function CategoryDetail() {
                   }`}
                 />
               </div>
-              {/* Mốc thời gian thu thập dữ liệu */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Mốc thời gian thu thập{" "}
-                  <span className="text-red-500">(*)</span>
+                  next_pages
                 </label>
                 <input
                   type="text"
                   name="code"
                   value={formData.code || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  content
+                </label>
+                <input
+                  type="text"
+                  name="leader"
+                  value={formData.leader || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  thumbnail
+                </label>
+                <input
+                  type="text"
+                  name="email"
+                  value={formData.email || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  title
+                </label>
+                <input
+                  type="text"
+                  name="number"
+                  value={formData.number || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  external_publish_date
+                </label>
+                <input
+                  type="text"
+                  name="number"
+                  value={formData.number || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -166,4 +218,4 @@ function CategoryDetail() {
   );
 }
 
-export default CategoryDetail;
+export default CrawlerConfig;
