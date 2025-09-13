@@ -15,12 +15,6 @@
     "category_name": {
       "type": "string"
     },
-    "department": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::department.department",
-      "inversedBy": "categories"
-    },
     "articles": {
       "type": "relation",
       "relation": "oneToMany",
@@ -35,6 +29,12 @@
     },
     "last_external_publish_date": {
       "type": "date"
+    },
+    "department_source": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::department-source.department-source",
+      "inversedBy": "categories"
     }
   }
 }
