@@ -7,7 +7,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ArticleFlat(
-        Long id,
         String documentId,
         String title,
         LocalDate external_publish_date,

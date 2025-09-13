@@ -3,13 +3,14 @@ package com.backend.strapi.model;
 import java.time.LocalDate;
 
 public record CrawlerConfigFlat(
+        String documentId,
         String url,
-        String relativeUrlList,
-        String relativeUrl,
+        String relative_url_list,
+        String relative_url,
         String thumbnail,
         String next_pages,
         String title,
         String content,
-        LocalDate externalPublishDate,
+        String external_publish_date,
         DepartmentSourceFlat departmentSourceFlat) {
 }

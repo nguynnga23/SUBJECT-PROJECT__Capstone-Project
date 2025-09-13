@@ -9,6 +9,6 @@ public class UserVM {
     private String provider;
     private Boolean confirm;
     private Boolean blocked;
-    private Long departmentId;
+    private String departmentId;
     private String departmentName;
 }

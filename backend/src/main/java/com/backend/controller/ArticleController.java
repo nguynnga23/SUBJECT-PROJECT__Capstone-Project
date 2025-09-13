@@ -87,7 +87,7 @@ public class ArticleController {
 //    }
     @GetMapping
     public List<ArticleVM> list() {
-        var p = new org.springframework.util.LinkedMultiValueMap<String, String>();
+        var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "category");
 
         p.add("sort[0]", "external_publish_date:desc");
@@ -95,12 +95,12 @@ public class ArticleController {
 
         var raw = client.get(
                 "/articles",
-                new org.springframework.core.ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
+                new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
                 p,
                 null // public thì để null; nếu cần quyền, truyền bearer
         );
 
-        var data = (raw != null && raw.data() != null) ? raw.data() : java.util.List.<ArticleFlat>of();
+        var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
         return data.stream()
                 .map(StrapiMapper::toVM)
                 .filter(java.util.Objects::nonNull)

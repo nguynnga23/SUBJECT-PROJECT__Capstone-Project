@@ -6,7 +6,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CategoryFlat(
-        Long id,
         String documentId,
         String category_name,
         String category_url,

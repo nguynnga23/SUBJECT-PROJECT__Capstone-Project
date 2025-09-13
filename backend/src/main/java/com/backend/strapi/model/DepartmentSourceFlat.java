@@ -6,10 +6,11 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DepartmentSourceFlat(
-                String url,
-                CategoryFlat categoryFlat,
-                CrawlerConfigFlat crawlerConfigFlat,
-                String label,
-                DepartmentFlat departmentFlat,
-                List<CategoryFlat> categories) {
+        String documentId,
+        String url,
+        CategoryFlat categoryFlat,
+        CrawlerConfigFlat crawlerConfigFlat,
+        String label,
+        DepartmentFlat departmentFlat,
+        List<CategoryFlat> categories) {
 }

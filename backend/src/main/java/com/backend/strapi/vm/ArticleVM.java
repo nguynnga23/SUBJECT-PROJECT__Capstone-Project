@@ -6,7 +6,6 @@ import java.time.OffsetDateTime;
 
 @Data
 public class ArticleVM {
-    private Long id;
     private String documentId;
     private String title;
     private LocalDate externalPublishDate;
@@ -18,6 +17,6 @@ public class ArticleVM {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private OffsetDateTime publishedAt;
-    private Long categoryId;
+    private String categoryId;
     private String categoryName;
 }

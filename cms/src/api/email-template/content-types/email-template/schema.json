@@ -11,9 +11,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "key": {
-      "type": "uid"
-    },
     "subject": {
       "type": "string",
       "required": true
