@@ -1,144 +1,125 @@
 package com.backend.controller;
 
-import com.backend.dto.ArticleDto;
-import com.backend.entity.Article;
-import com.backend.mapper.ArticleMapper;
-import com.backend.service.ArticleService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import com.backend.client.StrapiClient;
+import com.backend.strapi.mapper.StrapiMapper;
+import com.backend.strapi.model.*;
+import com.backend.strapi.vm.ArticleVM;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
-@RequestMapping("/api/articles")
-@RequiredArgsConstructor
-@Slf4j
-@CrossOrigin(origins = "*")
+@RequestMapping("/v1/articles")
+@Validated
 public class ArticleController {
-    
-    private final ArticleService articleService;
-    private final ArticleMapper articleMapper;
-    
-    @PostMapping
-    public ResponseEntity<ArticleDto> createArticle(@RequestBody ArticleDto articleDto) {
-        log.info("Creating new article: {}", articleDto.getTitle());
-        try {
-            Article article = articleMapper.toEntity(articleDto);
-            Article savedArticle = articleService.save(article);
-            return ResponseEntity.status(HttpStatus.CREATED).body(articleMapper.toDto(savedArticle));
-        } catch (Exception e) {
-            log.error("Error creating article: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+
+    private final StrapiClient client;
+
+    public ArticleController(StrapiClient client) {
+        this.client = client;
     }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<ArticleDto> getArticleById(@PathVariable UUID id) {
-        log.info("Getting article by id: {}", id);
-        Optional<Article> article = articleService.findById(id);
-        return article.map(value -> ResponseEntity.ok().body(articleMapper.toDto(value)))
-                     .orElse(ResponseEntity.notFound().build());
-    }
-    
+
+//    @GetMapping
+//    // @Cacheable(cacheNames = "articles:list", key = "#page+':'+#size+':'+(#q?:'')+':'+(#keyCategory?:'')+':'+(#keyDepartment?:'')")
+//    public PageVM<ArticleVM> list(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "20") int size,
+//            @RequestParam(required = false) String q,
+//            @RequestParam(required = false) String keyCategory,
+//            @RequestParam(required = false) String keyDepartment
+//    ) {
+//        // sanitize
+//        if (page < 0) page = 0;
+//        if (size < 1) size = 1;
+//        if (size > 100) size = 100;
+//
+//        MultiValueMap<String, String> p = new LinkedMultiValueMap<>();
+//        // Strapi là 1-based
+//        p.add("pagination[page]", String.valueOf(page + 1));
+//        p.add("pagination[pageSize]", String.valueOf(size));
+//
+////        p.add("populate[category][populate]", "department");
+//
+//        p.add("sort[0]", "external_publish_date:desc");
+//        p.add("sort[1]", "publishedAt:desc");
+//
+//        if (q != null && !q.isBlank()) {
+//            p.add("filters[$or][0][title][$containsi]", q);
+//            p.add("filters[$or][1][content][$containsi]", q);
+//        }
+//
+//        if (keyCategory != null && !keyCategory.isBlank()) {
+//            p.add("filters[category][key_category][$eq]", keyCategory);
+//        }
+//
+//        try {
+//            StrapiPageFlat<ArticleFlat> raw = client.get(
+//                    "/articles",
+//                    new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
+//                    p, null
+//            );
+//
+//            var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
+//            var items = data.stream()
+//                    .map(StrapiMapper::toVM)        // overload mapper cho ArticleFlat
+//                    .filter(Objects::nonNull)
+//                    .toList();
+//
+//            var meta = (raw != null) ? raw.meta() : null;
+//            var pagination = (meta != null) ? meta.pagination() : null;
+//            long total = (pagination != null) ? pagination.total() : items.size();
+//            int totalPages = (pagination != null) ? pagination.pageCount() : 1;
+//
+//            return new PageVM<>(items, page, size, total, totalPages);
+//        } catch (ResponseStatusException ex) {
+//            throw ex;
+//        } catch (Exception ex) {
+//            throw new ResponseStatusException(INTERNAL_SERVER_ERROR, "Upstream failure", ex);
+//        }
+//    }
     @GetMapping
-    public ResponseEntity<List<ArticleDto>> getAllArticles() {
-        log.info("Getting all articles");
-        List<Article> articles = articleService.findAll();
-        List<ArticleDto> articleDtos = articles.stream()
-                .map(articleMapper::toDto)
+    public List<ArticleVM> list() {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "category");
+
+        p.add("sort[0]", "external_publish_date:desc");
+        p.add("sort[1]", "createdAt:desc");
+
+        var raw = client.get(
+                "/articles",
+                new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
+                p,
+                null // public thì để null; nếu cần quyền, truyền bearer
+        );
+
+        var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
+        return data.stream()
+                .map(StrapiMapper::toVM)
+                .filter(java.util.Objects::nonNull)
                 .toList();
-        return ResponseEntity.ok(articleDtos);
     }
-    
-    @GetMapping("/page")
-    public ResponseEntity<Page<ArticleDto>> getAllArticlesPageable(Pageable pageable) {
-        log.info("Getting all articles with pagination: {}", pageable);
-        Page<Article> articles = articleService.findAll(pageable);
-        Page<ArticleDto> articleDtos = articles.map(articleMapper::toDto);
-        return ResponseEntity.ok(articleDtos);
-    }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<ArticleDto> updateArticle(@PathVariable UUID id, @RequestBody ArticleDto articleDto) {
-        log.info("Updating article with id: {}", id);
-        try {
-            if (!articleService.existsById(id)) {
-                return ResponseEntity.notFound().build();
-            }
-            Article article = articleMapper.toEntity(articleDto);
-            article.setId(id);
-            Article updatedArticle = articleService.update(article);
-            return ResponseEntity.ok(articleMapper.toDto(updatedArticle));
-        } catch (Exception e) {
-            log.error("Error updating article: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable UUID id) {
-        log.info("Deleting article with id: {}", id);
-        try {
-            if (!articleService.existsById(id)) {
-                return ResponseEntity.notFound().build();
-            }
-            articleService.deleteById(id);
-            return ResponseEntity.noContent().build();
-        } catch (Exception e) {
-            log.error("Error deleting article: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-    
-    @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<ArticleDto>> getArticlesByCategoryId(@PathVariable UUID categoryId) {
-        log.info("Getting articles by category id: {}", categoryId);
-        List<Article> articles = articleService.findByCategoryId(categoryId);
-        List<ArticleDto> articleDtos = articles.stream()
-                .map(articleMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(articleDtos);
-    }
-    
-    @GetMapping("/search/title")
-    public ResponseEntity<List<ArticleDto>> getArticlesByTitle(@RequestParam String title) {
-        log.info("Getting articles by title: {}", title);
-        List<Article> articles = articleService.findByTitle(title);
-        List<ArticleDto> articleDtos = articles.stream()
-                .map(articleMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(articleDtos);
-    }
-    
-    @GetMapping("/search/title-containing")
-    public ResponseEntity<List<ArticleDto>> getArticlesByTitleContaining(@RequestParam String keyword) {
-        log.info("Getting articles by title containing: {}", keyword);
-        List<Article> articles = articleService.findByTitleContaining(keyword);
-        List<ArticleDto> articleDtos = articles.stream()
-                .map(articleMapper::toDto)
-                .toList();
-        return ResponseEntity.ok(articleDtos);
-    }
-    
-    @GetMapping("/search/external-url")
-    public ResponseEntity<ArticleDto> getArticleByExternalUrl(@RequestParam String url) {
-        log.info("Getting article by external URL: {}", url);
-        Optional<Article> article = articleService.findByExternalUrl(url);
-        return article.map(value -> ResponseEntity.ok().body(articleMapper.toDto(value)))
-                     .orElse(ResponseEntity.notFound().build());
-    }
-    
-    @GetMapping("/count")
-    public ResponseEntity<Long> getArticleCount() {
-        log.info("Getting total article count");
-        long count = articleService.count();
-        return ResponseEntity.ok(count);
+
+    @GetMapping("/{id}")
+    public ArticleVM one(@PathVariable String id) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "category");
+        var resp = client.get(
+                "/articles/" + id,
+                new ParameterizedTypeReference<StrapiSingle<ArticleFlat>>() {
+                },
+                p,
+                null
+        );
+
+
+        StrapiMapper strapiMapper = new StrapiMapper();
+        return strapiMapper.toVM(resp.data());
     }
 }
