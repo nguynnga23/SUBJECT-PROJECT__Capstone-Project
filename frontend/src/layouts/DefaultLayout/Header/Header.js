@@ -6,13 +6,15 @@ import { departments } from "../../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
 import MarkedForm from "../../../components/Form/MarkedForm";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword.js";
 import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
 import { logo } from "../../../assets/index.js";
+import { logoutOfSlice } from "../../../store/slices/authSlice.js";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const user_profile = [
     {
       icon: <FaRegUser />,
@@ -47,6 +49,7 @@ function Header() {
 
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
+      dispatch(logoutOfSlice());
       navigate("/");
       return;
     }
@@ -89,64 +92,82 @@ function Header() {
           <FaSearch size={16} className="mr-1 text-gray-600" />
         </div>
 
-        <div className="flex items-center gap-2">
-          <img
-            src={currentUser?.avatar}
-            alt="avatar"
-            className="w-8 h-8 rounded-full"
-          />
-          <div className="flex gap-4 cursor-pointer relative">
-            <HoverDropdown
-              label={currentUser?.username}
-              items={user_profile}
-              onSelect={handleUserProfileSelect}
-            />
-            {userProfile?.name === "Marked" ? (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="opacity-0 animate-fadeIn">
-                  <MarkedForm setUserProfile={setUserProfile} />
-                </div>
-              </div>
-            ) : (
-              (userProfile?.name === "Profile" || userProfile) && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                  <div className="opacity-0 animate-fadeIn">
-                    <ProfileForm
-                      setUserProfile={setUserProfile}
-                      setShowUpdatePasswordForm={setShowUpdatePasswordForm}
-                      currentUser={currentUser}
-                    />
+        {currentUser ? (
+          <div className="flex w-[160px]">
+            <div className="flex items-center gap-2">
+              <img
+                src={currentUser?.avatar}
+                alt="avatar"
+                className="w-8 h-8 rounded-full"
+              />
+              <div className="flex gap-4 cursor-pointer relative">
+                <HoverDropdown
+                  label={currentUser?.username}
+                  items={user_profile}
+                  onSelect={handleUserProfileSelect}
+                />
+                {userProfile?.name === "Marked" ? (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="opacity-0 animate-fadeIn">
+                      <MarkedForm setUserProfile={setUserProfile} />
+                    </div>
                   </div>
-                </div>
-              )
-            )}
+                ) : (
+                  (userProfile?.name === "Profile" || userProfile) && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                      <div className="opacity-0 animate-fadeIn">
+                        <ProfileForm
+                          setUserProfile={setUserProfile}
+                          setShowUpdatePasswordForm={setShowUpdatePasswordForm}
+                          currentUser={currentUser}
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
 
-            {showUpdatePasswordForm && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                <div className="opacity-0 animate-fadeIn">
-                  <UpdatePassword
-                    setShowUpdatePasswordForm={setShowUpdatePasswordForm}
-                    setUserProfile={setUserProfile}
-                  />
-                </div>
+                {showUpdatePasswordForm && (
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="opacity-0 animate-fadeIn">
+                      <UpdatePassword
+                        setShowUpdatePasswordForm={setShowUpdatePasswordForm}
+                        setUserProfile={setUserProfile}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </div>
-
-        <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
-          <FaRegBell
-            className={`${
-              showNotifyForm ? "text-red-500" : "text-gray-500"
-            } hover:text-red-500`}
-            onClick={() => setShowNotifyForm(!showNotifyForm)}
-          />
-          {showNotifyForm && (
-            <div className="absolute top-[35px] right-0 animate-slideUp">
-              <NotifyForm setShowNotifyForm={setShowNotifyForm} />
             </div>
-          )}
-        </div>
+            <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
+              <FaRegBell
+                className={`${
+                  showNotifyForm ? "text-red-500" : "text-gray-500"
+                } hover:text-red-500`}
+                onClick={() => setShowNotifyForm(!showNotifyForm)}
+              />
+              {showNotifyForm && (
+                <div className="absolute top-[35px] right-0 animate-slideUp">
+                  <NotifyForm setShowNotifyForm={setShowNotifyForm} />
+                </div>
+              )}
+            </div>{" "}
+          </div>
+        ) : (
+          <div className="flex w-[160px] items-center text-[12px]">
+            <div
+              className="px-2 py-1 cursor-pointer border bg-blue-500 rounded text-white mr-1"
+              onClick={() => navigate("/login")}
+            >
+              Đăng nhập
+            </div>
+            <div
+              className="px-2 py-1 cursor-pointer border hover:bg-blue-500 rounded hover:text-white mr-1"
+              onClick={() => navigate("/signup")}
+            >
+              Đăng ký
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

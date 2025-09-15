@@ -31,7 +31,7 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<DefaultLayout children={<Department />} />} />
         <Route
           path="/signup"
           element={
