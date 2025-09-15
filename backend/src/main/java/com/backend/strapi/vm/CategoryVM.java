@@ -1,0 +1,15 @@
+package com.backend.strapi.vm;
+
+import lombok.Data;
+import java.time.LocalDate;
+
+@Data
+public class CategoryVM {
+    private String documentId;
+    private String categoryName;
+    private String categoryUrl;
+    private String keyCategory;
+    private LocalDate lastExternalPublishDate;
+    private String departmentSourceId;
+    private String departmentSourceName;
+}
