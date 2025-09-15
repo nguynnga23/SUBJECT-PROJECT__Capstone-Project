@@ -2,40 +2,61 @@ import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
-import { useSelector } from "react-redux";
+import { current_data } from "../../assets/sampleData";
 
 const allColumns = [
-  { key: "name", label: "Tên Khoa/Viện" },
-  { key: "code", label: "Mã Khoa" },
-  { key: "website", label: "Website" },
-  { key: "leader", label: "Trưởng khoa" },
-  { key: "email", label: "Email" },
-  { key: "number", label: "Số điện thoại" },
-  { key: "location", label: "Văn phòng" },
+  { key: "label", label: "Tên Khoa/Viện" },
+  { key: "url", label: "Website" },
+  { key: "categories", label: "Loại tin tức" },
+  { key: "crawler_config", label: "Cấu hình thu thập" },
+  { key: "createdAt", label: "Ngày tạo" },
+  { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
 const DepartmentTable = () => {
-  const departments = useSelector((state) => state.department.listDepartment);
   const navigate = useNavigate();
-  const [visibleCols, setVisibleCols] = useState(allColumns.map((c) => c.key));
+  const [data, setData] = useState(current_data?.department_sources || {});
+
+  const hiddenDefaultCols = ["createdAt", "crawler_config"];
+
+  const [visibleCols, setVisibleCols] = useState(
+    allColumns
+      .map((c) => c.key)
+      .filter((key) => !hiddenDefaultCols.includes(key))
+  );
 
   const [showModal, setShowModal] = useState(false);
 
   // filter
-  const [filterField, setFilterField] = useState("name");
+  const [filterField, setFilterField] = useState("label");
   const [filterValue, setFilterValue] = useState("");
 
   // sort
   const [sortField, setSortField] = useState("");
   const [sortDir, setSortDir] = useState("asc");
+  const [openFilter, setOpenFilter] = useState(false);
 
   // dropdown toggle
   const [openCols, setOpenCols] = useState(false);
+  const [openSort, setOpenSort] = useState(false);
 
   // lọc
-  let filtered = departments.filter((d) =>
-    String(d[filterField]).toLowerCase().includes(filterValue.toLowerCase())
+  let filtered = data.filter((d) =>
+    String(d[filterField] || "")
+      .toLowerCase()
+      .includes(filterValue.toLowerCase())
   );
+
+  const renderValue = (value) => {
+    if (Array.isArray(value)) {
+      return `Array(${value.length})`;
+    } else if (typeof value === "object" && value !== null) {
+      return `Object(${Object.keys(value).length})`;
+    } else if (!value || value?.length === 0) {
+      return "Đang cập nhật ...";
+    }
+    return value;
+  };
 
   // sắp xếp
   if (sortField) {
@@ -61,64 +82,104 @@ const DepartmentTable = () => {
   return (
     <div className="p-3">
       <div className="flex w-full pb-2 justify-between  text-sm">
-        <div className="flex gap-2 mb-3 items-center p-2 border rounded">
-          <select
-            value={filterField}
-            onChange={(e) => setFilterField(e.target.value)}
-            className="focus:outline-none cursor-pointer"
-          >
-            {allColumns.map((c) => (
-              <option key={c.key} value={c.key}>
-                {c.label}
-              </option>
-            ))}
-          </select>
+        <div className="flex gap-2 mb-3 items-center">
+          {/* chọn cột để lọc */}
+          <div className="relative">
+            <div
+              onClick={() => setOpenFilter(!openFilter)}
+              className="border rounded p-2 bg-white relative w-[180px] cursor-pointer hover:bg-gray-200"
+            >
+              {allColumns.find((c) => c.key === filterField)?.label}
+
+              <IoIosArrowDown className="absolute right-[5px] top-3" />
+            </div>
+            {openFilter && (
+              <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
+                {allColumns
+                  .filter((a) => a.key !== "crawler_config")
+                  .map((c) => (
+                    <div
+                      key={c.key}
+                      onClick={() => {
+                        setFilterField(c.key);
+                        setOpenFilter(false);
+                      }}
+                      className={`py-2 px-2 cursor-pointer rounded hover:bg-gray-100 ${
+                        filterField === c.key ? "bg-blue-100 font-medium" : ""
+                      }`}
+                    >
+                      {c.label}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+          {/* input nhập giá trị lọc */}
           <input
             type="text"
-            placeholder="Nhập giá trị tìm kiếm ..."
+            placeholder="Nhập giá trị tìm kiếm"
             value={filterValue}
             onChange={(e) => setFilterValue(e.target.value)}
-            className="border-l px-2  focus:outline-none w-[300px]"
+            className="border rounded p-2 bg-white w-[260px] focus:outline-none cursor-pointer"
           />
         </div>
 
-        <div className="flex gap-2 mb-3 items-center border rounded p-2">
-          <select
-            value={sortField}
-            onChange={(e) => setSortField(e.target.value)}
-            className=" focus:outline-none cursor-pointer "
-          >
-            <option value="">-- Chọn cột sắp xếp --</option>
-            {allColumns.map((c) => (
-              <option key={c.key} value={c.key}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={sortDir}
-            onChange={(e) => setSortDir(e.target.value)}
-            className="border-l px-2 focus:outline-none cursor-pointer"
-          >
-            <option value="asc">Tăng dần</option>
-            <option value="desc">Giảm dần</option>
-          </select>
+        <div className="flex gap-2 mb-3 items-center">
+          {/* chọn cột sắp xếp */}
+          <div className="relative">
+            <div
+              onClick={() => setOpenSort(!openSort)}
+              className="border rounded p-2 bg-white relative w-[180px] cursor-pointer hover:bg-gray-200"
+            >
+              {sortField
+                ? allColumns.find((c) => c.key === sortField)?.label
+                : "-- Chọn cột sắp xếp --"}
+              <IoIosArrowDown className="absolute right-[5px] top-3" />
+            </div>
+            {openSort && (
+              <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
+                {allColumns.map((c) => (
+                  <div
+                    key={c.key}
+                    onClick={() => {
+                      setSortField(c.key);
+                      setOpenSort(false);
+                    }}
+                    className={`py-2 px-2 cursor-pointer rounded hover:bg-gray-100 ${
+                      sortField === c.key ? "bg-blue-100 font-medium" : ""
+                    }`}
+                  >
+                    {c.label}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* chọn hướng sắp xếp */}
+          <div className="relative">
+            <div
+              onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}
+              className="border rounded p-2 bg-white w-[100px] cursor-pointer text-center hover:bg-gray-200"
+            >
+              {sortDir === "asc" ? "Tăng dần" : "Giảm dần"}
+            </div>
+          </div>
         </div>
 
         <div className="relative inline-block mb-3">
           <div
             onClick={() => setOpenCols(!openCols)}
-            className="border rounded p-2 bg-white  relative w-[160px] cursor-pointer"
+            className="border rounded p-2 bg-white relative w-[200px] cursor-pointer hover:bg-gray-200"
           >
             Chọn cột hiển thị{" "}
             <IoIosArrowDown className="absolute right-[5px] top-3" />
           </div>
           {openCols && (
-            <div className="absolute mt-1 border bg-white rounded shadow p-2 z-10 w-[180px] max-h-60 overflow-y-auto">
+            <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[200px] max-h-[150px] overflow-y-auto scroll-container">
               {allColumns.map((c) => (
                 <label
                   key={c.key}
-                  className="flex items-center gap-2 text-sm py-2"
+                  className="flex items-center gap-2 text-sm py-2 p-2 cursor-pointer hover:bg-gray-200"
                 >
                   <input
                     type="checkbox"
@@ -171,14 +232,10 @@ const DepartmentTable = () => {
                 .map((col) => (
                   <td
                     key={col.key}
-                    className={`border p-2 ${
-                      dept[col.key]?.length !== 0 ? "" : "italic"
-                    }`}
+                    className="border p-2"
                     onClick={() => handleShowDepartmentDetail(dept.id)}
                   >
-                    {dept[col.key]?.length !== 0
-                      ? dept[col.key]
-                      : "Đang cập nhật ..."}
+                    {renderValue(dept[col.key])}
                   </td>
                 ))}
             </tr>

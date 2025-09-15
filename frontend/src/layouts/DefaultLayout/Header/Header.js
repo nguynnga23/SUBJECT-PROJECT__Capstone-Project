@@ -93,7 +93,7 @@ function Header() {
         </div>
 
         {currentUser ? (
-          <div className="flex w-[160px]">
+          <div className="flex w-[200px]">
             <div className="flex items-center gap-2">
               <img
                 src={currentUser?.avatar}
@@ -138,7 +138,7 @@ function Header() {
                 )}
               </div>
             </div>
-            <div className="relative bg-gray-200 p-2 rounded-[8px] cursor-pointer">
+            <div className="relative bg-gray-200 p-2 m-2 rounded-[8px] cursor-pointer">
               <FaRegBell
                 className={`${
                   showNotifyForm ? "text-red-500" : "text-gray-500"
