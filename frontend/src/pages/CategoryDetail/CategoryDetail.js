@@ -16,12 +16,11 @@ function CategoryDetail() {
   );
 
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(department || {});
+  const [formData, setFormData] = useState(category || {});
 
   const isValid =
-    formData.website.trim() !== "" &&
-    formData.code.trim() !== "" &&
-    formData.name.trim() !== "";
+    formData?.category_url.trim() !== "" &&
+    formData?.category_name.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -67,15 +66,15 @@ function CategoryDetail() {
               className=" cursor-pointer hover:border-b"
               onClick={() => navigate(`/admin/department/${department.id}`)}
             >
-              {department.name}
+              {department.label}
             </span>
             <MdChevronRight />
-            <span className="font-medium">{category.name}</span>
+            <span className="font-medium">{category.category_name}</span>
           </h2>
 
-          <div className="p-6 grid grid-cols-2 gap-6">
+          <div className="p-6 grid grid-cols-1 gap-6">
             {/* ====== Cột 1 + 2: Thông tin chi tiết ====== */}
-            <div className="col-span-2 grid grid-cols-2 gap-6">
+            <div className="col-span-2 grid grid-cols-1 gap-6">
               {/* Website */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
@@ -84,7 +83,7 @@ function CategoryDetail() {
                 <input
                   type="text"
                   name="website"
-                  value={formData.website || ""}
+                  value={formData.category_url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -100,7 +99,7 @@ function CategoryDetail() {
                 <input
                   type="text"
                   name="name"
-                  value={formData.name || ""}
+                  value={formData.category_name || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -117,7 +116,7 @@ function CategoryDetail() {
                 <input
                   type="text"
                   name="code"
-                  value={formData.code || ""}
+                  value={formData.last_external_publish_date || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -141,7 +140,7 @@ function CategoryDetail() {
               <>
                 <button
                   onClick={() => {
-                    setFormData(department); // reset
+                    setFormData(category); // reset
                     setEditMode(false);
                   }}
                   className="px-8 py-2 bg-gray-300 rounded"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LiaTimesCircle } from "react-icons/lia";
 
 function UpdatePassword({ setShowUpdatePasswordForm, setUserProfile }) {
   const [currentPassWord, setCurrentPassWord] = useState("");
@@ -36,15 +37,14 @@ function UpdatePassword({ setShowUpdatePasswordForm, setUserProfile }) {
 
   return (
     <div className="relative w-[600px] max-w-md mx-auto bg-white rounded space-y-6 p-6 shadow">
-      <button
-        className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl flex items-center justify-center w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white"
+      <LiaTimesCircle
+        className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"
         onClick={() => {
           setShowUpdatePasswordForm(false);
           setUserProfile(false);
         }}
-      >
-        &times;
-      </button>
+      />
+
       <h2 className="text-[25px] font-semibold">Đổi mật khẩu</h2>
       <p className="text-[12px] text-gray-500 mb-2">
         <strong>Lưu ý:</strong> Mật khẩu bao gồm chữ kèm theo số hoặc ký tự đặc

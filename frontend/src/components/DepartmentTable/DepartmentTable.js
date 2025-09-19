@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
@@ -40,6 +40,12 @@ const DepartmentTable = () => {
   const [openCols, setOpenCols] = useState(false);
   const [openSort, setOpenSort] = useState(false);
 
+  const [arrayPopup, setArrayPopup] = useState({
+    open: false,
+    data: [],
+    position: { top: 0, left: 0, width: 0 },
+  });
+
   // lọc
   let filtered = data.filter((d) =>
     String(d[filterField] || "")
@@ -47,16 +53,75 @@ const DepartmentTable = () => {
       .includes(filterValue.toLowerCase())
   );
 
-  const renderValue = (value) => {
+  const renderValue = (value, colKey, rowId) => {
+    if (colKey === "url" && typeof value === "string") {
+      return (
+        <a
+          href={value}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {value}
+        </a>
+      );
+    }
+
     if (Array.isArray(value)) {
-      return `Array(${value.length})`;
-    } else if (typeof value === "object" && value !== null) {
-      return `Object(${Object.keys(value).length})`;
-    } else if (!value || value?.length === 0) {
+      return (
+        <button
+          className="text-blue-500 hover:underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            const rect = e.currentTarget.getBoundingClientRect();
+            setArrayPopup({
+              open: true,
+              data: value,
+              position: {
+                top: rect.bottom + window.scrollY,
+                left: rect.left + window.scrollX,
+                width: rect.width,
+              },
+            });
+          }}
+        >
+          {value.length} loại tin tức
+        </button>
+      );
+    }
+
+    if (typeof value === "object" && value !== null) {
+      return `Đã cập nhật`;
+    }
+
+    if (!value || value?.length === 0) {
       return "Đang cập nhật ...";
     }
+
     return value;
   };
+
+  const popupRef = useRef(null);
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (popupRef.current && !popupRef.current.contains(e.target)) {
+        setArrayPopup({
+          open: false,
+          data: [],
+          position: { top: 0, left: 0, width: 0 },
+        });
+      }
+    }
+
+    if (arrayPopup.open) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [arrayPopup.open]);
 
   // sắp xếp
   if (sortField) {
@@ -225,7 +290,7 @@ const DepartmentTable = () => {
         </thead>
         <tbody>
           {filtered.map((dept, index) => (
-            <tr key={dept.id} className="hover:bg-blue-50 cursor-pointer">
+            <tr key={dept.id} className="cursor-pointer">
               <td className="border p-2">{index + 1}</td>
               {allColumns
                 .filter((c) => visibleCols.includes(c.key))
@@ -235,13 +300,34 @@ const DepartmentTable = () => {
                     className="border p-2"
                     onClick={() => handleShowDepartmentDetail(dept.id)}
                   >
-                    {renderValue(dept[col.key])}
+                    {renderValue(dept[col.key], col.key)}
                   </td>
                 ))}
             </tr>
           ))}
         </tbody>
       </table>
+      {arrayPopup.open && (
+        <div
+          className="absolute bg-white border shadow rounded z-50"
+          style={{
+            top: arrayPopup.position.top,
+            left: arrayPopup.position.left,
+            minWidth: arrayPopup.position.width,
+          }}
+        >
+          <ul
+            className="max-h-[300px] text-[12px] overflow-y-auto"
+            ref={popupRef}
+          >
+            {arrayPopup.data.map((item, i) => (
+              <li className="p-2.5 hover:bg-gray-200 cursor-pointer">
+                {JSON.stringify(item?.category_name)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

@@ -63,21 +63,19 @@ function DepartmentDetail() {
               Danh sách Khoa/Viện
             </span>
             <MdChevronRight />
-            <span className="font-medium">{department.name}</span>
+            <span className="font-medium">{department.label}</span>
           </h2>
 
-          <div className="p-6 grid grid-cols-3 gap-6">
-            {/* ====== Cột 1 + 2: Thông tin chi tiết ====== */}
-            <div className="col-span-2 grid grid-cols-2 gap-6">
-              {/* Website */}
+          <div className="p-6 grid grid-cols-2 gap-6">
+            <div className="col-span-1 grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
                   Website <span className="text-red-500">(*)</span>
                 </label>
                 <input
                   type="text"
-                  name="website"
-                  value={formData.website || ""}
+                  name="url"
+                  value={formData.url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -85,15 +83,14 @@ function DepartmentDetail() {
                   }`}
                 />
               </div>
-              {/* Tên khoa */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
                   Tên Khoa <span className="text-red-500">(*)</span>
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name || ""}
+                  name="label"
+                  value={formData.label || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -101,96 +98,6 @@ function DepartmentDetail() {
                   }`}
                 />
               </div>
-
-              {/* Mã khoa */}
-              <div>
-                <label className="block text-blue-700 font-medium mb-1">
-                  Mã Khoa <span className="text-red-500">(*)</span>
-                </label>
-                <input
-                  type="text"
-                  name="code"
-                  value={formData.code || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-
-              {/* Trưởng khoa */}
-              <div>
-                <label className="block text-blue-700 font-medium mb-1">
-                  Trưởng khoa
-                </label>
-                <input
-                  type="text"
-                  name="leader"
-                  value={formData.leader || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-blue-700 font-medium mb-1">
-                  Email
-                </label>
-                <input
-                  type="text"
-                  name="email"
-                  value={formData.email || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-
-              {/* Số điện thoại */}
-              <div>
-                <label className="block text-blue-700 font-medium mb-1">
-                  Số điện thoại
-                </label>
-                <input
-                  type="text"
-                  name="number"
-                  value={formData.number || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-
-              {/* Văn phòng */}
-              <div className="col-span-2">
-                <label className="block text-blue-700 font-medium mb-1">
-                  Văn phòng
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.location || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* ====== Cột 3: Danh sách loại tin tức ====== */}
-
-            <div className="col-span-1 grid grid-cols-1">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
                   Cấu hình thu thập tin tức
@@ -206,6 +113,8 @@ function DepartmentDetail() {
                   {"Cập nhật"}
                 </div>
               </div>
+            </div>
+            <div className="col-span-1 grid grid-cols-1">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
                   Các loại thông tin bài viết
@@ -222,7 +131,7 @@ function DepartmentDetail() {
                           )
                         }
                       >
-                        {c.name}
+                        {c.category_name}
                       </li>
                     ))
                   ) : (
@@ -249,8 +158,6 @@ function DepartmentDetail() {
                   )}
                 </ul>
               </div>
-              <div className="col-span-1 mb-1">{""}</div>
-              <div className="col-span-1 mb-1">{""}</div>
               <div className="col-span-1 mb-1">{""}</div>
               <div className="col-span-1 mb-1">{""}</div>
             </div>

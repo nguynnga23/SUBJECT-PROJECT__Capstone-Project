@@ -6,19 +6,17 @@ import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
 
 function CrawlerConfig() {
-  const { id, calwler_config_id } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const departments = useSelector((state) => state.department.listDepartment);
   const department = departments.find((a) => a.id.toString() === id);
+  const crawler_config = department.crawler_config;
 
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(department || {});
+  const [formData, setFormData] = useState(crawler_config || {});
 
-  const isValid =
-    formData.website?.trim() !== "" &&
-    formData.code?.trim() !== "" &&
-    formData.name?.trim() !== "";
+  const isValid = true;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +62,7 @@ function CrawlerConfig() {
               className=" cursor-pointer hover:border-b"
               onClick={() => navigate(`/admin/department/${department.id}`)}
             >
-              {department.name}
+              {department.label}
             </span>
             <MdChevronRight />
             <span className="font-medium">{"Cấu hình thu thập tin tức"}</span>
@@ -78,8 +76,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="website"
-                  value={formData.website || ""}
+                  name="relative_url_list"
+                  value={formData.relative_url_list || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -93,8 +91,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="name"
-                  value={formData.name || ""}
+                  name="relative_url"
+                  value={formData.relative_url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -108,8 +106,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="code"
-                  value={formData.code || ""}
+                  name="next_pages"
+                  value={formData.next_pages || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -123,8 +121,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="leader"
-                  value={formData.leader || ""}
+                  name="content"
+                  value={formData.content || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -138,8 +136,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="email"
-                  value={formData.email || ""}
+                  name="thumbnail"
+                  value={formData.thumbnail || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -153,8 +151,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="number"
-                  value={formData.number || ""}
+                  name="title"
+                  value={formData.title || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -168,8 +166,8 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="number"
-                  value={formData.number || ""}
+                  name="external_publish_date"
+                  value={formData.external_publish_date || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -193,7 +191,7 @@ function CrawlerConfig() {
               <>
                 <button
                   onClick={() => {
-                    setFormData(department); // reset
+                    setFormData(crawler_config); // reset
                     setEditMode(false);
                   }}
                   className="px-8 py-2 bg-gray-300 rounded"

@@ -453,27 +453,33 @@ const mockDepartments = [
 ];
 
 const current_data = {
+  id: 1,
   department_name: "Khoa Công Nghệ Thông Tin IUH",
   department_sources: [
     {
+      id: 1,
       categories: [
         {
+          id: 1,
           category_name: "TIN TỨC - SỰ KIỆN",
           category_url: "https://fit.iuh.edu.vn/news.html@102@Tin-tuc-su-kien",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 2,
           category_name: "THÔNG BÁO SINH VIÊN",
           category_url: "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 3,
           category_name: "THÔNG TIN TUYỂN SINH",
           category_url:
             "https://fit.iuh.edu.vn/news.html@157@Thong-tin-tuyen-sinh",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 4,
           category_name: "THỰC TẬP TUYỂN DỤNG",
           category_url:
             "https://fit.iuh.edu.vn/news.html@104@Tuyen-dung-chuyen-nganh",
@@ -497,8 +503,10 @@ const current_data = {
       createdAt: "2025-09-15T14:12:07.651Z",
     },
     {
+      id: 2,
       categories: [
         {
+          id: 5,
           category_name: "TIN TỨC - SỰ KIỆN",
           category_url: "https://pdt.iuh.edu.vn/category/tin-tuc-su-kien/",
           last_external_publish_date: "2025-09-15",
@@ -511,8 +519,10 @@ const current_data = {
       createdAt: "2025-09-15T14:18:12.255Z",
     },
     {
+      id: 3,
       categories: [
         {
+          id: 6,
           category_name: "HOẠT ĐỘNG PHONG TRÀO",
           category_url:
             "https://ctsv.iuh.edu.vn/news.html@211@Hoat-dong-phong-trao",
@@ -526,23 +536,28 @@ const current_data = {
       createdAt: "2025-09-15T14:20:19.751Z",
     },
     {
+      id: 4,
       categories: [
         {
+          id: 7,
           category_name: "THÔNG BÁO SINH VIÊN",
           category_url: "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 8,
           category_name: "TIN TỨC - SỰ KIỆN",
           category_url: "https://iuh.edu.vn/vi/tin-tuc-su-kien-fi11",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 9,
           category_name: "THÔNG TIN TUYỂN SINH",
           category_url: "https://iuh.edu.vn/vi/tuyen-sinh-fi16",
           last_external_publish_date: "2025-09-15",
         },
         {
+          id: 10,
           category_name: "HỢP TÁC QUỐC TẾ",
           category_url: "https://iuh.edu.vn/vi/hop-tac-quoc-te-fi12",
           last_external_publish_date: "2025-09-15",

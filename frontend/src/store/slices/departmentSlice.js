@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { mockDepartments } from "../../assets/sampleData";
+import { current_data } from "../../assets/sampleData";
 
 const departmentSlice = createSlice({
   name: "department",
   initialState: {
-    listDepartment: mockDepartments,
+    listDepartment: current_data.department_sources,
   },
   reducers: {
     addDepartment: (state, action) => {

@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { LiaTimesCircle } from "react-icons/lia";
 
 function ProfileForm({
   setUserProfile,
@@ -44,12 +45,10 @@ function ProfileForm({
   return (
     <div className="relative w-[600px] mx-auto bg-white rounded space-y-6 p-6 shadow">
       {/* Nút đóng */}
-      <button
-        className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl flex items-center justify-center w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white"
+      <LiaTimesCircle
+        className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"
         onClick={() => setUserProfile(false)}
-      >
-        &times;
-      </button>
+      />
 
       <div className="flex items-center">
         <div>
