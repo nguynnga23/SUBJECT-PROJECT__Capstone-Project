@@ -9,6 +9,8 @@ import SearchScreen from "../screens/Search/SearchScreen";
 import Bookmark from "../screens/Bookmark/Bookmark";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import LoginScreen from "../screens/Auth/LoginScreen";
+import NotificationScreen from "../screens/Home/Notification/NotificationScreen";
+import ArticleDetail from "../screens/Home/Article/ArticleDetail";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -67,6 +69,9 @@ export default function AppNavigator() {
             {() => <LoginScreen onLogin={() => setIsLoggedIn(true)} />}
           </Stack.Screen>
         )}
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="ArticleDetail" component={ArticleDetail} />
+        <Stack.Screen name="Notifications" component={NotificationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
