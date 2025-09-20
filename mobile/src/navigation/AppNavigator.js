@@ -12,6 +12,7 @@ import LoginScreen from "../screens/Auth/LoginScreen";
 import NotificationScreen from "../screens/Home/Notification/NotificationScreen";
 import ArticleDetail from "../screens/Home/Article/ArticleDetail";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
+import ChatScreen from "../screens/Chat/ChatScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -24,6 +25,7 @@ function MainTabs({ onLogout }) {
           let iconName;
           if (route.name === "Home") iconName = "home-outline";
           else if (route.name === "Search") iconName = "search-outline";
+          else if (route.name === "Chat") iconName = "chatbubble-outline";
           else if (route.name === "Bookmark") iconName = "bookmark-outline";
           else iconName = "person-outline";
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -41,6 +43,13 @@ function MainTabs({ onLogout }) {
         name="Search"
         component={SearchScreen}
         options={{ title: "Khám phá" }}
+      />
+      <Tab.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          title: "Chat",
+        }}
       />
       <Tab.Screen
         name="Bookmark"
