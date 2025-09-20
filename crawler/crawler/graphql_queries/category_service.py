@@ -24,3 +24,17 @@ UPDATE_LAST_DATE = """
                 }
             }
         """
+FIND_KEY = """
+                query ($url: String) {
+                    categories (
+                        filters: {
+                            category_url: {eq: $url}
+                        }
+                    ) {
+                        key_category
+                        department_source {
+                            key_departmentSource
+                        }
+                    }
+                }
+            """

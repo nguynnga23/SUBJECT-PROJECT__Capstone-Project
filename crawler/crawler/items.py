@@ -17,6 +17,6 @@ class ArticleItem(scrapy.Item):
     category_name = scrapy.Field()
     category_url = scrapy.Field()
     
-    department_resource_id = scrapy.Field()
-    department_resource_name = scrapy.Field()
-    department_resource_url = scrapy.Field()
+    department_source_id = scrapy.Field()
+    department_source_name = scrapy.Field()
+    department_source_url = scrapy.Field()
