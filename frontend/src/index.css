@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ẩn thanh cuộn mặc định */
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Khi hover hoặc đang cuộn thì hiện */
+.scroll-container:hover::-webkit-scrollbar,
+.scroll-container:active::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-container::-webkit-scrollbar-thumb {
+  background: rgba(93, 92, 92, 0.5);
+  border-radius: 4px;
+}

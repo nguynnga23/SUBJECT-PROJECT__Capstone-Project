@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { LiaTimesCircle } from "react-icons/lia";
 
 function ProfileForm({
   setUserProfile,
@@ -9,6 +10,20 @@ function ProfileForm({
     "https://i.pravatar.cc/40"
   );
   const fileInputRef = useRef(null);
+  const [editMode, setEditMode] = useState(false);
+  const [preCurrentUser, setPreCurrentUser] = useState(currentUser || {});
+  const [formData, setFormData] = useState(currentUser || {});
+
+  const handleSave = () => {
+    console.log("Dữ liệu cập nhật:", FormData);
+    setEditMode(false);
+    // TODO: Gọi API lưu dữ liệu ở đây
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -30,12 +45,10 @@ function ProfileForm({
   return (
     <div className="relative w-[600px] mx-auto bg-white rounded space-y-6 p-6 shadow">
       {/* Nút đóng */}
-      <button
-        className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl flex items-center justify-center w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white"
+      <LiaTimesCircle
+        className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"
         onClick={() => setUserProfile(false)}
-      >
-        &times;
-      </button>
+      />
 
       <div className="flex items-center">
         <div>
@@ -43,12 +56,14 @@ function ProfileForm({
             src={avatarPreview}
             alt="avatar"
             className="w-28 h-28 rounded-full object-cover border-4 border-gray-200 shadow"
+            disabled={!editMode}
             onClick={handleClickAvatar}
           />
           <input
             type="file"
             accept="image/*"
             ref={fileInputRef}
+            disabled={!editMode}
             onChange={handleAvatarChange}
             hidden
           />
@@ -85,8 +100,11 @@ function ProfileForm({
           <input
             type="text"
             placeholder="Nhập số điện thoại"
+            name="number"
+            value={formData.number || ""}
+            onChange={handleChange}
+            disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
-            value={currentUser && currentUser.number}
           />
         </div>
 
@@ -97,8 +115,11 @@ function ProfileForm({
           <input
             type="text"
             placeholder="Tên khoa"
+            name="department"
+            value={formData.department || ""}
+            onChange={handleChange}
+            disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
-            value={currentUser && currentUser.department}
           />
         </div>
 
@@ -109,20 +130,51 @@ function ProfileForm({
           <input
             type="text"
             placeholder="Tên lớp học"
+            name="classRoom"
+            value={formData.classRoom || ""}
+            onChange={handleChange}
+            disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
-            value={currentUser && currentUser.classRoom}
           />
         </div>
-
-        <button
-          className="mt-4 px-4 py-2 bg-gray-400 text-white rounded hover:bg-blue-700 transition"
-          onClick={handleShowChangePassword}
-        >
-          Cập nhật mật khẩu
-        </button>
-        <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-          Cập nhật hồ sơ
-        </button>
+      </div>
+      <div className="flex justify-end items-center">
+        <div>
+          {!editMode ? (
+            <div className="flex justify-end items-center">
+              <button
+                className="mt-4 px-4 py-2 mr-2 bg-gray-400 text-white rounded hover:bg-blue-700 transition"
+                onClick={handleShowChangePassword}
+              >
+                Cập nhật mật khẩu
+              </button>
+              <button
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                onClick={() => setEditMode(true)}
+              >
+                Cập nhật hồ sơ
+              </button>
+            </div>
+          ) : (
+            <div className="flex justify-end items-center">
+              <button
+                onClick={() => {
+                  setEditMode(false);
+                  setFormData(preCurrentUser);
+                }}
+                className="mt-4 px-4 py-2 mr-2 bg-gray-300 rounded"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleSave}
+                className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
+              >
+                Lưu
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

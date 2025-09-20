@@ -4,7 +4,6 @@ import {
   FaBuilding,
   FaNewspaper,
   FaUsers,
-  FaChartBar,
   FaCog,
 } from "react-icons/fa";
 
@@ -17,14 +16,15 @@ const menuItems = [
   },
   { label: "Bài Viết", icon: <FaNewspaper />, path: "/admin/article" },
   { label: "Người Dùng", icon: <FaUsers />, path: "/admin/user" },
-  { label: "Thống kê", icon: <FaChartBar />, path: "/admin/statistic" },
   { label: "Cài đặt", icon: <FaCog />, path: "/admin/setting" },
 ];
 
 const Sidebar = () => {
   return (
     <aside className="h-screen w-full bg-white border-r shadow-sm  left-0 top-0 z-10">
-      <div className="p-6 font-bold text-sm text-blue-500">ADMIN PANEL</div>
+      <div className="p-4 font-bold text-[18px] text-blue-500">
+        Khoa Công Nghệ Thông Tin
+      </div>
       <nav className="flex flex-col gap-1 px-4">
         {menuItems.map((item) => (
           <NavLink

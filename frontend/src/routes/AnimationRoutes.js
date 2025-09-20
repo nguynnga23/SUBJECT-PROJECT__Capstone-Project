@@ -14,6 +14,8 @@ import Statistic from "../pages/Statistic/Statistic";
 import Setting from "../pages/Setting/Setting";
 import Dashboard from "../pages/Dashboard";
 import DepartmentDetail from "../pages/DepartmentDetail";
+import CategoryDetail from "../pages/CategoryDetail";
+import CrawlerConfig from "../pages/CrawlerConfig";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -29,7 +31,7 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<DefaultLayout children={<Department />} />} />
         <Route
           path="/signup"
           element={
@@ -38,7 +40,6 @@ function AnimatedRoutes() {
             </PageWrapper>
           }
         />
-
         <Route
           path="/admin/dashboard"
           element={<AdminLayout children={<Dashboard />} />}
@@ -50,6 +51,14 @@ function AnimatedRoutes() {
         <Route
           path="/admin/department/:id"
           element={<AdminLayout children={<DepartmentDetail />} />}
+        />
+        <Route
+          path="/admin/department/:id/category/:cat_id"
+          element={<AdminLayout children={<CategoryDetail />} />}
+        />
+        <Route
+          path="/admin/department/:id/crawler_config"
+          element={<AdminLayout children={<CrawlerConfig />} />}
         />
         <Route
           path="/admin/article"

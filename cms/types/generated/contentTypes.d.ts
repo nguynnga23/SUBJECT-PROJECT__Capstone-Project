@@ -546,6 +546,7 @@ export interface ApiDepartmentSourceDepartmentSource
       'manyToOne',
       'api::department.department'
     >;
+    key_departmentSource: Schema.Attribute.String;
     label: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -554,6 +555,10 @@ export interface ApiDepartmentSourceDepartmentSource
     > &
       Schema.Attribute.Private;
     publishedAt: Schema.Attribute.DateTime;
+    schedule_config: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::schedule-config.schedule-config'
+    >;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -580,7 +585,6 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::department-source.department-source'
     >;
-    key_department: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -681,6 +685,10 @@ export interface ApiScheduleConfigScheduleConfig
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    department_source: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::department-source.department-source'
+    >;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

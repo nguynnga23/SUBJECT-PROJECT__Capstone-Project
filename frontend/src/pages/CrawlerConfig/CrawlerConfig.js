@@ -4,24 +4,19 @@ import { MdChevronRight, MdAddCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
-import AdditionalCategoryForm from "../../components/Form/AdditionalCategoryForm";
 
-function DepartmentDetail() {
+function CrawlerConfig() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const departments = useSelector((state) => state.department.listDepartment);
   const department = departments.find((a) => a.id.toString() === id);
+  const crawler_config = department.crawler_config;
 
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(department || {});
+  const [formData, setFormData] = useState(crawler_config || {});
 
-  const [showFormCategory, setShowFormCategory] = useState(false);
-
-  const isValid =
-    formData.website?.trim() !== "" &&
-    formData.code?.trim() !== "" &&
-    formData.name?.trim() !== "";
+  const isValid = true;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,19 +58,26 @@ function DepartmentDetail() {
               Danh sách Khoa/Viện
             </span>
             <MdChevronRight />
-            <span className="font-medium">{department.label}</span>
+            <span
+              className=" cursor-pointer hover:border-b"
+              onClick={() => navigate(`/admin/department/${department.id}`)}
+            >
+              {department.label}
+            </span>
+            <MdChevronRight />
+            <span className="font-medium">{"Cấu hình thu thập tin tức"}</span>
           </h2>
 
           <div className="p-6 grid grid-cols-2 gap-6">
-            <div className="col-span-1 grid grid-cols-1 gap-4">
+            <div className="col-span-2 grid grid-cols-2 gap-6">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Website <span className="text-red-500">(*)</span>
+                  relative_url_list
                 </label>
                 <input
                   type="text"
-                  name="url"
-                  value={formData.url || ""}
+                  name="relative_url_list"
+                  value={formData.relative_url_list || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -85,12 +87,12 @@ function DepartmentDetail() {
               </div>
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Tên Khoa <span className="text-red-500">(*)</span>
+                  relative_url
                 </label>
                 <input
                   type="text"
-                  name="label"
-                  value={formData.label || ""}
+                  name="relative_url"
+                  value={formData.relative_url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -100,66 +102,79 @@ function DepartmentDetail() {
               </div>
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Cấu hình thu thập tin tức
+                  next_pages
                 </label>
-                <div
-                  className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                  onClick={() =>
-                    navigate(
-                      `/admin/department/${department.id}/crawler_config`
-                    )
-                  }
-                >
-                  {"Cập nhật"}
-                </div>
+                <input
+                  type="text"
+                  name="next_pages"
+                  value={formData.next_pages || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
               </div>
-            </div>
-            <div className="col-span-1 grid grid-cols-1">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Các loại thông tin bài viết
+                  content
                 </label>
-                <ul className="space-y-2 relative">
-                  {formData.categories?.length > 0 ? (
-                    (formData.categories || []).map((c) => (
-                      <li
-                        key={c.id}
-                        className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                        onClick={() =>
-                          navigate(
-                            `/admin/department/${department.id}/category/${c.id}`
-                          )
-                        }
-                      >
-                        {c.category_name}
-                      </li>
-                    ))
-                  ) : (
-                    <i className="text-[12px] text-center">
-                      Chưa có loại tin tức nào
-                    </i>
-                  )}
-                  {editMode && (
-                    <button
-                      className="absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800"
-                      title="Thêm loại tin tức mới"
-                    >
-                      <MdAddCircle size={24} />
-                    </button>
-                  )}
-                  {showFormCategory && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                      <div className="opacity-0 animate-fadeIn">
-                        <AdditionalCategoryForm
-                          setShowFormCategory={setShowFormCategory}
-                        />
-                      </div>
-                    </div>
-                  )}
-                </ul>
+                <input
+                  type="text"
+                  name="content"
+                  value={formData.content || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
               </div>
-              <div className="col-span-1 mb-1">{""}</div>
-              <div className="col-span-1 mb-1">{""}</div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  thumbnail
+                </label>
+                <input
+                  type="text"
+                  name="thumbnail"
+                  value={formData.thumbnail || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  title
+                </label>
+                <input
+                  type="text"
+                  name="title"
+                  value={formData.title || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
+              <div>
+                <label className="block text-blue-700 font-medium mb-1">
+                  external_publish_date
+                </label>
+                <input
+                  type="text"
+                  name="external_publish_date"
+                  value={formData.external_publish_date || ""}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className={`w-full border rounded px-3 py-2 ${
+                    !editMode ? "bg-gray-100" : ""
+                  }`}
+                />
+              </div>
             </div>
           </div>
 
@@ -176,7 +191,7 @@ function DepartmentDetail() {
               <>
                 <button
                   onClick={() => {
-                    setFormData(department); // reset
+                    setFormData(crawler_config); // reset
                     setEditMode(false);
                   }}
                   className="px-8 py-2 bg-gray-300 rounded"
@@ -201,4 +216,4 @@ function DepartmentDetail() {
   );
 }
 
-export default DepartmentDetail;
+export default CrawlerConfig;

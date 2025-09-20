@@ -34,6 +34,15 @@
       "relation": "manyToOne",
       "target": "api::department.department",
       "inversedBy": "department_sources"
+    },
+    "schedule_config": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::schedule-config.schedule-config",
+      "inversedBy": "department_source"
+    },
+    "key_departmentSource": {
+      "type": "string"
     }
   }
 }
