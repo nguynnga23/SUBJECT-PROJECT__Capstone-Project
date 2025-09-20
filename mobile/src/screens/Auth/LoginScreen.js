@@ -5,12 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function LoginScreen({ navigation, onLogin }) {
   const [emailOrId, setEmailOrId] = useState("");
@@ -26,100 +24,103 @@ export default function LoginScreen({ navigation, onLogin }) {
         <Text style={styles.brand}>UNIFEED.news</Text>
       </View>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      {/* Dùng KASV trực tiếp, không cần KAV */}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollCenter}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        enableOnAndroid
+        extraScrollHeight={24} // đẩy thêm 1 chút khi focus input
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollCenter}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Card trắng */}
-          <View style={styles.card}>
-            {/* Header trong card */}
-            <View style={styles.cardHeader}>
-              <Text style={styles.h1}>Welcome back</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-                <Text style={styles.link}>
-                  No Account? <Text style={styles.signUp}>Sign up</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.signInText}>Sign in</Text>
-
-            {/* Social buttons */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.googleBtn}>
-                <Ionicons name="logo-google" size={18} color="#EA4335" />
-                <Text style={styles.googleText}>Sign in with Google</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.circleBtn}>
-                <Ionicons name="logo-facebook" size={20} color="#1877F2" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.circleBtn}>
-                <Ionicons name="logo-github" size={20} color="#000" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Form */}
-            <View style={{ marginTop: 24 }}>
-              <Text style={styles.label}>
-                Enter your username or email address
+        {/* Card trắng */}
+        <View style={styles.card}>
+          {/* Header trong card */}
+          <View style={styles.cardHeader}>
+            <Text style={styles.h1}>Welcome back</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text style={styles.link}>
+                No Account? <Text style={styles.signUp}>Sign up</Text>
               </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Username or email address"
-                placeholderTextColor="#9aa0a6"
-                value={emailOrId}
-                onChangeText={setEmailOrId}
-                autoCapitalize="none"
-              />
-
-              <Text style={[styles.label, { marginTop: 16 }]}>
-                Enter your Password
-              </Text>
-              <View style={styles.passwordWrap}>
-                <TextInput
-                  style={styles.inputPassword}
-                  placeholder="Password"
-                  placeholderTextColor="#9aa0a6"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPwd}
-                />
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={() => setShowPwd(!showPwd)}
-                >
-                  <Ionicons
-                    name={showPwd ? "eye-off-outline" : "eye-outline"}
-                    size={18}
-                    color="#5f6368"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Forgot password */}
-              <TouchableOpacity style={styles.forgot}>
-                <Text style={styles.forgotText}>Forgot Password</Text>
-              </TouchableOpacity>
-            </View>
-            {/* Nút Sign in */}
-            <TouchableOpacity
-              style={[styles.btn, !canSubmit && styles.btnDisabled]}
-              onPress={onLogin}
-              disabled={!canSubmit}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.btnText}>Sign in</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <Text style={styles.signInText}>Sign in</Text>
+
+          {/* Social buttons */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.googleBtn}>
+              <Ionicons name="logo-google" size={18} color="#EA4335" />
+              <Text style={styles.googleText}>Sign in with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.circleBtn}>
+              <Ionicons name="logo-facebook" size={20} color="#1877F2" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.circleBtn}>
+              <Ionicons name="logo-github" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Form */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={styles.label}>
+              Enter your username or email address
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Username or email address"
+              placeholderTextColor="#9aa0a6"
+              value={emailOrId}
+              onChangeText={setEmailOrId}
+              autoCapitalize="none"
+              returnKeyType="next"
+            />
+
+            <Text style={[styles.label, { marginTop: 16 }]}>
+              Enter your Password
+            </Text>
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={styles.inputPassword}
+                placeholder="Password"
+                placeholderTextColor="#9aa0a6"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPwd}
+                returnKeyType="done"
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPwd(!showPwd)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons
+                  name={showPwd ? "eye-off-outline" : "eye-outline"}
+                  size={18}
+                  color="#5f6368"
+                />
+              </TouchableOpacity>
+            </View>
+
+            {/* Forgot password */}
+            <TouchableOpacity style={styles.forgot}>
+              <Text style={styles.forgotText}>Forgot Password</Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Nút Sign in */}
+          <TouchableOpacity
+            style={[styles.btn, !canSubmit && styles.btnDisabled]}
+            onPress={onLogin}
+            disabled={!canSubmit}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.btnText}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -139,17 +140,14 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    marginTop: -20,
     padding: 22,
+    margin: 10,
+    // bỏ height cố định và marginTop âm để tránh nhảy layout
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
     elevation: 4,
-    height: "90%",
-    margin: 10,
-    display: "flex",
-    justifyContent: "space-around",
   },
 
   cardHeader: {

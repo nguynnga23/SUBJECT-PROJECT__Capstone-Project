@@ -5,12 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function RegisterScreen({ navigation, onRegister }) {
   const [fullName, setFullName] = useState("");
@@ -45,138 +43,135 @@ export default function RegisterScreen({ navigation, onRegister }) {
         <Text style={styles.brand}>UNIFEED.news</Text>
       </View>
 
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.scrollCenter}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
+        enableOnAndroid
+        extraScrollHeight={24}
       >
-        <ScrollView
-          contentContainerStyle={styles.scrollCenter}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Card */}
-          <View style={styles.card}>
-            {/* Header */}
-            <View style={styles.cardHeader}>
-              <Text style={styles.h1}>Welcome</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-                <Text style={styles.link}>
-                  Have an Account? <Text style={styles.signUp}>Sign in</Text>
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.signInText}>Sign up</Text>
-
-            {/* Social */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.googleBtn}>
-                <Ionicons name="logo-google" size={18} color="#EA4335" />
-                <Text style={styles.googleText}>Continue with Google</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.circleBtn}>
-                <Ionicons name="logo-facebook" size={20} color="#1877F2" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.circleBtn}>
-                <Ionicons name="logo-github" size={20} color="#000" />
-              </TouchableOpacity>
-            </View>
-
-            {/* Form */}
-            <View style={{ marginTop: 24 }}>
-              {/* Full name */}
-              <Text style={styles.label}>Enter your full name</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Full name"
-                placeholderTextColor="#9aa0a6"
-                value={fullName}
-                onChangeText={setFullName}
-              />
-
-              {/* Email / Username */}
-              <Text style={[styles.label, { marginTop: 16 }]}>
-                Enter your username or email address
+        {/* Card */}
+        <View style={styles.card}>
+          {/* Header */}
+          <View style={styles.cardHeader}>
+            <Text style={styles.h1}>Welcome</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+              <Text style={styles.link}>
+                Have an Account? <Text style={styles.signUp}>Sign in</Text>
               </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Username or email address"
-                placeholderTextColor="#9aa0a6"
-                value={emailOrId}
-                onChangeText={setEmailOrId}
-                autoCapitalize="none"
-              />
-
-              {/* Password */}
-              <Text style={[styles.label, { marginTop: 16 }]}>
-                Create a Password
-              </Text>
-              <View style={styles.passwordWrap}>
-                <TextInput
-                  style={styles.inputPassword}
-                  placeholder="Password (min 6 characters)"
-                  placeholderTextColor="#9aa0a6"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPwd}
-                />
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={() => setShowPwd((s) => !s)}
-                >
-                  <Ionicons
-                    name={showPwd ? "eye-off-outline" : "eye-outline"}
-                    size={18}
-                    color="#5f6368"
-                  />
-                </TouchableOpacity>
-              </View>
-
-              {/* Confirm */}
-              <Text style={[styles.label, { marginTop: 16 }]}>
-                Confirm Password
-              </Text>
-              <View style={styles.passwordWrap}>
-                <TextInput
-                  style={styles.inputPassword}
-                  placeholder="Re-enter password"
-                  placeholderTextColor="#9aa0a6"
-                  value={confirm}
-                  onChangeText={setConfirm}
-                  secureTextEntry={!showConfirm}
-                />
-                <TouchableOpacity
-                  style={styles.eyeBtn}
-                  onPress={() => setShowConfirm((s) => !s)}
-                >
-                  <Ionicons
-                    name={showConfirm ? "eye-off-outline" : "eye-outline"}
-                    size={18}
-                    color="#5f6368"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Submit */}
-            <TouchableOpacity
-              style={[styles.btn, !canSubmit && styles.btnDisabled]}
-              onPress={handleSubmit}
-              disabled={!canSubmit}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.btnText}>Sign up</Text>
             </TouchableOpacity>
           </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+
+          <Text style={styles.signInText}>Sign up</Text>
+
+          {/* Social */}
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.googleBtn}>
+              <Ionicons name="logo-google" size={18} color="#EA4335" />
+              <Text style={styles.googleText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.circleBtn}>
+              <Ionicons name="logo-facebook" size={20} color="#1877F2" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.circleBtn}>
+              <Ionicons name="logo-github" size={20} color="#000" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Form */}
+          <View style={{ marginTop: 24 }}>
+            <Text style={styles.label}>Enter your full name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Full name"
+              placeholderTextColor="#9aa0a6"
+              value={fullName}
+              onChangeText={setFullName}
+              returnKeyType="next"
+            />
+
+            <Text style={[styles.label, { marginTop: 16 }]}>
+              Enter your username or email address
+            </Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Username or email address"
+              placeholderTextColor="#9aa0a6"
+              value={emailOrId}
+              onChangeText={setEmailOrId}
+              autoCapitalize="none"
+              returnKeyType="next"
+            />
+
+            <Text style={[styles.label, { marginTop: 16 }]}>
+              Create a Password
+            </Text>
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={styles.inputPassword}
+                placeholder="Password (min 6 characters)"
+                placeholderTextColor="#9aa0a6"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPwd}
+                returnKeyType="next"
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPwd((s) => !s)}
+              >
+                <Ionicons
+                  name={showPwd ? "eye-off-outline" : "eye-outline"}
+                  size={18}
+                  color="#5f6368"
+                />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={[styles.label, { marginTop: 16 }]}>
+              Confirm Password
+            </Text>
+            <View style={styles.passwordWrap}>
+              <TextInput
+                style={styles.inputPassword}
+                placeholder="Re-enter password"
+                placeholderTextColor="#9aa0a6"
+                value={confirm}
+                onChangeText={setConfirm}
+                secureTextEntry={!showConfirm}
+                returnKeyType="done"
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowConfirm((s) => !s)}
+              >
+                <Ionicons
+                  name={showConfirm ? "eye-off-outline" : "eye-outline"}
+                  size={18}
+                  color="#5f6368"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Submit */}
+          <TouchableOpacity
+            style={[styles.btn, !canSubmit && styles.btnDisabled]}
+            onPress={handleSubmit}
+            disabled={!canSubmit}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.btnText}>Sign up</Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
 
-/** giữ nguyên style token & spacing với Login */
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#E7F0FF" },
   brandRow: { paddingTop: 20, paddingHorizontal: 20, margin: 10 },
@@ -192,17 +187,13 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     borderRadius: 20,
-    marginTop: -20,
     padding: 22,
+    margin: 10,
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 8 },
     shadowRadius: 16,
     elevation: 4,
-    height: "90%",
-    margin: 10,
-    display: "flex",
-    justifyContent: "space-around",
   },
 
   cardHeader: {
