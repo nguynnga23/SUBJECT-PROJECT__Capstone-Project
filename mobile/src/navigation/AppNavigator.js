@@ -11,7 +11,7 @@ import ProfileScreen from "../screens/Profile/ProfileScreen";
 import LoginScreen from "../screens/Auth/LoginScreen";
 import NotificationScreen from "../screens/Home/Notification/NotificationScreen";
 import ArticleDetail from "../screens/Home/Article/ArticleDetail";
-
+import RegisterScreen from "../screens/Auth/RegisterScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -65,9 +65,24 @@ export default function AppNavigator() {
             {() => <MainTabs onLogout={() => setIsLoggedIn(false)} />}
           </Stack.Screen>
         ) : (
-          <Stack.Screen name="Login">
-            {() => <LoginScreen onLogin={() => setIsLoggedIn(true)} />}
-          </Stack.Screen>
+          <>
+            {/* Login */}
+            <Stack.Screen name="Login">
+              {(props) => (
+                <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />
+              )}
+            </Stack.Screen>
+
+            {/* Register */}
+            <Stack.Screen name="Register">
+              {(props) => (
+                <RegisterScreen
+                  {...props}
+                  onRegister={() => setIsLoggedIn(true)}
+                />
+              )}
+            </Stack.Screen>
+          </>
         )}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ArticleDetail" component={ArticleDetail} />

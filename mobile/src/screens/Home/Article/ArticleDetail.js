@@ -12,7 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { getArticleById } from "../../../api/home";
 import Markdown from "react-native-markdown-display";
-
+import { domain } from "../../../config";
 export default function ArticleDetailScreen({ route, navigation }) {
   const preloadedArticle = route?.params?.article;
   const articleId = route?.params?.articleId;
@@ -22,7 +22,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
   const fixedContent = article?.content
     ? article.content.replaceAll(
         "http://localhost:1337",
-        "http://172.20.74.27:1337"
+        `http://${domain}:1337`
       )
     : "";
 
@@ -52,7 +52,11 @@ export default function ArticleDetailScreen({ route, navigation }) {
   if (!article) {
     return (
       <SafeAreaView
-        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
         <Text>Không tìm thấy bài viết</Text>
         <TouchableOpacity
