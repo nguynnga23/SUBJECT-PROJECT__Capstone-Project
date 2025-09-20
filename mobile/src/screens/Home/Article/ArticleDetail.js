@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -5,12 +6,64 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import { getArticleById } from "../../../api/home";
+import Markdown from "react-native-markdown-display";
 
-export default function ArticleDetail({ route, navigation }) {
-  const { article } = route.params;
+export default function ArticleDetailScreen({ route, navigation }) {
+  const preloadedArticle = route?.params?.article;
+  const articleId = route?.params?.articleId;
+
+  const [article, setArticle] = useState(preloadedArticle || null);
+  const [loading, setLoading] = useState(!preloadedArticle && !!articleId);
+  const fixedContent = article?.content
+    ? article.content.replaceAll(
+        "http://localhost:1337",
+        "http://172.20.74.27:1337"
+      )
+    : "";
+
+  useEffect(() => {
+    if (!preloadedArticle && articleId) {
+      (async () => {
+        try {
+          const data = await getArticleById(articleId);
+          setArticle(data);
+        } catch (e) {
+          console.error("Fetch article failed:", e);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [articleId, preloadedArticle]);
+
+  if (loading) {
+    return (
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (!article) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+      >
+        <Text>Không tìm thấy bài viết</Text>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{ marginTop: 12 }}
+        >
+          <Text style={{ color: "#1a73e8" }}>Quay lại</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -36,7 +89,7 @@ export default function ArticleDetail({ route, navigation }) {
         {/* Author */}
         <View style={styles.authorRow}>
           <View style={styles.avatar} />
-          <Text style={styles.author}>{article.category.name}</Text>
+          <Text style={styles.author}>{article?.category?.name}</Text>
           <TouchableOpacity style={styles.followBtn}>
             <Text style={styles.followText}>Follow</Text>
           </TouchableOpacity>
@@ -48,7 +101,7 @@ export default function ArticleDetail({ route, navigation }) {
         ) : null}
 
         {/* Content */}
-        <Text style={styles.contentText}>{article.content}</Text>
+        <Markdown style={markdownStyles}>{fixedContent}</Markdown>
       </ScrollView>
 
       {/* Bottom actions */}
@@ -110,3 +163,15 @@ const styles = StyleSheet.create({
   },
   bottomText: { marginLeft: 6, fontSize: 14, color: "#444" },
 });
+const markdownStyles = {
+  body: { fontSize: 16, lineHeight: 24, color: "#333" },
+  heading1: { fontSize: 26, fontWeight: "700" },
+  code_inline: { backgroundColor: "#eee", padding: 4, borderRadius: 4 },
+  code_block: {
+    backgroundColor: "#eee",
+    padding: 10,
+    borderRadius: 6,
+    fontFamily: "monospace",
+  },
+  link: { color: "#1a73e8" },
+};

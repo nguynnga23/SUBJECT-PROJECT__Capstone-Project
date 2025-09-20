@@ -1,9 +1,20 @@
 import React from "react";
-import { FlatList, View, Text, SafeAreaView, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
+import { FlatList, View, Text, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import ArticleCard from "./Article/ArticleCard";
+import { getArticles } from "../../api/home";
 import { mockArticles } from "./mocks/mockArticles";
 import { Ionicons } from "@expo/vector-icons";
 export default function HomeScreen({ navigation }) {
+  const [articles, setArticles] = useState([]);
+
+  useEffect(() => {
+    getArticles()
+      .then((data) => setArticles(data))
+      .catch((err) => console.error("API error:", err));
+  }, []);
+
   return (
     <SafeAreaView style={styles.safe}>
       {/* Header */}
@@ -19,21 +30,23 @@ export default function HomeScreen({ navigation }) {
 
       {/* List */}
       <FlatList
-        data={mockArticles}
-        keyExtractor={(item) => item.id}
+        data={articles}
+        keyExtractor={(item) => item.documentId}
         renderItem={({ item }) => (
           <ArticleCard
             item={{
-              author: item.category.name,
+              author: item.categoryName ?? "Unknown",
               title: item.title,
               subtitle: item.summary,
               date: item.external_publish_date,
-              views: "213",
-              comments: "3",
+              views: "0",
+              comments: "0",
               thumb: item.thumbnail,
             }}
             onPress={() =>
-              navigation.navigate("ArticleDetail", { article: item })
+              navigation.navigate("ArticleDetail", {
+                articleId: item.documentId,
+              })
             }
           />
         )}
