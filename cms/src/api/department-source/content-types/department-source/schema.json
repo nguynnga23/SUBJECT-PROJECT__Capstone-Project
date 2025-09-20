@@ -40,6 +40,9 @@
       "relation": "oneToOne",
       "target": "api::schedule-config.schedule-config",
       "inversedBy": "department_source"
+    },
+    "key_departmentSource": {
+      "type": "string"
     }
   }
 }

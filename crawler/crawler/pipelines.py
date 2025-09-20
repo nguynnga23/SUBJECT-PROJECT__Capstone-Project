@@ -13,6 +13,14 @@ import mimetypes
 
 from crawler.items import ArticleItem
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
+from crawler.graphql_queries.article_service import CREATE_ARTICLE, IS_ARTICLE_EXIT
+from crawler.graphql_queries.department_resource_service import GET_DEPARTMENT_BY_DEPARTMENT_URL
+from crawler.graphql_queries.category_service import GET_CATEGORY_BY_CATEGORY_URL_DEPARTMENT_URL
+
+DEFAULT_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+)
 
 class ArticlePipeline:
     def _clean_title(self, adapter):
@@ -20,9 +28,7 @@ class ArticlePipeline:
         cleaned_title = title.replace('\r\n', ' ').strip()
         adapter['title'] = cleaned_title
     
-        
     def _summarize_text(self, adapter, spider):
-        
         adapter["summary"] = "" 
 
     
@@ -56,14 +62,13 @@ class CMSPipeline:
         
         category_url = adapter.get('category_url')
         category_name = adapter.get('category_name')
-        category_id = self._get_category(category_url, department_id)
+        category_id = self._get_category(category_url, department_url)
         if not category_id:
             spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_url}")
             return  # Bỏ qua nếu không có category phù hợp
     
         # Upload file/image to Strapi
         department_url = adapter.get('department_url', '')
-        base_url = f'https://{department_url}'
         strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
 
         # 1. Upload các file tài liệu, video, v.v.
@@ -71,7 +76,7 @@ class CMSPipeline:
         file_urls = self.extract_file_urls(adapter, extensions)
         if file_urls:
             for file_url in file_urls:
-                file_path = self.download_file(file_url, base_url)
+                file_path = self.download_file(file_url, department_url)
                 new_url = self.upload_file_to_strapi(file_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
                 if new_url:
                     self.replace_all_variants(adapter, file_url, new_url)
@@ -80,7 +85,7 @@ class CMSPipeline:
         img_urls = self.extract_image_urls(adapter)
         if img_urls:
             for img_url in img_urls:
-                img_path = self.download_file(img_url, base_url)
+                img_path = self.download_file(img_url, department_url)
                 new_img_url = self.upload_file_to_strapi(img_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
                 if new_img_url and isinstance(adapter['content'], str):
                     self.replace_all_variants(adapter, img_url, new_img_url)
@@ -92,8 +97,7 @@ class CMSPipeline:
                 elif thumbnail == "img_default.png":
                     adapter['thumbnail'] = "https://iuh.edu.vn/templates/2015/image/img_default.png"
         else:
-            base_url = f"https://{adapter['department_url']}/"
-            adapter['thumbnail'] = urljoin(base_url, adapter['thumbnail'])
+            adapter['thumbnail'] = urljoin(adapter['department_url'], adapter['thumbnail'])
 
         # 3. Convert HTML → Markdown
         self._convert_html_to_markdown(adapter)
@@ -146,14 +150,11 @@ class CMSPipeline:
                    return f"{strapi_url}{file_url}" if file_url else None
         return None
             
-    def download_file(self, file_url, base_url, save_dir='downloads'):
+    def download_file(self, file_url, base_url, save_dir='downloads', user_agent=DEFAULT_USER_AGENT, referer=None):
         full_url = urljoin(base_url, file_url)
         headers = {
-            "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-            ),
-            "Referer": base_url,
+            "User-Agent": user_agent,
+            "Referer": referer or base_url,
         }
 
         response = requests.get(full_url, headers=headers, allow_redirects=True)
@@ -171,22 +172,15 @@ class CMSPipeline:
             raise Exception(f"❌ Failed to download file from {full_url}")
     
     def replace_all_variants(self, adapter, old_url, new_url):
-        """
-        Thay thế tất cả biến thể của old_url trong content: 
-        - dạng encode (%20)
-        - dạng decode (khoảng trắng)
-        - có domain (https://...)
-        """
         content = adapter.get('content', '')
         department_url = adapter.get('department_url', '')
-        base_url = f'https://{department_url}'
 
         # Các dạng URL có thể tồn tại trong content
         variants = [
             old_url,
             unquote(old_url),
-            urljoin(base_url, old_url),
-            urljoin(base_url, unquote(old_url))
+            urljoin(department_url, old_url),
+            urljoin(department_url, unquote(old_url))
         ]
 
         for variant in variants:
@@ -196,19 +190,11 @@ class CMSPipeline:
         adapter['content'] = content
     
     
-    
     def _get_department(self, department_url):
-        query = """
-            query checkDepartment($url: String!) {
-                departments(filters: { department_url: {eq: $url} }) {
-                    documentId
-                }
-            }
-        """
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-            data=json.dumps({'query': query, 'variables': {'url': department_url}})
+            data=json.dumps({'query': GET_DEPARTMENT_BY_DEPARTMENT_URL, 'variables': {'url': department_url}})
         )        
         try:
             data = response.json()
@@ -220,25 +206,11 @@ class CMSPipeline:
             print("Response text:", response.text)
         return None
         
-    def _get_category(self, category_url, department_id):
-        query = """
-           query checkCategory($url: String!, $department_id: ID!) {
-            categories(
-                 filters: {
-                    category_url: { eq: $url }
-                    department: {
-                        documentId: { eq: $department_id }
-                    }
-                }
-            ) {
-                documentId
-            }
-        }
-        """
+    def _get_category(self, category_url, department_url):
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-            data=json.dumps({'query': query, 'variables': {'url': category_url, 'department_id': department_id}})
+            data=json.dumps({'query': GET_CATEGORY_BY_CATEGORY_URL_DEPARTMENT_URL, 'variables': {'category_url': category_url, 'department_url': department_url}})
         )
         try:
             data = response.json()
@@ -252,46 +224,11 @@ class CMSPipeline:
 
 
     def _create_article(self, adapter, category_id):
-        query = """
-        mutation createArticle(
-          $title: String!,
-          $content: String!,
-          $summary: String!,
-          $thumbnail: String!,
-          $external_slug: String!,
-          $external_url: String!,
-          $external_publish_date: Date!,
-          $categoryId: ID!
-        ) {
-          createArticle(
-            data: {
-              title: $title,
-              content: $content,
-              summary: $summary,
-              thumbnail: $thumbnail,
-              external_slug: $external_slug,
-              external_url: $external_url,
-              external_publish_date: $external_publish_date,
-              category: $categoryId
-            }
-          ) {
-            title
-            summary
-            thumbnail
-            external_slug
-            external_url
-            external_publish_date
-            category {
-              documentId
-            }
-          }
-        }
-        """
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
             timeout=10,
-            data=json.dumps({'query': query, 'variables': {
+            data=json.dumps({'query': CREATE_ARTICLE, 'variables': {
                 'title': adapter.get('title'),
                 'content': adapter.get('content'),
                 'summary': adapter.get('summary'),
@@ -312,24 +249,15 @@ class CMSPipeline:
                     print("✅ Article created successfully")
             else:
                 print("❌ Failed to create article")
-                print("Status code:", response.status_code)
-                print("Response:", response.text)
         except Exception as e:
             print("❌ Exception occurred while creating article:", e)
     
     # Áp dụng Duplicate Filtering          
     def _is_article_exist(self, external_url):
-        query = """
-        query checkArticle($external_url: String!) {
-            articles(filters: { external_url: { eq: $external_url } }) {
-                title
-            }
-        }
-        """
         response = requests.post(
             self._graphql_url_endpoint,
             headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-            data=json.dumps({'query': query, 'variables': {'external_url': external_url}})
+            data=json.dumps({'query': IS_ARTICLE_EXIT, 'variables': {'external_url': external_url}})
         )
         data = response.json()
         return len(data['data']['articles']) > 0

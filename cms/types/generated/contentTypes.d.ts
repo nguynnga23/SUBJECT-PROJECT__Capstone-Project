@@ -546,6 +546,7 @@ export interface ApiDepartmentSourceDepartmentSource
       'manyToOne',
       'api::department.department'
     >;
+    key_departmentSource: Schema.Attribute.String;
     label: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
@@ -584,7 +585,6 @@ export interface ApiDepartmentDepartment extends Struct.CollectionTypeSchema {
       'oneToMany',
       'api::department-source.department-source'
     >;
-    key_department: Schema.Attribute.String;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',

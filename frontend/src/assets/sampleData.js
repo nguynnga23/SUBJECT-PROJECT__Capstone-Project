@@ -545,7 +545,7 @@ const current_data = {
         {
           id: 7,
           category_name: "THÔNG BÁO SINH VIÊN",
-          category_url: "https://fit.iuh.edu.vn/news.html@155@Thong-bao",
+          category_url: "https://iuh.edu.vn/vi/thong-bao-fi20",
           last_external_publish_date: "2025-09-15",
         },
         {
