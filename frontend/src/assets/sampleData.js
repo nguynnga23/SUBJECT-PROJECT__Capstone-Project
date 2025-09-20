@@ -499,6 +499,10 @@ const current_data = {
         relative_url_list: ".content",
         thumbnail: ".content-img img::attr(src)",
       },
+      schedule_config: {
+        value: 1,
+        type: "HOURS",
+      },
       updatedAt: "2025-09-15T14:15:31.629Z",
       createdAt: "2025-09-15T14:12:07.651Z",
     },
@@ -575,6 +579,10 @@ const current_data = {
         relative_url: ".content-img a ::attr(href)",
         relative_url_list: ".content",
         thumbnail: ".content-img img::attr(src)",
+      },
+      schedule_config: {
+        value: 6,
+        type: "HOURS",
       },
       updatedAt: "2025-09-15T14:27:43.576Z",
       createdAt: "2025-09-15T14:06:56.534Z",

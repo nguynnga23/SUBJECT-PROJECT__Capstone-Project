@@ -21,6 +21,12 @@
     },
     "value": {
       "type": "integer"
+    },
+    "department_source": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::department-source.department-source",
+      "mappedBy": "schedule_config"
     }
   }
 }
