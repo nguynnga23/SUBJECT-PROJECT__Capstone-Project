@@ -37,40 +37,21 @@ export default function LoginScreen({ navigation, onLogin }) {
         <View style={styles.card}>
           {/* Header trong card */}
           <View style={styles.cardHeader}>
-            <Text style={styles.h1}>Welcome back</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
               <Text style={styles.link}>
-                No Account? <Text style={styles.signUp}>Sign up</Text>
+                Chưa có tài khoản? <Text style={styles.signUp}>Đăng ký</Text>
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.signInText}>Sign in</Text>
-
-          {/* Social buttons */}
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.googleBtn}>
-              <Ionicons name="logo-google" size={18} color="#EA4335" />
-              <Text style={styles.googleText}>Sign in with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.circleBtn}>
-              <Ionicons name="logo-facebook" size={20} color="#1877F2" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.circleBtn}>
-              <Ionicons name="logo-github" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.signInText}>Đăng nhập</Text>
 
           {/* Form */}
           <View style={{ marginTop: 24 }}>
-            <Text style={styles.label}>
-              Enter your username or email address
-            </Text>
+            <Text style={styles.label}>Nhập tên đăng nhập hoặc email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Username or email address"
+              placeholder="Tên đăng nhập hoặc email"
               placeholderTextColor="#9aa0a6"
               value={emailOrId}
               onChangeText={setEmailOrId}
@@ -78,13 +59,11 @@ export default function LoginScreen({ navigation, onLogin }) {
               returnKeyType="next"
             />
 
-            <Text style={[styles.label, { marginTop: 16 }]}>
-              Enter your Password
-            </Text>
+            <Text style={[styles.label, { marginTop: 16 }]}>Nhập mật khẩu</Text>
             <View style={styles.passwordWrap}>
               <TextInput
                 style={styles.inputPassword}
-                placeholder="Password"
+                placeholder="Mật khẩu"
                 placeholderTextColor="#9aa0a6"
                 value={password}
                 onChangeText={setPassword}
@@ -106,7 +85,7 @@ export default function LoginScreen({ navigation, onLogin }) {
 
             {/* Forgot password */}
             <TouchableOpacity style={styles.forgot}>
-              <Text style={styles.forgotText}>Forgot Password</Text>
+              <Text style={styles.forgotText}>Quên mật khẩu?</Text>
             </TouchableOpacity>
           </View>
 
@@ -117,7 +96,7 @@ export default function LoginScreen({ navigation, onLogin }) {
             disabled={!canSubmit}
             activeOpacity={0.8}
           >
-            <Text style={styles.btnText}>Sign in</Text>
+            <Text style={styles.btnText}>Đăng nhập</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>

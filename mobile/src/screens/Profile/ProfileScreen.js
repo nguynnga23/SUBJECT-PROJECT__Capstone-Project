@@ -132,7 +132,7 @@ function Separator() {
 /* ---------- Styles ---------- */
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F8FAFF" },
+  safe: { flex: 1, backgroundColor: "#fff" },
 
   header: {
     flexDirection: "row",

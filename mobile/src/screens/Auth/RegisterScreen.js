@@ -32,13 +32,13 @@ export default function RegisterScreen({ navigation, onRegister }) {
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    // TODO: call API register
+    // TODO: gọi API đăng ký
     onRegister?.(); // hoặc navigation.replace("Login")
   };
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Brand */}
+      {/* Thương hiệu */}
       <View style={styles.brandRow}>
         <Text style={styles.brand}>UNIFEED.news</Text>
       </View>
@@ -51,42 +51,25 @@ export default function RegisterScreen({ navigation, onRegister }) {
         enableOnAndroid
         extraScrollHeight={24}
       >
-        {/* Card */}
+        {/* Thẻ */}
         <View style={styles.card}>
           {/* Header */}
           <View style={styles.cardHeader}>
-            <Text style={styles.h1}>Welcome</Text>
             <TouchableOpacity onPress={() => navigation.navigate("Login")}>
               <Text style={styles.link}>
-                Have an Account? <Text style={styles.signUp}>Sign in</Text>
+                Đã có tài khoản? <Text style={styles.signUp}>Đăng nhập</Text>
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.signInText}>Sign up</Text>
-
-          {/* Social */}
-          <View style={styles.socialRow}>
-            <TouchableOpacity style={styles.googleBtn}>
-              <Ionicons name="logo-google" size={18} color="#EA4335" />
-              <Text style={styles.googleText}>Continue with Google</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.circleBtn}>
-              <Ionicons name="logo-facebook" size={20} color="#1877F2" />
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.circleBtn}>
-              <Ionicons name="logo-github" size={20} color="#000" />
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.signInText}>Đăng ký</Text>
 
           {/* Form */}
           <View style={{ marginTop: 24 }}>
-            <Text style={styles.label}>Enter your full name</Text>
+            <Text style={styles.label}>Nhập họ và tên của bạn</Text>
             <TextInput
               style={styles.input}
-              placeholder="Full name"
+              placeholder="Họ và tên"
               placeholderTextColor="#9aa0a6"
               value={fullName}
               onChangeText={setFullName}
@@ -94,11 +77,11 @@ export default function RegisterScreen({ navigation, onRegister }) {
             />
 
             <Text style={[styles.label, { marginTop: 16 }]}>
-              Enter your username or email address
+              Nhập tên đăng nhập hoặc email
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="Username or email address"
+              placeholder="Tên đăng nhập hoặc email"
               placeholderTextColor="#9aa0a6"
               value={emailOrId}
               onChangeText={setEmailOrId}
@@ -106,13 +89,11 @@ export default function RegisterScreen({ navigation, onRegister }) {
               returnKeyType="next"
             />
 
-            <Text style={[styles.label, { marginTop: 16 }]}>
-              Create a Password
-            </Text>
+            <Text style={[styles.label, { marginTop: 16 }]}>Tạo mật khẩu</Text>
             <View style={styles.passwordWrap}>
               <TextInput
                 style={styles.inputPassword}
-                placeholder="Password (min 6 characters)"
+                placeholder="Mật khẩu (tối thiểu 6 ký tự)"
                 placeholderTextColor="#9aa0a6"
                 value={password}
                 onChangeText={setPassword}
@@ -132,12 +113,12 @@ export default function RegisterScreen({ navigation, onRegister }) {
             </View>
 
             <Text style={[styles.label, { marginTop: 16 }]}>
-              Confirm Password
+              Xác nhận mật khẩu
             </Text>
             <View style={styles.passwordWrap}>
               <TextInput
                 style={styles.inputPassword}
-                placeholder="Re-enter password"
+                placeholder="Nhập lại mật khẩu"
                 placeholderTextColor="#9aa0a6"
                 value={confirm}
                 onChangeText={setConfirm}
@@ -157,14 +138,14 @@ export default function RegisterScreen({ navigation, onRegister }) {
             </View>
           </View>
 
-          {/* Submit */}
+          {/* Nút Đăng ký */}
           <TouchableOpacity
             style={[styles.btn, !canSubmit && styles.btnDisabled]}
             onPress={handleSubmit}
             disabled={!canSubmit}
             activeOpacity={0.85}
           >
-            <Text style={styles.btnText}>Sign up</Text>
+            <Text style={styles.btnText}>Đăng ký</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
