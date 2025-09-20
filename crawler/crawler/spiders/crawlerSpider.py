@@ -176,9 +176,12 @@ class DynamicIUHSpider(scrapy.Spider):
 
         item = ArticleItem()
         item['external_url'] = response.url
+        item['external_slug'] = response.url.split('/')[-1]
         item['thumbnail'] = response.meta.get('thumbnail')
-        item['department_name'] = self.dept.get('label')
-        item['department_url'] = self.dept.get('url')
+        item['department_resource_id'] = self.dept.get('documentId')
+        item['department_resource_name'] = self.dept.get('label')
+        item['department_resource_url'] = self.dept.get('url')
+        item['category_id'] = self.cat.get('documentId')
         item['category_name'] = self.cat.get('category_name')
         item['category_url'] = self.cat.get('category_url')
         item['title'] = response.css(self.config['title']).get()

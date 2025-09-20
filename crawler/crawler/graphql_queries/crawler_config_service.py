@@ -8,6 +8,7 @@ GET_CRAWLER_CONFIG = """
                   }
                 ) {
                     department_source {
+                      documentId
                       label,
                       url,
                       key_departmentSource
