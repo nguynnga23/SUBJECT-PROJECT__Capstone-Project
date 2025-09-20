@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: "center",
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 100,
   },
 
   card: {
@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 22,
     margin: 10,
-    // bỏ height cố định và marginTop âm để tránh nhảy layout
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowOffset: { width: 0, height: 8 },

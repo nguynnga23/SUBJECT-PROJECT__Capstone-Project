@@ -64,10 +64,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   logo: {
-    fontSize: 23,
-    fontWeight: "700",
     marginRight: "auto",
-    color: "#0064E0",
+    color: "#1976FF",
+    fontSize: 16,
+    fontWeight: "800",
   },
   separator: {
     height: 1.2,
