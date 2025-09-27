@@ -22,19 +22,21 @@ import java.util.Map;
 @RequestMapping("/v1")
 public class AuthController {
     private final StrapiClient strapiClient;
+
     @Autowired
     public AuthController(StrapiClient strapiClient) {
         this.strapiClient = strapiClient;
     }
-    @PostMapping("/v1/auth/login")
+
+    @PostMapping("/auth/login")
     public ResponseEntity<?> login(@RequestBody LoginReq req) {
         Map<String, Object> body = Map.of(
                 "identifier", req.email(),
-                "password",   req.password()
-        );
-        var type = new ParameterizedTypeReference<Map<String,Object>>() {};
+                "password", req.password());
+        var type = new ParameterizedTypeReference<Map<String, Object>>() {
+        };
 
-        Map<String,Object> auth;
+        Map<String, Object> auth;
         try {
             auth = strapiClient.login(body, type); // forward /auth/local
         } catch (org.springframework.web.client.RestClientResponseException e) {
@@ -45,38 +47,32 @@ public class AuthController {
                 return ResponseEntity.status(401).body(Map.of(
                         "ok", false,
                         "code", "INVALID_CREDENTIALS",
-                        "message", msg
-                ));
+                        "message", msg));
             }
             if (status == 400 && msg.toLowerCase().contains("not confirmed")) {
                 return ResponseEntity.status(403).body(Map.of(
                         "ok", false,
                         "code", "EMAIL_NOT_CONFIRMED",
-                        "message", msg
-                ));
+                        "message", msg));
             }
             if ((status == 400 || status == 403) && msg.toLowerCase().contains("blocked")) {
                 return ResponseEntity.status(403).body(Map.of(
                         "ok", false,
                         "code", "USER_BLOCKED",
-                        "message", msg
-                ));
+                        "message", msg));
             }
             return ResponseEntity.status(status).body(Map.of(
                     "ok", false,
                     "code", "UPSTREAM_" + status,
-                    "message", msg
-            ));
+                    "message", msg));
         }
 
         String jwt = (String) auth.get("jwt");
         return ResponseEntity.ok(Map.of(
                 "ok", true,
                 "jwt", jwt,
-                "user", auth.get("user")
-        ));
+                "user", auth.get("user")));
     }
-
 
     @PostMapping(path = "/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody RegisterReq req) {
@@ -90,11 +86,12 @@ public class AuthController {
         body.put("password", req.password());
         body.put("username", (req.username() == null || req.username().isBlank()) ? req.email() : req.username());
         // Nếu đã mở rộng schema user/override register, thêm các field:
-//        if (req.fullName()  != null) body.put("fullName",  req.fullName());
-//        if (req.studentId() != null) body.put("studentId", req.studentId());
-//        if (req.department()!= null) body.put("department", req.department());
+        // if (req.fullName() != null) body.put("fullName", req.fullName());
+        // if (req.studentId() != null) body.put("studentId", req.studentId());
+        // if (req.department()!= null) body.put("department", req.department());
 
-        var type = new ParameterizedTypeReference<Map<String, Object>>() {};
+        var type = new ParameterizedTypeReference<Map<String, Object>>() {
+        };
         Map<String, Object> auth;
         try {
             // Forward tới Strapi
@@ -116,8 +113,8 @@ public class AuthController {
         String jwt = (String) auth.get("jwt");
         ResponseCookie cookie = ResponseCookie.from("sj", jwt)
                 .httpOnly(true)
-                .secure(true)             // dùng HTTPS ở môi trường thật
-                .sameSite("Lax")          // nếu FE khác domain -> dùng "None"
+                .secure(true) // dùng HTTPS ở môi trường thật
+                .sameSite("Lax") // nếu FE khác domain -> dùng "None"
                 .path("/")
                 .maxAge(Duration.ofDays(7))
                 .build();
@@ -127,16 +124,15 @@ public class AuthController {
                 .body(Map.of("ok", true, "user", auth.get("user")));
     }
 
-
     private static String extractStrapiMessage(String body) {
         try {
             var node = new com.fasterxml.jackson.databind.ObjectMapper().readTree(body);
             var err = node.path("error");
-            if (!err.isMissingNode()) return err.path("message").asText("Upstream error");
+            if (!err.isMissingNode())
+                return err.path("message").asText("Upstream error");
             return node.path("message").asText("Upstream error");
         } catch (Exception ignore) {
             return "Upstream error";
         }
     }
 }
-

@@ -5,37 +5,58 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import { login } from "../../api/auth";
 
 export default function LoginScreen({ navigation, onLogin }) {
-  const [emailOrId, setEmailOrId] = useState("");
-  const [password, setPassword] = useState("");
+  const [emailOrId, setEmailOrId] = useState("nga2@gmail.com");
+  const [password, setPassword] = useState("123456789");
   const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState(null);
 
-  const canSubmit = emailOrId.trim() && password.trim();
+  const canSubmit = Boolean(emailOrId.trim() && password.trim());
+
+  const handleLogin = async () => {
+    if (!canSubmit || loading) return;
+    setLoading(true);
+    setErr(null);
+    try {
+      const res = await login(emailOrId.trim(), password);
+      if (res?.ok) {
+        // Nếu parent truyền onLogin thì gọi, không thì điều hướng Home
+        if (typeof onLogin === "function") onLogin(res);
+        else navigation.replace("Home");
+      } else {
+        setErr(res?.message || "Đăng nhập thất bại");
+      }
+    } catch (e) {
+      // e.message là nội dung bạn throw trong apiRequest (server text)
+      setErr(e?.message || "Có lỗi xảy ra");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Logo nhỏ phía trên */}
       <View style={styles.brandRow}>
         <Text style={styles.brand}>UNIFEED.news</Text>
       </View>
 
-      {/* Dùng KASV trực tiếp, không cần KAV */}
       <KeyboardAwareScrollView
         contentContainerStyle={styles.scrollCenter}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         enableOnAndroid
-        extraScrollHeight={24} // đẩy thêm 1 chút khi focus input
+        extraScrollHeight={24}
       >
-        {/* Card trắng */}
         <View style={styles.card}>
-          {/* Header trong card */}
           <View style={styles.cardHeader}>
             <TouchableOpacity onPress={() => navigation.navigate("Register")}>
               <Text style={styles.link}>
@@ -46,7 +67,6 @@ export default function LoginScreen({ navigation, onLogin }) {
 
           <Text style={styles.signInText}>Đăng nhập</Text>
 
-          {/* Form */}
           <View style={{ marginTop: 24 }}>
             <Text style={styles.label}>Nhập email</Text>
             <TextInput
@@ -57,6 +77,7 @@ export default function LoginScreen({ navigation, onLogin }) {
               onChangeText={setEmailOrId}
               autoCapitalize="none"
               returnKeyType="next"
+              onSubmitEditing={() => {}}
             />
 
             <Text style={[styles.label, { marginTop: 16 }]}>Nhập mật khẩu</Text>
@@ -69,10 +90,11 @@ export default function LoginScreen({ navigation, onLogin }) {
                 onChangeText={setPassword}
                 secureTextEntry={!showPwd}
                 returnKeyType="done"
+                onSubmitEditing={handleLogin}
               />
               <TouchableOpacity
                 style={styles.eyeBtn}
-                onPress={() => setShowPwd(!showPwd)}
+                onPress={() => setShowPwd((v) => !v)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons
@@ -83,20 +105,29 @@ export default function LoginScreen({ navigation, onLogin }) {
               </TouchableOpacity>
             </View>
 
-            {/* Forgot password */}
-            <TouchableOpacity style={styles.forgot}>
+            <TouchableOpacity
+              style={styles.forgot}
+              onPress={() => navigation.navigate("ForgotPassword")}
+            >
               <Text style={styles.forgotText}>Quên mật khẩu?</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Nút Sign in */}
+          {err ? (
+            <Text style={{ color: "red", marginTop: 8 }}>{err}</Text>
+          ) : null}
+
           <TouchableOpacity
-            style={[styles.btn, !canSubmit && styles.btnDisabled]}
-            onPress={onLogin}
-            disabled={!canSubmit}
+            style={[styles.btn, (!canSubmit || loading) && styles.btnDisabled]}
+            onPress={handleLogin}
+            disabled={!canSubmit || loading}
             activeOpacity={0.8}
           >
-            <Text style={styles.btnText}>Đăng nhập</Text>
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text style={styles.btnText}>Đăng nhập</Text>
+            )}
           </TouchableOpacity>
         </View>
       </KeyboardAwareScrollView>
@@ -137,34 +168,6 @@ const styles = StyleSheet.create({
   link: { color: "#5f6368", fontSize: 13 },
   signUp: { color: "#1976FF", fontWeight: "600" },
   signInText: { fontSize: 28, fontWeight: "800", marginTop: 12 },
-
-  socialRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 24,
-    marginBottom: 12,
-  },
-  googleBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    flex: 1,
-  },
-  googleText: { marginLeft: 6, fontSize: 13, color: "#444" },
-  circleBtn: {
-    width: 40,
-    height: 40,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 10,
-  },
 
   label: { fontSize: 13, color: "#000", marginBottom: 6 },
   input: {

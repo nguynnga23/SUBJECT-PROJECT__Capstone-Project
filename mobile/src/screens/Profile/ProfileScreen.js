@@ -1,18 +1,65 @@
-// src/screens/Profile/ProfileScreen.js
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Switch } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { logout } from "../../api/auth";
 
 export default function ProfileScreen({
   navigation,
   onLogout, // <- nhận từ AppNavigator/MainTabs
-  user = {
-    name: "Nguyễn Thị Nga",
-    studentId: "21130791",
-  },
 }) {
   const [notiEnabled, setNotiEnabled] = useState(true);
+  const [user, setUser] = useState(null);
+
+  // lấy thông tin user từ AsyncStorage
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const raw = await AsyncStorage.getItem("user");
+        if (raw) {
+          setUser(JSON.parse(raw));
+        }
+      } catch (e) {
+        console.log("Không đọc được user từ AsyncStorage", e);
+      }
+    };
+    loadUser();
+  }, []);
+
+  // handler xác nhận + gọi logout
+  const confirmLogout = () => {
+    Alert.alert(
+      "Xác nhận",
+      "Bạn có chắc chắn muốn đăng xuất?",
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Đăng xuất",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await logout(); // xoá token + user trong AsyncStorage
+              onLogout?.(); // điều hướng về Login
+            } catch (e) {
+              Alert.alert(
+                "Lỗi",
+                e?.message || "Không thể đăng xuất. Thử lại sau."
+              );
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -33,8 +80,8 @@ export default function ProfileScreen({
         <View style={styles.userRow}>
           <View style={styles.avatar} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{user.name}</Text>
-            <Text style={styles.sub}>MSSV: {user.studentId}</Text>
+            <Text style={styles.name}>{user?.fullName || "Chưa có tên"}</Text>
+            <Text style={styles.sub}> {user?.email || "-"}</Text>
           </View>
         </View>
 
@@ -99,7 +146,7 @@ export default function ProfileScreen({
           icon={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
           label="Đăng xuất"
           danger
-          onPress={onLogout}
+          onPress={confirmLogout}
         />
       </View>
 
@@ -130,10 +177,8 @@ function Separator() {
 }
 
 /* ---------- Styles ---------- */
-
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#fff" },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -146,7 +191,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
   },
-
   card: {
     marginHorizontal: 16,
     marginTop: 8,
@@ -160,7 +204,6 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 2,
   },
-
   userRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -176,7 +219,6 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 18, fontWeight: "700", color: "#111827" },
   sub: { color: "#6B7280", marginTop: 2 },
-
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -185,13 +227,11 @@ const styles = StyleSheet.create({
   },
   left: { flexDirection: "row", alignItems: "center" },
   itemText: { marginLeft: 12, fontSize: 16, color: "#111827" },
-
   separator: {
     height: 1,
     backgroundColor: "#E5E7EB",
-    marginLeft: 32, // thụt vào để line không chạm icon
+    marginLeft: 32,
   },
-
   version: {
     textAlign: "center",
     color: "#9AA0A6",
