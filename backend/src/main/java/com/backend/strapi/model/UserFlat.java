@@ -15,5 +15,6 @@ public record UserFlat(
                 String confirmationToken,
                 Boolean confirm,
                 Boolean blocked,
-                DepartmentFlat departmentFlat) {
+                DepartmentFlat departmentFlat,
+                String fullName) {
 }

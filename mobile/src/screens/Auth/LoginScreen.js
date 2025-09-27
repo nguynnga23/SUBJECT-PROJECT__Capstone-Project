@@ -48,10 +48,10 @@ export default function LoginScreen({ navigation, onLogin }) {
 
           {/* Form */}
           <View style={{ marginTop: 24 }}>
-            <Text style={styles.label}>Nhập tên đăng nhập hoặc email</Text>
+            <Text style={styles.label}>Nhập email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Tên đăng nhập hoặc email"
+              placeholder="Email"
               placeholderTextColor="#9aa0a6"
               value={emailOrId}
               onChangeText={setEmailOrId}

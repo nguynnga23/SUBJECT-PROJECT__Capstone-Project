@@ -11,4 +11,5 @@ public class UserVM {
     private Boolean blocked;
     private String departmentId;
     private String departmentName;
+    private String fullName;
 }

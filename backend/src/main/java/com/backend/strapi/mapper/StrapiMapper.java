@@ -60,6 +60,7 @@ public class StrapiMapper {
             vm.setDepartmentId(u.departmentFlat().documentId());
             vm.setDepartmentName(u.departmentFlat().department_name());
         }
+        vm.setFullName(u.fullName());
         return vm;
     }
 

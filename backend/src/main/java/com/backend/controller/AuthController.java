@@ -38,11 +38,9 @@ public class AuthController {
         try {
             auth = strapiClient.login(body, type); // forward /auth/local
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            // Đọc message Strapi và chuyển mã lỗi phù hợp
             String msg = extractStrapiMessage(e.getResponseBodyAsString());
-            int status = e.getRawStatusCode(); // thường là 400
+            int status = e.getRawStatusCode();
 
-            // Chuẩn hoá: 400 "Invalid identifier or password" -> 401 cho FE
             if (status == 400 && "Invalid identifier or password".equalsIgnoreCase(msg)) {
                 return ResponseEntity.status(401).body(Map.of(
                         "ok", false,
@@ -50,7 +48,6 @@ public class AuthController {
                         "message", msg
                 ));
             }
-            // Có thể gặp các case khác: chưa confirm email / bị block
             if (status == 400 && msg.toLowerCase().contains("not confirmed")) {
                 return ResponseEntity.status(403).body(Map.of(
                         "ok", false,
@@ -65,23 +62,21 @@ public class AuthController {
                         "message", msg
                 ));
             }
-            // Mặc định: trả đúng status từ upstream, tránh 500
             return ResponseEntity.status(status).body(Map.of(
                     "ok", false,
-                    "code", "UPSTREAM_"+status,
+                    "code", "UPSTREAM_" + status,
                     "message", msg
             ));
         }
 
         String jwt = (String) auth.get("jwt");
-        ResponseCookie cookie = ResponseCookie.from("sj", jwt)
-                .httpOnly(true).secure(true).sameSite("Lax").path("/")
-                .maxAge(Duration.ofDays(7)).build();
-        System.out.println("cookie: " + cookie);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("ok", true, "user", auth.get("user")));
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "jwt", jwt,
+                "user", auth.get("user")
+        ));
     }
+
 
     @PostMapping(path = "/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody RegisterReq req) {

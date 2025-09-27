@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-const ENV = process.env.NODE_ENV || "DEV";
-const domains = {
-  DEV: process.env.DEV_DOMAIN,
-  STAGING: process.env.STAGING_DOMAIN,
-  PROD: process.env.PROD_DOMAIN,
+import { APP_ENV, DEV_DOMAIN, STAGING_DOMAIN, PROD_DOMAIN, PORT } from "@env";
+console.log(APP_ENV, DEV_DOMAIN, STAGING_DOMAIN, PROD_DOMAIN, PORT);
+export const ENV = APP_ENV;
+export const domains = {
+  DEV: DEV_DOMAIN,
+  STAGING: STAGING_DOMAIN,
+  PROD: PROD_DOMAIN,
 };
 
-export const BASE_URL = `http://${domains[ENV]}:${process.env.PORT}`;
+export const BASE_URL = `http://${domains[ENV]}:${PORT}/v1`;
+console.log(BASE_URL);

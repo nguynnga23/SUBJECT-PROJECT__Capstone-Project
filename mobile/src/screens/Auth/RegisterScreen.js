@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { Alert } from "react-native";
 import {
   View,
   Text,
@@ -9,10 +10,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-
-export default function RegisterScreen({ navigation, onRegister }) {
-  const [fullName, setFullName] = useState("");
-  const [emailOrId, setEmailOrId] = useState("");
+import { register } from "../../api/auth";
+export default function RegisterScreen({ navigation }) {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -20,20 +21,36 @@ export default function RegisterScreen({ navigation, onRegister }) {
 
   const canSubmit = useMemo(() => {
     if (
-      !fullName.trim() ||
-      !emailOrId.trim() ||
+      !username.trim() ||
+      !email.trim() ||
       !password.trim() ||
       !confirm.trim()
     )
       return false;
     if (password.length < 6) return false;
     return password === confirm;
-  }, [fullName, emailOrId, password, confirm]);
+  }, [username, email, password, confirm]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return;
-    // TODO: gọi API đăng ký
-    onRegister?.(); // hoặc navigation.replace("Login")
+    try {
+      await register(username, email, password);
+      Alert.alert(
+        "Đăng ký thành công",
+        "Bạn đã đăng ký tài khoản thành công!",
+        [
+          {
+            text: "Đăng nhập ngay",
+            onPress: () => navigation.navigate("Login"),
+          },
+        ]
+      );
+    } catch (err) {
+      Alert.alert(
+        "Đăng ký thất bại",
+        err?.message || "Có lỗi xảy ra, vui lòng thử lại."
+      );
+    }
   };
 
   return (
@@ -71,25 +88,23 @@ export default function RegisterScreen({ navigation, onRegister }) {
               style={styles.input}
               placeholder="Họ và tên"
               placeholderTextColor="#9aa0a6"
-              value={fullName}
-              onChangeText={setFullName}
+              value={username}
+              onChangeText={setUsername}
               returnKeyType="next"
             />
 
-            <Text style={[styles.label, { marginTop: 16 }]}>
-              Nhập tên đăng nhập hoặc email
-            </Text>
+            <Text style={[styles.label, { marginTop: 16 }]}>Nhập email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Tên đăng nhập hoặc email"
+              placeholder="Email"
               placeholderTextColor="#9aa0a6"
-              value={emailOrId}
-              onChangeText={setEmailOrId}
+              value={email}
+              onChangeText={setEmail}
               autoCapitalize="none"
               returnKeyType="next"
             />
 
-            <Text style={[styles.label, { marginTop: 16 }]}>Tạo mật khẩu</Text>
+            <Text style={[styles.label, { marginTop: 16 }]}>Nhập mật khẩu</Text>
             <View style={styles.passwordWrap}>
               <TextInput
                 style={styles.inputPassword}
