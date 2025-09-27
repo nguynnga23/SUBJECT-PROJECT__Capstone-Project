@@ -35,11 +35,12 @@ public class DepartmentController {
     }
 
     @GetMapping
-    public List<DepartmentVM> list(){
+    public List<DepartmentVM> list() {
         var p = new LinkedMultiValueMap<String, String>();
         var raw = strapiClient.get(
                 "/departments",
-                new ParameterizedTypeReference<StrapiPageFlat<DepartmentFlat>>() {},
+                new ParameterizedTypeReference<StrapiPageFlat<DepartmentFlat>>() {
+                },
                 p,
                 null // public thì để null; nếu cần quyền, truyền bearer
         );
@@ -51,15 +52,14 @@ public class DepartmentController {
     }
 
     @GetMapping("/{id}")
-    public DepartmentVM one(@PathVariable String id) {
+    public DepartmentVM one(@PathVariable("id") String id) {
         var p = new LinkedMultiValueMap<String, String>();
         var resp = strapiClient.get(
                 "/departments/" + id,
                 new ParameterizedTypeReference<StrapiSingle<DepartmentFlat>>() {
                 },
                 p,
-                null
-        );
+                null);
 
         StrapiMapper strapiMapper = new StrapiMapper();
         return strapiMapper.toVM(resp.data());

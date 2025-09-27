@@ -18,28 +18,27 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Objects;
 
-
-
 @RestController
 @RequestMapping("/v1/categories")
 @Slf4j
 @CrossOrigin(origins = "*")
 public class CategoryController {
     private final StrapiClient strapiClient;
+
     public CategoryController(StrapiClient client, StrapiClient strapiClient) {
         this.strapiClient = strapiClient;
     }
 
     @GetMapping
-    public List<CategoryVM> list(){
+    public List<CategoryVM> list() {
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department_source");
         var raw = strapiClient.get(
                 "/categories",
-                new ParameterizedTypeReference<StrapiPageFlat<CategoryFlat>>(){},
+                new ParameterizedTypeReference<StrapiPageFlat<CategoryFlat>>() {
+                },
                 p,
-                null
-        );
+                null);
 
         var data = (raw != null && raw.data() != null) ? raw.data() : List.<CategoryFlat>of();
         return data.stream()
@@ -50,7 +49,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public CategoryVM one(@PathVariable String id) {
+    public CategoryVM one(@PathVariable("id") String id) {
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department_source");
         var resp = strapiClient.get(
@@ -58,9 +57,7 @@ public class CategoryController {
                 new ParameterizedTypeReference<StrapiSingle<CategoryFlat>>() {
                 },
                 p,
-                null
-        );
-
+                null);
 
         StrapiMapper strapiMapper = new StrapiMapper();
         return strapiMapper.toVM(resp.data());

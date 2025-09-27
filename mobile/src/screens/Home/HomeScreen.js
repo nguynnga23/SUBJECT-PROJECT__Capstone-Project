@@ -52,18 +52,19 @@ export default function HomeScreen({ navigation }) {
     ({ item }) => (
       <ArticleCard
         item={{
-          author: item?.categoryName ?? "Unknown",
-          title: item?.title ?? "",
-          subtitle: item?.summary ?? "",
-          date: item?.external_publish_date ?? "",
-          views: item?.views?.toString?.() ?? "0",
-          comments: item?.comments?.toString?.() ?? "0",
-          thumb: item?.thumbnail ?? "",
+          author: item.categoryName,
+          title: item.title,
+          subtitle: item.summary,
+          date: item.external_publish_date,
+          views: "0",
+          comments: "0",
+          thumb: item.thumbnail,
+          externalUrl: item.externalUrl,
         }}
         onPress={() =>
           navigation.navigate("ArticleDetail", {
-            articleId: item?.documentId,
-            // có thể pass sẵn 'article: item' nếu muốn preload
+            articleId: item.documentId,
+            article: item,
           })
         }
       />

@@ -36,12 +36,13 @@ public class CrawlerConfigController {
     }
 
     @GetMapping
-    public List<CrawlerConfigVM> list(){
+    public List<CrawlerConfigVM> list() {
         var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate","department_source");
+        p.add("populate", "department_source");
         var raw = strapiClient.get(
                 "/crawler-configs",
-                new ParameterizedTypeReference<StrapiPageFlat<CrawlerConfigFlat>>() {},
+                new ParameterizedTypeReference<StrapiPageFlat<CrawlerConfigFlat>>() {
+                },
                 p,
                 null // public thì để null; nếu cần quyền, truyền bearer
         );
@@ -53,7 +54,7 @@ public class CrawlerConfigController {
     }
 
     @GetMapping("/{id}")
-    public CrawlerConfigVM one(@PathVariable String id) {
+    public CrawlerConfigVM one(@PathVariable("id") String id) {
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department_source");
         var resp = strapiClient.get(
@@ -61,9 +62,7 @@ public class CrawlerConfigController {
                 new ParameterizedTypeReference<StrapiSingle<CrawlerConfigFlat>>() {
                 },
                 p,
-                null
-        );
-
+                null);
 
         StrapiMapper strapiMapper = new StrapiMapper();
         return strapiMapper.toVM(resp.data());
