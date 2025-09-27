@@ -1,14 +1,11 @@
-const ENV = "DEV";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Khai báo domain cho từng môi trường
+const ENV = process.env.NODE_ENV || "DEV";
 const domains = {
-  DEV: "192.168.40.103",
-  STAGING: "staging.myapp.com",
-  PROD: "api.myapp.com",
+  DEV: process.env.DEV_DOMAIN,
+  STAGING: process.env.STAGING_DOMAIN,
+  PROD: process.env.PROD_DOMAIN,
 };
-export const host = 8080;
-// Tự động lấy domain theo ENV
-export const domain = domains[ENV];
 
-// Tạo BASE_URL
-export const BASE_URL = `http://${domain}:${host}`;
+export const BASE_URL = `http://${domains[ENV]}:${process.env.PORT}`;
