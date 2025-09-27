@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/screens/Profile/ProfileScreen.js
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,60 +11,50 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 import { logout } from "../../api/auth";
 
-export default function ProfileScreen({
-  navigation,
-  onLogout, // <- nhận từ AppNavigator/MainTabs
-}) {
+export default function ProfileScreen({ navigation, onLogout }) {
   const [notiEnabled, setNotiEnabled] = useState(true);
   const [user, setUser] = useState(null);
 
-  // lấy thông tin user từ AsyncStorage
+  async function loadUser() {
+    try {
+      const raw = await AsyncStorage.getItem("user");
+      setUser(raw ? JSON.parse(raw) : null);
+    } catch {
+      setUser(null);
+    }
+  }
+
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const raw = await AsyncStorage.getItem("user");
-        if (raw) {
-          setUser(JSON.parse(raw));
-        }
-      } catch (e) {
-        console.log("Không đọc được user từ AsyncStorage", e);
-      }
-    };
     loadUser();
   }, []);
 
-  // handler xác nhận + gọi logout
+  useFocusEffect(
+    useCallback(() => {
+      loadUser();
+    }, [])
+  );
+
   const confirmLogout = () => {
-    Alert.alert(
-      "Xác nhận",
-      "Bạn có chắc chắn muốn đăng xuất?",
-      [
-        { text: "Hủy", style: "cancel" },
-        {
-          text: "Đăng xuất",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await logout(); // xoá token + user trong AsyncStorage
-              onLogout?.(); // điều hướng về Login
-            } catch (e) {
-              Alert.alert(
-                "Lỗi",
-                e?.message || "Không thể đăng xuất. Thử lại sau."
-              );
-            }
-          },
+    Alert.alert("Xác nhận", "Bạn có chắc chắn muốn đăng xuất?", [
+      { text: "Hủy", style: "cancel" },
+      {
+        text: "Đăng xuất",
+        style: "destructive",
+        onPress: async () => {
+          await logout();
+          setUser(null);
+          onLogout?.();
+          navigation.navigate("Home");
         },
-      ],
-      { cancelable: true }
-    );
+      },
+    ]);
   };
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Header giống Home */}
       <View style={styles.header}>
         <Text style={styles.logo}>Unifeed.news</Text>
         <Ionicons
@@ -74,89 +65,92 @@ export default function ProfileScreen({
         />
       </View>
 
-      {/* Phần info + danh sách setting trong card */}
-      <View style={styles.card}>
-        {/* User info */}
-        <View style={styles.userRow}>
-          <View style={styles.avatar} />
-          <View style={{ flex: 1 }}>
-            <Text style={styles.name}>{user?.fullName || "Chưa có tên"}</Text>
-            <Text style={styles.sub}> {user?.email || "-"}</Text>
-          </View>
+      {!user ? (
+        <View style={styles.center}>
+          <Ionicons name="person-circle-outline" size={64} color="#1976FF" />
+          <Text style={styles.centerMsg}>Bạn cần đăng nhập để xem hồ sơ</Text>
+          <TouchableOpacity
+            style={styles.btn}
+            onPress={() => navigation.navigate("Login")}
+          >
+            <Text style={styles.btnText}>Đi tới đăng nhập</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Items */}
-        <Item
-          icon={<Ionicons name="id-card-outline" size={20} color="#3B82F6" />}
-          label="Thông tin sinh viên"
-          onPress={() => {}}
-        />
-        <Separator />
-
-        <Item
-          icon={<Ionicons name="time-outline" size={20} color="#3B82F6" />}
-          label="Đổi mật khẩu"
-          onPress={() => {}}
-        />
-        <Separator />
-
-        <Item
-          icon={
-            <MaterialCommunityIcons
-              name="file-document-outline"
-              size={20}
-              color="#3B82F6"
-            />
-          }
-          label="Điều khoản và chính sách sử dụng"
-          onPress={() => {}}
-        />
-        <Separator />
-
-        <Item
-          icon={
-            <Ionicons
-              name="chatbox-ellipses-outline"
-              size={20}
-              color="#3B82F6"
-            />
-          }
-          label="Góp ý ứng dụng"
-          onPress={() => {}}
-        />
-        <Separator />
-
-        {/* Notifications toggle */}
-        <View style={styles.row}>
-          <View style={styles.left}>
-            <Ionicons name="notifications-outline" size={20} color="#3B82F6" />
-            <Text style={styles.itemText}>Thông báo</Text>
+      ) : (
+        <View style={styles.section}>
+          <View style={styles.userRow}>
+            <View style={styles.avatar} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.name}>{user?.fullName || "Chưa có tên"}</Text>
+              <Text style={styles.sub}>{user?.email || "-"}</Text>
+            </View>
           </View>
-          <Switch
-            value={notiEnabled}
-            onValueChange={setNotiEnabled}
-            trackColor={{ false: "#d1d5db", true: "#86efac" }}
-            thumbColor={notiEnabled ? "#16a34a" : "#f4f4f5"}
+
+          <Item
+            icon={<Ionicons name="id-card-outline" size={20} color="#3B82F6" />}
+            label="Thông tin sinh viên"
+          />
+          <Separator />
+
+          <Item
+            icon={<Ionicons name="time-outline" size={20} color="#3B82F6" />}
+            label="Đổi mật khẩu"
+          />
+          <Separator />
+
+          <Item
+            icon={
+              <MaterialCommunityIcons
+                name="file-document-outline"
+                size={20}
+                color="#3B82F6"
+              />
+            }
+            label="Điều khoản và chính sách sử dụng"
+          />
+          <Separator />
+
+          <Item
+            icon={
+              <Ionicons
+                name="chatbox-ellipses-outline"
+                size={20}
+                color="#3B82F6"
+              />
+            }
+            label="Góp ý ứng dụng"
+          />
+          <Separator />
+
+          <View style={styles.row}>
+            <View style={styles.left}>
+              <Ionicons
+                name="notifications-outline"
+                size={20}
+                color="#3B82F6"
+              />
+              <Text style={styles.itemText}>Thông báo</Text>
+            </View>
+            <Switch
+              value={notiEnabled}
+              onValueChange={setNotiEnabled}
+              trackColor={{ false: "#d1d5db", true: "#86efac" }}
+              thumbColor={notiEnabled ? "#16a34a" : "#f4f4f5"}
+            />
+          </View>
+          <Separator />
+
+          <Item
+            icon={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
+            label="Đăng xuất"
+            danger
+            onPress={confirmLogout}
           />
         </View>
-        <Separator />
-
-        {/* Logout */}
-        <Item
-          icon={<Ionicons name="log-out-outline" size={20} color="#EF4444" />}
-          label="Đăng xuất"
-          danger
-          onPress={confirmLogout}
-        />
-      </View>
-
-      {/* Version */}
-      <Text style={styles.version}>Phiên bản 1.4.8</Text>
+      )}
     </SafeAreaView>
   );
 }
-
-/* ---------- Sub components ---------- */
 
 function Item({ icon, label, onPress, danger }) {
   return (
@@ -191,25 +185,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
   },
-  card: {
-    marginHorizontal: 16,
-    marginTop: 8,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-    elevation: 2,
-  },
-  userRow: {
-    flexDirection: "row",
+
+  // Chưa login
+  center: {
+    flex: 1,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 6,
-    paddingVertical: 8,
+    padding: 20,
   },
+  centerMsg: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#333",
+    textAlign: "center",
+  },
+  btn: {
+    marginTop: 20,
+    backgroundColor: "#1976FF",
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  btnText: { color: "#fff", fontWeight: "600", fontSize: 15 },
+
+  // Đã login
+  section: { marginHorizontal: 16, marginTop: 12 },
+  userRow: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
   avatar: {
     width: 48,
     height: 48,
@@ -219,6 +220,7 @@ const styles = StyleSheet.create({
   },
   name: { fontSize: 18, fontWeight: "700", color: "#111827" },
   sub: { color: "#6B7280", marginTop: 2 },
+
   row: {
     flexDirection: "row",
     alignItems: "center",
@@ -227,14 +229,8 @@ const styles = StyleSheet.create({
   },
   left: { flexDirection: "row", alignItems: "center" },
   itemText: { marginLeft: 12, fontSize: 16, color: "#111827" },
-  separator: {
-    height: 1,
-    backgroundColor: "#E5E7EB",
-    marginLeft: 32,
-  },
-  version: {
-    textAlign: "center",
-    color: "#9AA0A6",
-    marginTop: 14,
-  },
+
+  separator: { height: 1, backgroundColor: "#E5E7EB" },
+
+  version: { textAlign: "center", color: "#9AA0A6", marginTop: 14 },
 });

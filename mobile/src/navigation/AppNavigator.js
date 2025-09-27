@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import HomeScreen from "../screens/Home/HomeScreen";
 import SearchScreen from "../screens/Search/SearchScreen";
@@ -13,6 +14,7 @@ import NotificationScreen from "../screens/Home/Notification/NotificationScreen"
 import ArticleDetail from "../screens/Home/Article/ArticleDetail";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import ChatScreen from "../screens/Chat/ChatScreen";
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -47,17 +49,15 @@ function MainTabs({ onLogout }) {
       <Tab.Screen
         name="Chat"
         component={ChatScreen}
-        options={{
-          title: "Chat",
-        }}
+        options={{ title: "Chat" }}
       />
       <Tab.Screen
         name="Bookmark"
         component={Bookmark}
         options={{ title: "Đã lưu" }}
       />
-      <Tab.Screen name="Profile" options={{ title: "Cá nhân" }}>
-        {() => <ProfileScreen onLogout={onLogout} />}
+      <Tab.Screen name="Profile">
+        {(props) => <ProfileScreen {...props} onLogout={onLogout} />}
       </Tab.Screen>
     </Tab.Navigator>
   );
@@ -66,36 +66,62 @@ function MainTabs({ onLogout }) {
 export default function AppNavigator() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Khởi tạo trạng thái đăng nhập từ AsyncStorage (nếu có token thì coi là đã login)
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        setIsLoggedIn(Boolean(token));
+      } catch {
+        setIsLoggedIn(false);
+      }
+    })();
+  }, []);
+
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isLoggedIn ? (
-          <Stack.Screen name="Main">
-            {() => <MainTabs onLogout={() => setIsLoggedIn(false)} />}
-          </Stack.Screen>
-        ) : (
-          <>
-            {/* Login */}
-            <Stack.Screen name="Login">
-              {(props) => (
-                <LoginScreen {...props} onLogin={() => setIsLoggedIn(true)} />
-              )}
-            </Stack.Screen>
+        {/* Luôn có MainTabs, không guard tab nữa */}
+        <Stack.Screen name="Main">
+          {(props) => (
+            <MainTabs
+              {...props}
+              onLogout={async () => {
+                await AsyncStorage.multiRemove(["token", "user"]);
+                setIsLoggedIn(false);
+              }}
+            />
+          )}
+        </Stack.Screen>
 
-            {/* Register */}
-            <Stack.Screen name="Register">
-              {(props) => (
-                <RegisterScreen
-                  {...props}
-                  onRegister={() => setIsLoggedIn(true)}
-                />
-              )}
-            </Stack.Screen>
-          </>
-        )}
+        {/* Các stack screen public */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ArticleDetail" component={ArticleDetail} />
         <Stack.Screen name="Notifications" component={NotificationScreen} />
+
+        {/* Auth screens */}
+        <Stack.Screen name="Login">
+          {(props) => (
+            <LoginScreen
+              {...props}
+              onLogin={async () => {
+                setIsLoggedIn(true);
+                props.navigation.replace("Main");
+              }}
+            />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Register">
+          {(props) => (
+            <RegisterScreen
+              {...props}
+              onRegister={async () => {
+                setIsLoggedIn(true);
+                props.navigation.replace("Main");
+              }}
+            />
+          )}
+        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
