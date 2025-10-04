@@ -22,7 +22,7 @@ const menuItems = [
 const Sidebar = () => {
   return (
     <aside className="h-screen w-full bg-white border-r shadow-sm  left-0 top-0 z-10">
-      <div className="p-4 font-bold text-[18px] text-blue-500">
+      <div className="p-4 font-bold text-[17px] text-primary flex justify-center">
         Khoa Công Nghệ Thông Tin
       </div>
       <nav className="flex flex-col gap-1 px-4">
@@ -33,7 +33,7 @@ const Sidebar = () => {
             className={({ isActive }) =>
               `flex items-center gap-3 p-3 rounded-md text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-blue-100 text-blue-600"
+                  ? "bg-sub text-primary"
                   : "text-gray-700 hover:bg-gray-100"
               }`
             }

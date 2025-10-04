@@ -179,7 +179,7 @@ function CrawlerConfig() {
           </div>
 
           {/* Nút hành động */}
-          <div className="mt-6 flex justify-end gap-4">
+          <div className="mt-6 p-5 flex justify-end gap-4">
             {!editMode ? (
               <button
                 onClick={() => setEditMode(true)}

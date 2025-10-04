@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 function Signup() {
   return (
-    <div className="min-h-screen flex justify-center items-center bg-[#BCD6FF]">
+    <div className="min-h-screen flex justify-center items-center bg-sub">
       <div className="bg-white p-8 rounded-3xl shadow-md w-[400px] sm:w-[500px]">
         <div className="mb-6">
           <h2 className="text-sm text-gray-600">

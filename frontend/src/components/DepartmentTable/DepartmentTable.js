@@ -292,7 +292,7 @@ const DepartmentTable = () => {
         <div>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-blue-400 hover:bg-blue-700 text-white text-[12px] h-[35px] p-2 rounded"
+            className="bg-primary hover:bg-sub text-white text-[12px] h-[35px] p-2 rounded"
           >
             Thêm mới
           </button>

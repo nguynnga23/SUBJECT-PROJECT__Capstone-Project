@@ -15,6 +15,9 @@ module.exports = {
           dark: "#d67c10", // màu khi hover
           light: "#f5b866", // nếu muốn thêm biến thể
         },
+        sub: {
+          DEFAULT: "#BCD6FF",
+        },
       },
       keyframes: {
         fadeIn: {

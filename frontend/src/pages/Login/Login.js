@@ -43,7 +43,7 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#BCD6FF] ">
+    <div className="min-h-screen flex items-center justify-center bg-sub ">
       <div className="w-full max-w-md bg-[white] rounded-3xl shadow-md px-8 py-10">
         <div className="mb-6">
           <h2 className="text-gray-600">
