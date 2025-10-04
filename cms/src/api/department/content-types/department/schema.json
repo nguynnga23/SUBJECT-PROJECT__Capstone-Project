@@ -14,9 +14,6 @@
     "department_name": {
       "type": "string"
     },
-    "key_department": {
-      "type": "string"
-    },
     "department_sources": {
       "type": "relation",
       "relation": "oneToMany",

@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
 import { RiDraggable } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
+import { LiaTimesCircle } from "react-icons/lia";
 
 function MarkedForm({ setUserProfile }) {
   const navigate = useNavigate();
@@ -37,12 +38,10 @@ function MarkedForm({ setUserProfile }) {
 
   return (
     <div className="relative w-[600px] max-w-3xl mx-auto bg-white rounded p-6 shadow">
-      <button
-        className="absolute top-4 right-4 text-gray-500 hover:text-black text-xl flex items-center justify-center w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white"
+      <LiaTimesCircle
+        className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"
         onClick={() => setUserProfile(false)}
-      >
-        &times;
-      </button>
+      />
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         Bài viết đã đánh dấu
       </h2>
