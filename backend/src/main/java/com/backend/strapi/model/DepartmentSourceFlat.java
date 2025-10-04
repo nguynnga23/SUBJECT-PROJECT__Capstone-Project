@@ -1,6 +1,7 @@
 package com.backend.strapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ public record DepartmentSourceFlat(
         CategoryFlat categoryFlat,
         CrawlerConfigFlat crawlerConfigFlat,
         String label,
-        DepartmentFlat departmentFlat,
+        @JsonProperty("department") DepartmentFlat departmentFlat,
         List<CategoryFlat> categories) {
 }

@@ -1,12 +1,7 @@
 package com.backend.strapi.mapper;
 
 import com.backend.strapi.model.*;
-import com.backend.strapi.vm.ArticleVM;
-import com.backend.strapi.vm.CategoryVM;
-import com.backend.strapi.vm.UserVM;
-import com.backend.strapi.vm.DepartmentVM;
-import com.backend.strapi.vm.DepartmentSourceVM;
-import com.backend.strapi.vm.CrawlerConfigVM;
+import com.backend.strapi.vm.*;
 
 import java.time.ZoneOffset;
 
@@ -26,10 +21,7 @@ public class StrapiMapper {
         vm.setCreatedAt(a.createdAt());
         vm.setUpdatedAt(a.updatedAt());
         vm.setPublishedAt(a.publishedAt());
-        if (a.category() != null) {
-            vm.setCategoryId(a.category().documentId());
-            vm.setCategoryName(a.category().category_name());
-        }
+        vm.setCategory(toVM(a.categoryFlat()));
         return vm;
     }
 
@@ -41,26 +33,30 @@ public class StrapiMapper {
         vm.setCategoryUrl(c.category_url());
         vm.setKeyCategory(c.key_category());
         vm.setLastExternalPublishDate(c.last_external_publish_date());
-        if (c.departmentSourceFlat() != null) {
-            vm.setDepartmentSourceId(c.departmentSourceFlat().departmentFlat() != null ? c.departmentSourceFlat().departmentFlat().documentId() : null);
-            vm.setDepartmentSourceName(c.departmentSourceFlat().label());
-        }
+        vm.setDepartmentSourceVM(toVM(c.departmentSourceFlat()));
         return vm;
     }
 
     public static UserVM toVM(UserFlat u) {
         if (u == null) return null;
         UserVM vm = new UserVM();
+        vm.setDocumentId(u.documentId());
         vm.setUsername(u.username());
         vm.setEmail(u.email());
         vm.setProvider(u.provider());
         vm.setConfirm(u.confirm());
         vm.setBlocked(u.blocked());
-        if (u.departmentFlat() != null) {
-            vm.setDepartmentId(u.departmentFlat().documentId());
-            vm.setDepartmentName(u.departmentFlat().department_name());
-        }
+        vm.setDepartment(toVM(u.departmentFlat()));
         vm.setFullName(u.fullName());
+        return vm;
+    }
+
+    public static BookmarkVM toVM(BookmarkFlat b){
+        if (b == null) return null;
+        BookmarkVM vm = new BookmarkVM();
+        vm.setDocumentId(b.documentId());
+        vm.setUserId(b.userFlat().documentId());
+        vm.setArticle(toVM(b.articleFlat()));
         return vm;
     }
 
@@ -79,10 +75,7 @@ public class StrapiMapper {
         vm.setDocumentId(ds.documentId());
         vm.setUrl(ds.url());
         vm.setLabel(ds.label());
-        if (ds.departmentFlat() != null) {
-            vm.setDocumentId(ds.documentId());
-            vm.setDepartmentName(ds.departmentFlat().department_name());
-        }
+        vm.setDepartment(toVM(ds.departmentFlat()));
         return vm;
     }
 
@@ -98,10 +91,9 @@ public class StrapiMapper {
         vm.setTitle(c.title());
         vm.setContent(c.content());
         vm.setExternalPublishDate(c.external_publish_date());
-        if (c.departmentSourceFlat() != null) {
-            vm.setDepartmentSourceId(c.departmentSourceFlat().departmentFlat() != null ? c.departmentSourceFlat().departmentFlat().documentId() : null);
-            vm.setDepartmentSourceName(c.departmentSourceFlat().label());
-        }
+        vm.setDepartmentSource(toVM(c.departmentSourceFlat()));
         return vm;
     }
+
+
 }

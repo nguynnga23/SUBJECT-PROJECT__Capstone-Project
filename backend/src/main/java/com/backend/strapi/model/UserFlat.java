@@ -2,11 +2,13 @@ package com.backend.strapi.model;
 
 import com.backend.entity.Role;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record UserFlat(
+                String documentId,
                 String username,
                 String email,
                 String provider,
@@ -15,6 +17,6 @@ public record UserFlat(
                 String confirmationToken,
                 Boolean confirm,
                 Boolean blocked,
-                DepartmentFlat departmentFlat,
+                @JsonProperty("department") DepartmentFlat departmentFlat,
                 String fullName) {
 }

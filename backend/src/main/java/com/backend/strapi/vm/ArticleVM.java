@@ -17,6 +17,5 @@ public class ArticleVM {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     private OffsetDateTime publishedAt;
-    private String categoryId;
-    private String categoryName;
+    private CategoryVM category;
 }

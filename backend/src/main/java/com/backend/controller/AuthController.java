@@ -77,18 +77,17 @@ public class AuthController {
     @PostMapping(path = "/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody RegisterReq req) {
         if (req.email() == null || req.password() == null) {
-            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "email/password is required"));
+            return ResponseEntity.badRequest()
+                    .body(Map.of("ok", false, "message", "email/password is required"));
         }
 
-        // Body theo Strapi /auth/local/register
         Map<String, Object> body = new HashMap<>();
         body.put("email", req.email());
         body.put("password", req.password());
-        body.put("username", (req.username() == null || req.username().isBlank()) ? req.email() : req.username());
-        // Nếu đã mở rộng schema user/override register, thêm các field:
-        // if (req.fullName() != null) body.put("fullName", req.fullName());
-        // if (req.studentId() != null) body.put("studentId", req.studentId());
-        // if (req.department()!= null) body.put("department", req.department());
+        body.put("username",
+                (req.username() == null || req.username().isBlank())
+                        ? req.email()
+                        : req.username());
 
         var type = new ParameterizedTypeReference<Map<String, Object>>() {
         };
@@ -97,31 +96,43 @@ public class AuthController {
             // Forward tới Strapi
             auth = strapiClient.register(body, type);
         } catch (RestClientResponseException e) {
-            // Map lỗi Strapi -> status hợp lý cho FE (tránh 500)
             String msg = extractStrapiMessage(e.getResponseBodyAsString());
-            int status = e.getRawStatusCode(); // đa số 400 khi email trùng/validate fail
-            // Ví dụ nhận diện email trùng để trả 409
-            if (status == 400 && msg.toLowerCase().contains("email") && msg.toLowerCase().contains("already")) {
+            int status = e.getRawStatusCode();
+
+            if (status == 400
+                    && msg != null
+                    && msg.toLowerCase().contains("email")
+                    && msg.toLowerCase().contains("already")) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("ok", false, "code", "EMAIL_TAKEN", "message", msg));
             }
+
             return ResponseEntity.status(status)
                     .body(Map.of("ok", false, "code", "REGISTER_FAILED", "message", msg));
         }
 
-        // Lấy JWT & set cookie HttpOnly cho FE
         String jwt = (String) auth.get("jwt");
-        ResponseCookie cookie = ResponseCookie.from("sj", jwt)
-                .httpOnly(true)
-                .secure(true) // dùng HTTPS ở môi trường thật
-                .sameSite("Lax") // nếu FE khác domain -> dùng "None"
-                .path("/")
-                .maxAge(Duration.ofDays(7))
-                .build();
-        System.out.println("cookie: " + cookie.toString());
+        Object user = auth.get("user");
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("ok", true, "user", auth.get("user")));
+                .body(Map.of(
+                        "ok", true,
+                        "jwt", jwt,
+                        "user", user));
+    }
+
+    @GetMapping("/auth/me")
+    public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authz) {
+        if (authz == null || !authz.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Missing token"));
+        }
+        var headers = new HttpHeaders();
+        headers.setBearerAuth(authz.substring(7));
+
+        var type = new ParameterizedTypeReference<Map<String, Object>>() {
+        };
+        Map<String, Object> me = strapiClient.get("/users/me", type, null, authz.substring(7));
+        return ResponseEntity.ok(Map.of("ok", true, "user", me));
     }
 
     private static String extractStrapiMessage(String body) {

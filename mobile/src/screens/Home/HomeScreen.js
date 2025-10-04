@@ -52,7 +52,7 @@ export default function HomeScreen({ navigation }) {
     ({ item }) => (
       <ArticleCard
         item={{
-          author: item.categoryName,
+          author: item.category.categoryName,
           title: item.title,
           subtitle: item.summary,
           date: item.external_publish_date,

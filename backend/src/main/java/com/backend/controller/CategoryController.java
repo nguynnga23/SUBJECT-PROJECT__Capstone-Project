@@ -25,7 +25,7 @@ import java.util.Objects;
 public class CategoryController {
     private final StrapiClient strapiClient;
 
-    public CategoryController(StrapiClient client, StrapiClient strapiClient) {
+    public CategoryController(StrapiClient strapiClient) {
         this.strapiClient = strapiClient;
     }
 

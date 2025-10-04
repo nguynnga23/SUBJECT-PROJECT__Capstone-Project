@@ -14,6 +14,5 @@ public class CrawlerConfigVM {
     private String title;
     private String content;
     private String externalPublishDate;
-    private String departmentSourceId;
-    private String departmentSourceName;
+    private DepartmentSourceVM departmentSource;
 }
