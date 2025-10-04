@@ -32,22 +32,22 @@ public class BookmarkController {
         this.strapiClient = strapiClient;
     }
 
-//    @GetMapping
-//    public List<BookmarkVM> list() {
-//        var p = new LinkedMultiValueMap<String, String>();
-//        p.add("populate", "user");
-//        p.add("populate", "article");
-//        var raw = strapiClient.get(
-//                "/bookmarks", new ParameterizedTypeReference<StrapiPageFlat<BookmarkFlat>>() {
-//                },
-//                p,
-//                null);
-//        var data = (raw != null && raw.data() != null) ? raw.data() : List.<BookmarkFlat>of();
-//        return data.stream()
-//                .map(StrapiMapper::toVM)
-//                .filter(Objects::nonNull)
-//                .toList();
-//    }
+    @GetMapping
+    public List<BookmarkVM> list() {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("populate", "user");
+        p.add("populate", "article");
+        var raw = strapiClient.get(
+                "/bookmarks", new ParameterizedTypeReference<StrapiPageFlat<BookmarkFlat>>() {
+                },
+                p,
+                null);
+        var data = (raw != null && raw.data() != null) ? raw.data() : List.<BookmarkFlat>of();
+        return data.stream()
+                .map(StrapiMapper::toVM)
+                .filter(Objects::nonNull)
+                .toList();
+    }
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @RequestBody BookmarkReq req) {

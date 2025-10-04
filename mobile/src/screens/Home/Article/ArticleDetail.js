@@ -15,10 +15,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-markdown-display";
-
 import { getArticleById } from "../../../api/home";
 import { domains, ENV } from "../../../config";
-
+import { addBookmarks } from "../../../api/bookmark";
 /* ---------- Helpers ---------- */
 function getHostName(url) {
   try {
@@ -176,11 +175,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
           <Ionicons name="chevron-back" size={24} />
         </TouchableOpacity>
         <View style={{ flex: 1 }} />
-        {article?.externalUrl ? (
-          <TouchableOpacity onPress={openSource} style={{ marginRight: 12 }}>
-            <Ionicons name="globe-outline" size={22} />
-          </TouchableOpacity>
-        ) : null}
+
         <TouchableOpacity onPress={onShare}>
           <Ionicons name="share-outline" size={22} />
         </TouchableOpacity>
@@ -217,22 +212,6 @@ export default function ArticleDetailScreen({ route, navigation }) {
           ) : null}
         </View>
 
-        {/* Author row (dùng category thay avatar tác giả nếu không có) */}
-        <View style={styles.authorRow}>
-          {!!article?.externalUrl && (
-            <View style={styles.sourceRow}>
-              <Text style={styles.metaLabel}>Nguồn: </Text>
-              <Text
-                style={styles.link}
-                numberOfLines={1}
-                onPress={openSource} // đã có sẵn hàm mở externalUrl
-              >
-                {article.externalUrl}
-              </Text>
-            </View>
-          )}
-        </View>
-
         {/* Thumbnail */}
         {article.thumbnail ? (
           <Image source={{ uri: article.thumbnail }} style={styles.thumbnail} />
@@ -244,15 +223,17 @@ export default function ArticleDetailScreen({ route, navigation }) {
 
       {/* Bottom actions */}
       <View style={styles.bottomBar}>
-        <Ionicons name="hand-left-outline" size={20} />
-        <Text style={styles.bottomText}>213</Text>
-        <Ionicons
-          name="chatbubble-outline"
-          size={20}
-          style={{ marginLeft: 20 }}
-        />
-        <Text style={styles.bottomText}>3</Text>
-        <View style={{ flex: 1 }} />
+        <TouchableOpacity onPress={onShare}>
+          <Ionicons name="color-wand-outline" size={22} />
+        </TouchableOpacity>
+        {article?.externalUrl ? (
+          <TouchableOpacity onPress={openSource}>
+            <Ionicons name="globe-outline" size={22} />
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity>
+          <Ionicons name="bookmarks-outline" size={22} />
+        </TouchableOpacity>
         <TouchableOpacity onPress={onShare}>
           <Ionicons name="share-outline" size={22} />
         </TouchableOpacity>
@@ -347,7 +328,8 @@ const styles = StyleSheet.create({
   bottomBar: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
+    justifyContent: "space-around",
+    paddingVertical: 16,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderColor: "#ddd",
   },

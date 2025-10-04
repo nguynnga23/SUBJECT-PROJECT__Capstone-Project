@@ -11,7 +11,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ArticleCard from "./Article/ArticleCard";
 import { getArticles } from "../../api/home";
-// import { mockArticles } from "./mocks/mockArticles"; // có thể dùng fallback nếu cần
 
 export default function HomeScreen({ navigation }) {
   const [articles, setArticles] = useState([]);
@@ -55,7 +54,7 @@ export default function HomeScreen({ navigation }) {
           author: item.category.categoryName,
           title: item.title,
           subtitle: item.summary,
-          date: item.external_publish_date,
+          date: item?.external_publish_date ?? item?.externalPublishDate ?? "",
           views: "0",
           comments: "0",
           thumb: item.thumbnail,

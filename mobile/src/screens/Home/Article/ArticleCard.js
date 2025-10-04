@@ -73,27 +73,7 @@ export default function ArticleCard({ item, onPress }) {
             </>
           ) : null}
 
-          <MaterialCommunityIcons
-            name="hand-clap"
-            size={16}
-            style={styles.metaIcon}
-          />
-          <Text style={styles.metaText}>{item.views}</Text>
-
-          <Ionicons
-            name="chatbubble-ellipses-outline"
-            size={16}
-            style={styles.metaIcon}
-          />
-          <Text style={styles.metaText}>{item.comments}</Text>
-
           <View style={{ flex: 1 }} />
-          <Ionicons name="remove-outline" size={18} />
-          <Ionicons
-            name="ellipsis-horizontal"
-            size={18}
-            style={{ marginLeft: 8 }}
-          />
         </View>
       </View>
     </TouchableOpacity>

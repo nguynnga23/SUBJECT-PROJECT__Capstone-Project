@@ -1,5 +1,4 @@
-// src/screens/Bookmark/Bookmark.js
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -18,42 +17,38 @@ import { getMyBookmarks } from "../../api/bookmark";
 import ArticleCard from "../Home/Article/ArticleCard";
 
 export default function Bookmark({ navigation }) {
-  const [items, setItems] = useState([]); // <-- danh sách bookmark (mỗi item có article)
+  const [items, setItems] = useState([]);
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
   const isLoggedIn = Boolean(user && token);
 
-  async function loadAuth() {
+  const loadAuthAndFetch = useCallback(async () => {
     try {
+      setError(null);
+      setLoading(true);
+
       const [rawUser, rawToken] = await Promise.all([
         AsyncStorage.getItem("user"),
         AsyncStorage.getItem("token"),
       ]);
-      setUser(rawUser ? JSON.parse(rawUser) : null);
-      setToken(rawToken || null);
-    } catch {
-      setUser(null);
-      setToken(null);
-    }
-  }
+      const u = rawUser ? JSON.parse(rawUser) : null;
+      const t = rawToken || null;
+      setUser(u);
+      setToken(t);
+      setAuthReady(true);
 
-  // Chỉ cần lấy bookmarks; mỗi item đã có article
-  async function fetchData() {
-    if (!isLoggedIn) {
-      setItems([]);
-      setLoading(false);
-      setRefreshing(false);
-      return;
-    }
-    try {
-      setError(null);
-      const res = await getMyBookmarks();
-      const list = Array.isArray(res) ? res : res?.data ?? [];
-      setItems(list);
+      if (u && t) {
+        const res = await getMyBookmarks();
+        const list = Array.isArray(res) ? res : res?.data ?? [];
+        setItems(list);
+      } else {
+        setItems([]);
+      }
     } catch (e) {
       setItems([]);
       setError(e?.message || "Không lấy được dữ liệu");
@@ -61,34 +56,37 @@ export default function Bookmark({ navigation }) {
       setLoading(false);
       setRefreshing(false);
     }
-  }
-
-  useEffect(() => {
-    (async () => {
-      await loadAuth();
-      setLoading(true);
-    })();
   }, []);
 
-  useEffect(() => {
-    if (user !== null) fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, token]);
-
+  // Chạy khi màn hình focus (kể cả lần đầu)
   useFocusEffect(
     useCallback(() => {
-      (async () => {
-        await loadAuth();
-        setRefreshing(true);
-        await fetchData();
-      })();
-    }, [])
+      setRefreshing(true);
+      loadAuthAndFetch();
+    }, [loadAuthAndFetch])
   );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    fetchData();
-  }, []);
+    loadAuthAndFetch();
+  }, [loadAuthAndFetch]);
+
+  // Khi auth chưa sẵn sàng hoặc đang tải → chỉ hiện loading, tránh nháy empty
+  if (!authReady || loading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.header}>
+          <Text style={styles.logo}>Unifeed.news</Text>
+        </View>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" />
+          <Text style={[styles.msg, { marginTop: 8 }]}>
+            Đang tải bookmarks…
+          </Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
@@ -107,22 +105,6 @@ export default function Bookmark({ navigation }) {
           >
             <Text style={styles.btnText}>Đi tới đăng nhập</Text>
           </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.header}>
-          <Text style={styles.logo}>Unifeed.news</Text>
-        </View>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" />
-          <Text style={[styles.msg, { marginTop: 8 }]}>
-            Đang tải bookmarks…
-          </Text>
         </View>
       </SafeAreaView>
     );
@@ -167,11 +149,12 @@ export default function Bookmark({ navigation }) {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          contentContainerStyle={{ paddingBottom: 12 }}
           renderItem={({ item }) => {
-            const a = item?.article || {}; // article đã có trong bookmark
+            const a = item?.article || {};
             const articleDocId =
               a?.documentId ?? item?.articleId ?? item?.articleDocumentId;
-
             return (
               <ArticleCard
                 item={{
@@ -183,18 +166,17 @@ export default function Bookmark({ navigation }) {
                   views: "0",
                   comments: "0",
                   thumb: a?.thumbnail,
+                  externalUrl: a.externalUrl,
                 }}
                 onPress={() =>
                   navigation.navigate("ArticleDetail", {
                     articleId: articleDocId,
-                    article: a, // đã có sẵn -> detail có thể không cần fetch lại
+                    article: a,
                   })
                 }
               />
             );
           }}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
-          contentContainerStyle={{ paddingBottom: 12 }}
         />
       )}
     </SafeAreaView>
