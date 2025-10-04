@@ -5,6 +5,17 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      fontFamily: {
+        poppins: ["Poppins", "sans-serif"],
+        inter: ["Inter", "sans-serif"],
+      },
+      colors: {
+        primary: {
+          DEFAULT: "#0064E0", // màu chính
+          dark: "#d67c10", // màu khi hover
+          light: "#f5b866", // nếu muốn thêm biến thể
+        },
+      },
       keyframes: {
         fadeIn: {
           "0%": { opacity: 0, transform: "scale(0.95)" },

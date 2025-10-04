@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 function CategoryDetail() {
   const { id, cat_id } = useParams();
@@ -19,8 +20,10 @@ function CategoryDetail() {
   const [formData, setFormData] = useState(category || {});
 
   const isValid =
-    formData?.category_url.trim() !== "" &&
-    formData?.category_name.trim() !== "";
+    formData?.category_url &&
+    formData.category_url.trim() !== "" &&
+    formData?.category_name &&
+    formData.category_name.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,12 +32,6 @@ function CategoryDetail() {
 
   const handleSave = () => {
     try {
-      dispatch(
-        updateDepartment({
-          id: department.id,
-          data: formData,
-        })
-      );
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
@@ -51,7 +48,7 @@ function CategoryDetail() {
   }
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 w-full">
       <main className="p-2">
         <div>
           <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center h-[40px]">
@@ -69,12 +66,12 @@ function CategoryDetail() {
               {department.label}
             </span>
             <MdChevronRight />
-            <span className="font-medium">{category.category_name}</span>
+            <span className="font-medium">{category?.category_name}</span>
           </h2>
 
-          <div className="p-6 grid grid-cols-1 gap-6">
+          <div className="p-6 grid grid-cols-1 gap-6 h-full w-full">
             {/* ====== Cột 1 + 2: Thông tin chi tiết ====== */}
-            <div className="col-span-2 grid grid-cols-1 gap-6">
+            <div className="col-span-2 grid grid-cols-1 gap-6 w-full">
               {/* Website */}
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
@@ -82,7 +79,7 @@ function CategoryDetail() {
                 </label>
                 <input
                   type="text"
-                  name="website"
+                  name="category_url"
                   value={formData.category_url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
@@ -98,7 +95,7 @@ function CategoryDetail() {
                 </label>
                 <input
                   type="text"
-                  name="name"
+                  name="category_name"
                   value={formData.category_name || ""}
                   onChange={handleChange}
                   disabled={!editMode}
@@ -108,56 +105,71 @@ function CategoryDetail() {
                 />
               </div>
               {/* Mốc thời gian thu thập dữ liệu */}
-              <div>
-                <label className="block text-blue-700 font-medium mb-1">
-                  Mốc thời gian thu thập{" "}
-                  <span className="text-red-500">(*)</span>
-                </label>
-                <input
-                  type="text"
-                  name="code"
-                  value={formData.last_external_publish_date || ""}
-                  onChange={handleChange}
-                  disabled={!editMode}
-                  className={`w-full border rounded px-3 py-2 ${
-                    !editMode ? "bg-gray-100" : ""
-                  }`}
-                />
+              <div className="w-full flex justify-between items-center">
+                <div>
+                  <label className="block text-blue-700 font-medium mb-1">
+                    Mốc thời gian thu thập{" "}
+                    <span className="text-red-500">(*)</span>
+                  </label>
+                  <DatePicker
+                    selected={
+                      formData.last_external_publish_date
+                        ? new Date(formData.last_external_publish_date)
+                        : null
+                    }
+                    onChange={(date) =>
+                      handleChange({
+                        target: {
+                          name: "last_external_publish_date",
+                          value: date ? date.toISOString() : "",
+                        },
+                      })
+                    }
+                    dateFormat="dd/MM/yyyy"
+                    placeholderText="Chọn ngày"
+                    popperPlacement="bottom-start"
+                    disabled={!editMode}
+                    className={`w-[500px] border rounded px-3 py-2 ${
+                      !editMode ? "bg-gray-100" : ""
+                    }`}
+                  />
+                </div>
+                <div>
+                  {/* Nút hành động */}
+                  <div className="mt-6 flex justify-end gap-4">
+                    {!editMode ? (
+                      <button
+                        onClick={() => setEditMode(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded"
+                      >
+                        Chỉnh sửa
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            setFormData(category); // reset
+                            setEditMode(false);
+                          }}
+                          className="px-8 py-2 bg-gray-300 rounded"
+                        >
+                          Hủy
+                        </button>
+                        <button
+                          className={`px-8 py-2 text-white rounded ${
+                            isValid ? "bg-green-600" : "bg-gray-300"
+                          }`}
+                          onClick={handleSave}
+                          disabled={!isValid}
+                        >
+                          Lưu
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Nút hành động */}
-          <div className="mt-6 flex justify-end gap-4">
-            {!editMode ? (
-              <button
-                onClick={() => setEditMode(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Chỉnh sửa
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => {
-                    setFormData(category); // reset
-                    setEditMode(false);
-                  }}
-                  className="px-8 py-2 bg-gray-300 rounded"
-                >
-                  Hủy
-                </button>
-                <button
-                  className={`px-8 py-2 text-white rounded ${
-                    isValid ? "bg-green-600" : "bg-gray-300"
-                  }`}
-                  onClick={handleSave}
-                  disabled={!isValid}
-                >
-                  Lưu
-                </button>
-              </>
-            )}
           </div>
         </div>
       </main>

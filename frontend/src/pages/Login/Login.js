@@ -43,38 +43,36 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#fefefe] ">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-md px-8 py-10">
+    <div className="min-h-screen flex items-center justify-center bg-[#BCD6FF] ">
+      <div className="w-full max-w-md bg-[white] rounded-3xl shadow-md px-8 py-10">
         <div className="mb-6">
-          <h2 className="text-sm text-gray-600">
+          <h2 className="text-gray-600">
             Welcome to{" "}
-            <span className="text-[#c6562a] font-bold">UNIFEED.news</span>
+            <span className="text-primary font-bold">UNIFEED.news</span>
           </h2>
           <h1 className="text-4xl font-bold mt-2">Sign in</h1>
         </div>
 
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium">
-            Enter your username or email address
+            Email address
           </label>
           <input
             type="text"
             placeholder="Username or email address"
-            className="w-full border border-blue-400 rounded-lg px-4 py-2 outline-none"
+            className="w-full border border-blue-400 text-[11px] rounded-lg px-4 py-2 outline-none"
             onChange={(e) => setEmail(e.target.value)}
             value={email}
           />
         </div>
 
         <div className="mb-2 relative">
-          <label className="block mb-1 text-sm font-medium">
-            Enter your Password
-          </label>
+          <label className="block mb-1 text-sm font-medium">Password</label>
           <div className="relative">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 outline-none"
+              className="w-full border border-gray-300 text-[11px] rounded-lg px-4 py-2 pr-10 outline-none"
               onChange={(e) => setPassword(e.target.value)}
               value={password}
             />
@@ -88,13 +86,13 @@ function Login() {
         </div>
 
         <div className="text-right mb-6">
-          <span className="text-sm text-[#C15C1D] cursor-pointer hover:underline">
+          <span className="text-sm text-primary cursor-pointer hover:underline">
             Forgot Password
           </span>
         </div>
 
         <button
-          className="w-full bg-[#E88A1A] hover:bg-[#d67c10] text-white font-medium py-2 rounded-lg shadow-md"
+          className="w-full bg-primary text-white font-medium py-2 rounded-lg shadow-md"
           onClick={handleLogin}
         >
           Sign in
@@ -105,7 +103,7 @@ function Login() {
         <p className="text-sm text-gray-500 text-center">
           No Account?{" "}
           <span
-            className="text-[#C15C1D] font-medium cursor-pointer hover:underline"
+            className="text-primary font-medium cursor-pointer hover:underline"
             onClick={handleSignup}
           >
             Sign up

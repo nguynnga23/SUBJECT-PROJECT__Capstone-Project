@@ -13,6 +13,31 @@ const allColumns = [
   { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
+// helper format date
+const formatDateVN = (dateString) => {
+  if (!dateString) return "Đang cập nhật ...";
+  const date = new Date(dateString);
+  if (isNaN(date)) return "Không hợp lệ";
+
+  // Map thứ trong tuần
+  const weekdays = [
+    "Chủ nhật",
+    "Thứ 2",
+    "Thứ 3",
+    "Thứ 4",
+    "Thứ 5",
+    "Thứ 6",
+    "Thứ 7",
+  ];
+
+  const dayOfWeek = weekdays[date.getDay()];
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${dayOfWeek}, ngày ${day}/${month}/${year}`;
+};
+
 const DepartmentTable = () => {
   const navigate = useNavigate();
   const [data, setData] = useState(current_data?.department_sources || {});
@@ -44,6 +69,7 @@ const DepartmentTable = () => {
     open: false,
     data: [],
     position: { top: 0, left: 0, width: 0 },
+    departmentId: null,
   });
 
   // lọc
@@ -68,6 +94,11 @@ const DepartmentTable = () => {
       );
     }
 
+    // format ngày
+    if (colKey === "createdAt" || colKey === "updatedAt") {
+      return formatDateVN(value);
+    }
+
     if (Array.isArray(value)) {
       return (
         <button
@@ -83,6 +114,7 @@ const DepartmentTable = () => {
                 left: rect.left + window.scrollX,
                 width: rect.width,
               },
+              departmentId: rowId,
             });
           }}
         >
@@ -300,7 +332,7 @@ const DepartmentTable = () => {
                     className="border p-2"
                     onClick={() => handleShowDepartmentDetail(dept.id)}
                   >
-                    {renderValue(dept[col.key], col.key)}
+                    {renderValue(dept[col.key], col.key, dept.id)}
                   </td>
                 ))}
             </tr>
@@ -320,8 +352,16 @@ const DepartmentTable = () => {
             className="max-h-[300px] text-[12px] overflow-y-auto"
             ref={popupRef}
           >
-            {arrayPopup.data.map((item, i) => (
-              <li className="p-2.5 hover:bg-gray-200 cursor-pointer">
+            {arrayPopup.data.map((item) => (
+              <li
+                className="p-2.5 hover:bg-gray-200 cursor-pointer"
+                key={item.id}
+                onClick={() =>
+                  navigate(
+                    `/admin/department/${arrayPopup.departmentId}/category/${item.id}`
+                  )
+                }
+              >
                 {JSON.stringify(item?.category_name)}
               </li>
             ))}
