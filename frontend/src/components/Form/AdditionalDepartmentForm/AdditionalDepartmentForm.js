@@ -16,6 +16,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
   });
   const dispatch = useDispatch();
   const [showFormCategory, setShowFormCategory] = useState(false);
+  const [preDataCategory, setPreDataCategory] = useState(null);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -106,12 +107,16 @@ function AdditionalDepartmentForm({ setShowModal }) {
                       <li
                         key={c.id}
                         className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          setPreDataCategory(c);
+                          setShowFormCategory(true);
+                        }}
                       >
                         {c.category_name}
                       </li>
                     ))}
                     <button
-                      className={`absolute bottom-[-23px] right-[50%] text-green-600 hover:text-green-800`}
+                      className={`absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800`}
                       title="Thêm loại tin tức mới"
                       onClick={() => {
                         setShowFormCategory(true);
@@ -150,7 +155,14 @@ function AdditionalDepartmentForm({ setShowModal }) {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="opacity-0 animate-fadeIn">
               <AdditionalCategoryForm
+                preData={preDataCategory}
                 setShowFormCategory={setShowFormCategory}
+                onAddCategory={(newCategory) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    categories: [...prev.categories, newCategory],
+                  }));
+                }}
               />
             </div>
           </div>

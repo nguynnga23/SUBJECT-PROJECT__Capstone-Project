@@ -230,7 +230,7 @@ const DepartmentTable = () => {
             >
               {sortField
                 ? allColumns.find((c) => c.key === sortField)?.label
-                : "-- Chọn cột sắp xếp --"}
+                : " Chọn cột sắp xếp "}
               <IoIosArrowDown className="absolute right-[5px] top-3" />
             </div>
             {openSort && (

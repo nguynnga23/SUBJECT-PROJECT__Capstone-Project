@@ -5,6 +5,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import articleReducer from "./slices/articleSlice";
 import departmentReducer from "./slices/departmentSlice";
+import categotyReducer from "./slices/categorySlice";
 
 const persistConfig = {
   key: "root", // key 'root' để đảm bảo redux-persist lưu toàn bộ store
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   article: articleReducer,
   department: departmentReducer,
+  category: categotyReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

@@ -3,9 +3,14 @@ import { LiaTimesCircle } from "react-icons/lia";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { v4 as uuidv4 } from "uuid";
 
-function AdditionalCategoryForm({ setShowFormCategory }) {
-  const [formData, setFormData] = useState({});
+function AdditionalCategoryForm({
+  preData,
+  setShowFormCategory,
+  onAddCategory,
+}) {
+  const [formData, setFormData] = useState(preData || {});
 
   const isValid =
     formData?.category_url &&
@@ -20,6 +25,16 @@ function AdditionalCategoryForm({ setShowFormCategory }) {
 
   const handleSave = () => {
     try {
+      const newCategory = {
+        id: uuidv4(),
+        category_url: formData.category_url,
+        category_name: formData.category_name,
+        last_external_publish_date: formData.last_external_publish_date,
+        isNew: true,
+      };
+
+      // ✅ Thêm vào Redux store
+      onAddCategory(newCategory);
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
@@ -28,7 +43,7 @@ function AdditionalCategoryForm({ setShowFormCategory }) {
   };
 
   return (
-    <div className="relative w-[500px] mx-auto bg-white rounded space-y-6 p-4 shadow">
+    <div className="relative w-[500px] mx-auto bg-white rounded space-y-6 p-4 shadow text-sm">
       {/* Nút đóng */}
       <LiaTimesCircle
         className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"

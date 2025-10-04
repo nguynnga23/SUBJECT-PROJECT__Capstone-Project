@@ -17,6 +17,7 @@ function DepartmentDetail() {
   const [formData, setFormData] = useState(department || {});
 
   const [showFormCategory, setShowFormCategory] = useState(false);
+  const [preDataCategory, setPreDataCategory] = useState(null);
 
   const isValid =
     formData.website?.trim() !== "" &&
@@ -50,7 +51,6 @@ function DepartmentDetail() {
       </h2>
     );
   }
-
   return (
     <div className="flex-1 relative">
       <main className="p-2">
@@ -124,14 +124,24 @@ function DepartmentDetail() {
                     (formData.categories || []).map((c) => (
                       <li
                         key={c.id}
-                        className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                        onClick={() =>
-                          navigate(
-                            `/admin/department/${department.id}/category/${c.id}`
-                          )
-                        }
+                        className="relative border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          if (!c.isNew) {
+                            navigate(
+                              `/admin/department/${department.id}/category/${c.id}`
+                            );
+                          } else {
+                            setPreDataCategory(c);
+                            setShowFormCategory(true);
+                          }
+                        }}
                       >
                         {c.category_name}
+                        {c.isNew && (
+                          <span className="text-primary absolute right-[10px] p-[3px] italic">
+                            Chưa lưu
+                          </span>
+                        )}
                       </li>
                     ))
                   ) : (
@@ -194,7 +204,14 @@ function DepartmentDetail() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
             <div className="opacity-0 animate-fadeIn">
               <AdditionalCategoryForm
+                preData={preDataCategory}
                 setShowFormCategory={setShowFormCategory}
+                onAddCategory={(newCategory) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    categories: [...prev.categories, newCategory],
+                  }));
+                }}
               />
             </div>
           </div>
