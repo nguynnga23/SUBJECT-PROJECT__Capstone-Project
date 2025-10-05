@@ -8,7 +8,6 @@ import java.util.List;
 public record DepartmentFlat(
         String documentId,
         String department_name,
-        String key_department,
-        List<DepartmentSourceFlat> departmentSources,
-        List<UserFlat> user
+        List<DepartmentSourceFlat> department_sources,
+        List<UserFlat> users
 ) {}

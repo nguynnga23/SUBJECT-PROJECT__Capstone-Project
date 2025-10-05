@@ -1,7 +1,6 @@
 package com.backend.strapi.vm;
 
 import lombok.Data;
-import java.time.LocalDate;
 
 @Data
 public class CrawlerConfigVM {

@@ -20,6 +20,6 @@ public record ArticleFlat(
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
         OffsetDateTime publishedAt,
-        @JsonProperty("category") CategoryFlat categoryFlat,
+        @JsonProperty("category") CategoryFlat category,
         List<BookmarkFlat> bookmarks
 ) {}

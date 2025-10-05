@@ -17,7 +17,7 @@ import java.time.Duration;
 public class StrapiClient {
 
     private final RestClient rc;
-    private final String serviceToken; // API Token (tuỳ chọn, dùng cho tác vụ kỹ thuật)
+    private final String serviceToken;
 
     public StrapiClient(@Value("${strapi.base}") String base,
             @Value("${strapi.token:}") String serviceToken) {

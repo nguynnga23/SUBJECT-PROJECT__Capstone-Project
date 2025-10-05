@@ -21,7 +21,7 @@ public class StrapiMapper {
         vm.setCreatedAt(a.createdAt());
         vm.setUpdatedAt(a.updatedAt());
         vm.setPublishedAt(a.publishedAt());
-        vm.setCategory(toVM(a.categoryFlat()));
+        vm.setCategory(toVM(a.category()));
         return vm;
     }
 
@@ -33,7 +33,7 @@ public class StrapiMapper {
         vm.setCategoryUrl(c.category_url());
         vm.setKeyCategory(c.key_category());
         vm.setLastExternalPublishDate(c.last_external_publish_date());
-        vm.setDepartmentSourceVM(toVM(c.departmentSourceFlat()));
+        vm.setDepartmentSource(toVM(c.department_source()));
         return vm;
     }
 
@@ -46,7 +46,7 @@ public class StrapiMapper {
         vm.setProvider(u.provider());
         vm.setConfirm(u.confirm());
         vm.setBlocked(u.blocked());
-        vm.setDepartment(toVM(u.departmentFlat()));
+        vm.setDepartment(toVM(u.department()));
         vm.setFullName(u.fullName());
         return vm;
     }
@@ -55,8 +55,8 @@ public class StrapiMapper {
         if (b == null) return null;
         BookmarkVM vm = new BookmarkVM();
         vm.setDocumentId(b.documentId());
-        vm.setUserId(b.userFlat().documentId());
-        vm.setArticle(toVM(b.articleFlat()));
+        vm.setUserId(b.user().documentId());
+        vm.setArticle(toVM(b.article()));
         return vm;
     }
 
@@ -65,7 +65,6 @@ public class StrapiMapper {
         DepartmentVM vm = new DepartmentVM();
         vm.setDocumentId(d.documentId());
         vm.setDepartmentName(d.department_name());
-        vm.setKeyDepartment(d.key_department());
         return vm;
     }
 
@@ -73,9 +72,11 @@ public class StrapiMapper {
         if (ds == null) return null;
         DepartmentSourceVM vm = new DepartmentSourceVM();
         vm.setDocumentId(ds.documentId());
+        vm.setCrawlerConfig(toVM(ds.crawler_config()));
+        vm.setKeyDepartmentSource(ds.key_departmentSource());
         vm.setUrl(ds.url());
         vm.setLabel(ds.label());
-        vm.setDepartment(toVM(ds.departmentFlat()));
+        vm.setDepartment(toVM(ds.department()));
         return vm;
     }
 
@@ -91,9 +92,7 @@ public class StrapiMapper {
         vm.setTitle(c.title());
         vm.setContent(c.content());
         vm.setExternalPublishDate(c.external_publish_date());
-        vm.setDepartmentSource(toVM(c.departmentSourceFlat()));
+        vm.setDepartmentSource(toVM(c.department_source()));
         return vm;
     }
-
-
 }

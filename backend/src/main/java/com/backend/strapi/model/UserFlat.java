@@ -1,6 +1,5 @@
 package com.backend.strapi.model;
 
-import com.backend.entity.Role;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,6 +16,6 @@ public record UserFlat(
                 String confirmationToken,
                 Boolean confirm,
                 Boolean blocked,
-                @JsonProperty("department") DepartmentFlat departmentFlat,
+                @JsonProperty("department") DepartmentFlat department,
                 String fullName) {
 }

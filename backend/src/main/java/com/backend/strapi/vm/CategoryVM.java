@@ -10,5 +10,5 @@ public class CategoryVM {
     private String categoryUrl;
     private String keyCategory;
     private LocalDate lastExternalPublishDate;
-    private DepartmentSourceVM departmentSourceVM;
+    private DepartmentSourceVM departmentSource;
 }

@@ -13,6 +13,6 @@ public record CategoryFlat(
         String category_url,
         String key_category,
         LocalDate last_external_publish_date,
-        @JsonProperty("department_source") DepartmentSourceFlat departmentSourceFlat,
+        @JsonProperty("department_source") DepartmentSourceFlat department_source,
         List<ArticleFlat> articleFlats) {
 }

@@ -1,8 +1,10 @@
 package com.backend.controller;
 
 import com.backend.client.StrapiClient;
+import com.backend.dto.request.ChangePasswordReq;
 import com.backend.dto.request.LoginReq;
 import com.backend.dto.request.RegisterReq;
+import com.backend.dto.request.UpdateProfileReq;
 import com.backend.strapi.mapper.StrapiMapper;
 import com.backend.strapi.model.DepartmentFlat;
 import com.backend.strapi.model.StrapiSingle;
@@ -19,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/auth")
 public class AuthController {
     private final StrapiClient strapiClient;
 
@@ -28,7 +30,7 @@ public class AuthController {
         this.strapiClient = strapiClient;
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReq req) {
         Map<String, Object> body = Map.of(
                 "identifier", req.email(),
@@ -74,7 +76,7 @@ public class AuthController {
                 "user", auth.get("user")));
     }
 
-    @PostMapping(path = "/auth/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody RegisterReq req) {
         if (req.email() == null || req.password() == null) {
             return ResponseEntity.badRequest()
@@ -121,7 +123,7 @@ public class AuthController {
                         "user", user));
     }
 
-    @GetMapping("/auth/me")
+    @GetMapping("/me")
     public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authz) {
         if (authz == null || !authz.startsWith("Bearer ")) {
             return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Missing token"));
@@ -144,6 +146,94 @@ public class AuthController {
             return node.path("message").asText("Upstream error");
         } catch (Exception ignore) {
             return "Upstream error";
+        }
+    }
+
+    @PutMapping(path = "/me", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateMe(
+            @RequestHeader(value = "Authorization", required = false) String authz,
+            @RequestBody UpdateProfileReq req
+    ) {
+        if (authz == null || !authz.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Missing token"));
+        }
+        String token = authz.substring(7);
+
+        try {
+            var meType = new ParameterizedTypeReference<Map<String, Object>>() {};
+            Map<String, Object> me = strapiClient.get("/users/me", meType, null, token);
+            Object idObj = me.get("id");
+            if (idObj == null) {
+                return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Cannot resolve current user"));
+            }
+            String userId = String.valueOf(idObj);
+
+            // 2) Xây body chỉ gồm các field có giá trị (whitelist)
+            Map<String, Object> body = new HashMap<>();
+            if (req.username() != null && !req.username().isBlank()) body.put("username", req.username());
+            if (req.fullName() != null) body.put("fullName", req.fullName());
+
+            if (req.departmentId() != null && !req.departmentId().isBlank()) {
+                body.put("department", Map.of("connect", req.departmentId()));
+            }
+
+            var type = new ParameterizedTypeReference<Map<String, Object>>() {};
+            Map<String, Object> updated = strapiClient.putJson("/users/" + userId, body, type, token);
+
+            return ResponseEntity.ok(Map.of(
+                    "ok", true,
+                    "user", updated
+            ));
+
+        } catch (RestClientResponseException e) {
+            String msg = extractStrapiMessage(e.getResponseBodyAsString());
+            int status = e.getRawStatusCode();
+            return ResponseEntity.status(status).body(Map.of(
+                    "ok", false,
+                    "code", "UPSTREAM_" + status,
+                    "message", msg
+            ));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("ok", false, "message", "Failed to update profile"));
+        }
+    }
+
+    @PostMapping(path = "/change-password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> changePassword(
+            @RequestHeader(value = "Authorization", required = false) String authz,
+            @RequestBody ChangePasswordReq req
+    ) {
+        if (authz == null || !authz.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body(Map.of("ok", false, "message", "Missing token"));
+        }
+        String token = authz.substring(7);
+
+        if (req.currentPassword() == null || req.password() == null || req.passwordConfirmation() == null) {
+            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "currentPassword/password/passwordConfirmation are required"));
+        }
+
+        try {
+            var type = new ParameterizedTypeReference<Map<String, Object>>() {};
+            Map<String, Object> body = Map.of(
+                    "currentPassword", req.currentPassword(),
+                    "password", req.password(),
+                    "passwordConfirmation", req.passwordConfirmation()
+            );
+
+            // Strapi route chuẩn: /api/auth/change-password (users-permissions)
+            Map<String, Object> resp = strapiClient.postJson("/auth/change-password", body, type, token);
+
+            return ResponseEntity.ok(Map.of("ok", true, "message", "Password changed", "data", resp));
+        } catch (RestClientResponseException e) {
+            String msg = extractStrapiMessage(e.getResponseBodyAsString());
+            int status = e.getRawStatusCode();
+            return ResponseEntity.status(status).body(Map.of(
+                    "ok", false,
+                    "code", "UPSTREAM_" + status,
+                    "message", msg
+            ));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("ok", false, "message", "Failed to change password"));
         }
     }
 }

@@ -4,11 +4,9 @@ import com.backend.client.StrapiClient;
 import com.backend.dto.request.BookmarkReq;
 import com.backend.strapi.mapper.StrapiMapper;
 import com.backend.strapi.model.BookmarkFlat;
-import com.backend.strapi.model.CategoryFlat;
 import com.backend.strapi.model.StrapiPageFlat;
 import com.backend.strapi.model.StrapiSingle;
 import com.backend.strapi.vm.BookmarkVM;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -50,59 +48,36 @@ public class BookmarkController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody BookmarkReq req) {
-        // Validate đầu vào
-        if (req.userId() == null || req.userId().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "userDocumentId is required"));
-        }
-        if (req.articleId() == null || req.articleId().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "articleDocumentId is required"));
-        }
-
+    public ResponseEntity<?> create(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestBody BookmarkReq req
+    ) {
         try {
-            // 1) Body đúng cú pháp Strapi v5 (connect bằng documentId)
+            String token = authHeader.replace("Bearer ", "");
+
             Map<String, Object> data = new HashMap<>();
-            data.put("user", Map.of("connect", java.util.List.of(req.userId())));
-            data.put("article", Map.of("connect", java.util.List.of(req.articleId())));
+            data.put("user", Map.of("connect", List.of(req.userId())));
+            data.put("article", Map.of("connect", List.of(req.articleId())));
             Map<String, Object> body = Map.of("data", data);
 
-            // 2) POST tạo (không kỳ vọng populate trong response)
             var created = strapiClient.postJson(
                     "/bookmarks",
                     body,
                     new ParameterizedTypeReference<StrapiSingle<BookmarkFlat>>() {},
-                    null
+                    token
             );
-            var createdFlat = created != null ? created.data() : null;
-            if (createdFlat == null || createdFlat.documentId() == null) {
-                return ResponseEntity.status(502).body(Map.of("ok", false, "message", "Create bookmark: empty response"));
-            }
 
-            // 3) GET lại với populate để tránh NPE khi map
-            var params = new org.springframework.util.LinkedMultiValueMap<String, String>();
-            params.add("populate[user]", "true");
-            params.add("populate[article]", "true");
-
-            var full = strapiClient.get(
-                    "/bookmarks/" + createdFlat.documentId(),
-                    new ParameterizedTypeReference<StrapiSingle<BookmarkFlat>>() {},
-                    params,
-                    null
-            );
-            var flat = full != null ? full.data() : null;
-
-            // 4) Mapper null-safe
-            var vm = StrapiMapper.toVM(flat);
-            return ResponseEntity.status(HttpStatus.CREATED).body(vm);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
         } catch (RestClientResponseException e) {
-            String msg = safeExtractStrapiMessage(e.getResponseBodyAsString());
             return ResponseEntity.status(e.getRawStatusCode())
-                    .body(Map.of("ok", false, "message", msg != null ? msg : "Failed to create bookmark"));
+                    .body(Map.of("ok", false, "message", safeExtractStrapiMessage(e.getResponseBodyAsString())));
         } catch (Exception ex) {
-            return ResponseEntity.status(500).body(Map.of("ok", false, "message", "Failed to create bookmark"));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("ok", false, "message", "Failed to create bookmark"));
         }
     }
+
 
 
     @GetMapping("/{userId}")
@@ -145,4 +120,31 @@ public class BookmarkController {
             return null;
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(
+            @PathVariable String id
+    ) {
+        try {
+
+            // Gọi Strapi API xoá
+            strapiClient.delete(
+                    "/bookmarks/" + id,
+                    null
+            );
+
+            return ResponseEntity.ok(Map.of(
+                    "ok", true,
+                    "message", "Bookmark deleted successfully"
+            ));
+
+        } catch (RestClientResponseException e) {
+            return ResponseEntity.status(e.getRawStatusCode())
+                    .body(Map.of("ok", false, "message", safeExtractStrapiMessage(e.getResponseBodyAsString())));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("ok", false, "message", "Failed to delete bookmark"));
+        }
+    }
+
 }
