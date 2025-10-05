@@ -17,6 +17,7 @@ function DepartmentDetail() {
   const [formData, setFormData] = useState(department || {});
 
   const [showFormCategory, setShowFormCategory] = useState(false);
+  const [preDataCategory, setPreDataCategory] = useState(null);
 
   const isValid =
     formData.website?.trim() !== "" &&
@@ -50,9 +51,8 @@ function DepartmentDetail() {
       </h2>
     );
   }
-
   return (
-    <div className="flex-1">
+    <div className="flex-1 relative">
       <main className="p-2">
         <div>
           <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center h-[40px]">
@@ -124,14 +124,24 @@ function DepartmentDetail() {
                     (formData.categories || []).map((c) => (
                       <li
                         key={c.id}
-                        className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                        onClick={() =>
-                          navigate(
-                            `/admin/department/${department.id}/category/${c.id}`
-                          )
-                        }
+                        className="relative border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          if (!c.isNew) {
+                            navigate(
+                              `/admin/department/${department.id}/category/${c.id}`
+                            );
+                          } else {
+                            setPreDataCategory(c);
+                            setShowFormCategory(true);
+                          }
+                        }}
                       >
                         {c.category_name}
+                        {c.isNew && (
+                          <span className="text-primary absolute right-[10px] p-[3px] italic">
+                            Chưa lưu
+                          </span>
+                        )}
                       </li>
                     ))
                   ) : (
@@ -143,18 +153,10 @@ function DepartmentDetail() {
                     <button
                       className="absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800"
                       title="Thêm loại tin tức mới"
+                      onClick={() => setShowFormCategory(true)}
                     >
                       <MdAddCircle size={24} />
                     </button>
-                  )}
-                  {showFormCategory && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                      <div className="opacity-0 animate-fadeIn">
-                        <AdditionalCategoryForm
-                          setShowFormCategory={setShowFormCategory}
-                        />
-                      </div>
-                    </div>
                   )}
                 </ul>
               </div>
@@ -162,39 +164,55 @@ function DepartmentDetail() {
               <div className="col-span-1 mb-1">{""}</div>
             </div>
           </div>
-
-          {/* Nút hành động */}
-          <div className="mt-6 flex justify-end gap-4">
-            {!editMode ? (
-              <button
-                onClick={() => setEditMode(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-              >
-                Chỉnh sửa
-              </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => {
-                    setFormData(department); // reset
-                    setEditMode(false);
+        </div>
+        <div>
+          {showFormCategory && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div className="opacity-0 animate-fadeIn">
+                <AdditionalCategoryForm
+                  preData={preDataCategory}
+                  setShowFormCategory={setShowFormCategory}
+                  onAddCategory={(newCategory) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      categories: [...prev.categories, newCategory],
+                    }));
                   }}
-                  className="px-8 py-2 bg-gray-300 rounded"
-                >
-                  Hủy
-                </button>
-                <button
-                  className={`px-8 py-2 text-white rounded ${
-                    isValid ? "bg-green-600" : "bg-gray-300"
-                  }`}
-                  onClick={handleSave}
-                  disabled={!isValid}
-                >
-                  Lưu
-                </button>
-              </>
-            )}
-          </div>
+                />
+              </div>
+            </div>
+          )}
+        </div>
+        <div className="p-5 flex justify-end gap-4">
+          {!editMode ? (
+            <button
+              onClick={() => setEditMode(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Chỉnh sửa
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => {
+                  setFormData(department); // reset
+                  setEditMode(false);
+                }}
+                className="px-8 py-2 bg-gray-300 rounded"
+              >
+                Hủy
+              </button>
+              <button
+                className={`px-8 py-2 text-white rounded ${
+                  isValid ? "bg-green-600" : "bg-gray-300"
+                }`}
+                onClick={handleSave}
+                disabled={!isValid}
+              >
+                Lưu
+              </button>
+            </>
+          )}
         </div>
       </main>
     </div>

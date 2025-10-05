@@ -9,12 +9,12 @@ function AdminLayout({ children }) {
   return (
     <div className="relative flex w-full mx-auto">
       {/* Sidebar cố định */}
-      <div className="hidden xl:block w-1/5">
+      <div className="hidden xl:block w-[20%]">
         <Sidebar />
       </div>
 
       {/* Main content */}
-      <div className="w-full xl:w-4/5">
+      <div className="w-full xl:w-[80%]">
         {/* Header cố định */}
         <div className="sticky top-0 z-50 bg-white shadow-md h-[70px] w-full px-4">
           <Header />
