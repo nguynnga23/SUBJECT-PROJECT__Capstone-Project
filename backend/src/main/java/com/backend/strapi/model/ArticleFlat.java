@@ -1,6 +1,8 @@
 package com.backend.strapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -18,6 +20,6 @@ public record ArticleFlat(
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt,
         OffsetDateTime publishedAt,
-        CategoryFlat category,
-        List<BookMarkFlat> bookmarks
+        @JsonProperty("category") CategoryFlat category,
+        List<BookmarkFlat> bookmarks
 ) {}

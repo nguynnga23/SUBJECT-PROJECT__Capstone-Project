@@ -6,5 +6,4 @@ import lombok.Data;
 public class DepartmentVM {
     private String documentId;
     private String departmentName;
-    private String keyDepartment;
 }

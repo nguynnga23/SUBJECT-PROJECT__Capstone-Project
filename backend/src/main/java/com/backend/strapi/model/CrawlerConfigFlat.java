@@ -1,7 +1,9 @@
 package com.backend.strapi.model;
 
-import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record CrawlerConfigFlat(
         String documentId,
         String url,
@@ -12,5 +14,5 @@ public record CrawlerConfigFlat(
         String title,
         String content,
         String external_publish_date,
-        DepartmentSourceFlat departmentSourceFlat) {
+        @JsonProperty("department_source") DepartmentSourceFlat department_source) {
 }
