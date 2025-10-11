@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }) {
           name="notifications-outline"
           size={24}
           color="#000"
-          onPress={() => navigation.navigate("Notifications")}
+          onPress={() => navigation.navigate("Filter")}
         />
       </View>
 
