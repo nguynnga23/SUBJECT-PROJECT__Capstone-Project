@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
-import { user } from "../../assets/sampleData";
+import { users } from "../../assets/sampleData";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../store/slices/authSlice";
 
@@ -16,7 +16,7 @@ function Login() {
 
   const handleLogin = () => {
     try {
-      const currentUser = user.find((u) => u.email === email);
+      const currentUser = users.find((u) => u.email === email);
       if (!currentUser) {
         alert("Sai tài khoản hoặc mật khẩu.");
         return;

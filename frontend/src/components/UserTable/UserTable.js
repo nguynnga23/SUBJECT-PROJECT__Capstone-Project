@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { articles } from "../../assets/sampleData";
+import { users } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { IoEarthSharp } from "react-icons/io5";
-import { FaLock } from "react-icons/fa";
+import { FaLock, FaLockOpen } from "react-icons/fa";
+import { MdMarkEmailRead, MdOutlineMailLock } from "react-icons/md";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -33,34 +34,37 @@ const formatDateVN = (dateString) => {
 
 // định nghĩa cột
 const allColumns = [
-  { key: "thumbnail", label: "Thumbnail" },
-  { key: "title", label: "Tên bài viết" },
-  { key: "external_url", label: "Bài viết gốc" },
-  { key: "external_publish_date", label: "Ngày đăng" },
-  { key: "department_source", label: "Khoa/Viện" },
-  { key: "category", label: "Loại tin tức" },
-  { key: "createdAt", label: "Ngày thu thập" },
+  { key: "avatar", label: "Ảnh đại diện" },
+  { key: "studentID", label: "Mã sinh viên" },
+  { key: "username", label: "Tên tài khoản" },
+  { key: "email", label: "Email" },
+  { key: "class", label: "Lớp học" },
+  { key: "phone", label: "Số điện thoại" },
+  { key: "department", label: "Khoa" },
+  { key: "createdAt", label: "Ngày tạo TK" },
+  { key: "updatedAt", label: "Cập nhật gần nhất" },
 ];
 
 const UserTable = () => {
   const navigate = useNavigate();
 
   // normalize data từ sampleData
-  const normalizedData = articles.map((a, idx) => ({
+  const normalizedData = users.map((a, idx) => ({
     id: idx + 1,
-    title: a.title,
-    external_url: a.external_url,
-    external_publish_date: a.external_publish_date,
-    department_source: a.category.department_source.label,
-    category: a.category.category_name,
-    thumbnail: a.thumbnail,
+    avatar: a.avatar.url,
+    studentID: a.studentID,
+    username: a.username,
+    email: a.email,
+    class: a.class,
+    phone: a.phone,
+    department: a.department.department_name,
     createdAt: a.createdAt,
-    publishedAt: a.publishedAt,
+    updatedAt: a.updatedAt,
   }));
 
   const [data, setData] = useState(normalizedData);
 
-  const hiddenDefaultCols = ["category", "createdAt"];
+  const hiddenDefaultCols = ["phone", "department", "createdAt", "updatedAt"];
   const [visibleCols, setVisibleCols] = useState(
     allColumns
       .map((c) => c.key)
@@ -68,7 +72,7 @@ const UserTable = () => {
   );
 
   // filter
-  const [filterField, setFilterField] = useState("title");
+  const [filterField, setFilterField] = useState("studentID");
   const [filterValue, setFilterValue] = useState("");
 
   // sort
@@ -88,33 +92,23 @@ const UserTable = () => {
 
   // render value theo col
   const renderValue = (value, colKey) => {
-    if (colKey === "thumbnail") {
+    if (colKey === "avatar") {
       return (
-        <img
-          src={value}
-          alt="thumbnail"
-          className="h-[50px] object-cover rounded items-center"
-          onError={(e) => {
-            e.target.onerror = null; // tránh loop
-            e.target.src = thumnailDefault;
-          }}
-        />
-      );
-    }
-    if (colKey === "external_url" && typeof value === "string") {
-      return (
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          {value}
-        </a>
+        <div className="flex justify-center items-center">
+          <img
+            src={value}
+            alt="avatar"
+            className="h-[30px] w-[30px] object-cover rounded-full"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = thumnailDefault;
+            }}
+          />
+        </div>
       );
     }
 
-    if (colKey === "external_publish_date" || colKey === "createdAt") {
+    if (colKey === "createdAt" || colKey === "updatedAt") {
       return formatDateVN(value);
     }
 
@@ -167,7 +161,7 @@ const UserTable = () => {
             {openFilter && (
               <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
                 {allColumns
-                  .filter((c) => c.key !== "thumbnail")
+                  .filter((c) => c.key !== "avatar")
                   .map((c) => (
                     <div
                       key={c.key}
@@ -209,7 +203,7 @@ const UserTable = () => {
             {openSort && (
               <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
                 {allColumns
-                  .filter((c) => c.key !== "thumbnail")
+                  .filter((c) => c.key !== "avatar")
                   .map((c) => (
                     <div
                       key={c.key}
@@ -301,24 +295,32 @@ const UserTable = () => {
                     ))}
                   <td className="border text-center text-[10px]">
                     <div className="flex justify-center">
-                      {row.publishedAt !== null ? (
+                      {!row.blocked ? (
                         <FaLock
-                          title="Khóa bài viết"
+                          title="Khóa tài khoản"
+                          size={18}
+                          className="text-red-500 rounded m-1"
+                        />
+                      ) : (
+                        <FaLockOpen
+                          title="Mở khóa tài khoản"
+                          size={18}
+                          className="primary rounded m-1"
+                        />
+                      )}
+                      {row.confirmed ? (
+                        <MdMarkEmailRead
+                          title="Xác minh email"
                           size={18}
                           className="text-primary rounded m-1"
                         />
                       ) : (
-                        <IoEarthSharp
-                          title="Công khai bài viết"
+                        <MdOutlineMailLock
+                          title="Hủy xác minh email"
                           size={18}
-                          className="text-green-500 rounded m-1"
+                          className="text-red-500 rounded m-1"
                         />
                       )}
-                      <RiDeleteBin6Fill
-                        title="Xóa bài viết"
-                        size={18}
-                        className="text-red-500 rounded m-1"
-                      />
                     </div>
                   </td>
                 </tr>

@@ -1,4 +1,4 @@
-const user = [
+const users = [
   {
     role: {
       name: "Public",
@@ -16,6 +16,8 @@ const user = [
     avatar: {
       url: "http://localhost:1337/uploads/images_e7f3510546.jpg",
     },
+    createdAt: "2025-10-12T05:27:21.462Z",
+    updatedAt: "2025-10-12T05:43:17.144Z",
   },
   {
     role: {
@@ -34,6 +36,8 @@ const user = [
     avatar: {
       url: "http://localhost:1337/uploads/images_1_122b08ae9f.jpg",
     },
+    createdAt: "2025-10-12T05:28:15.078Z",
+    updatedAt: "2025-10-12T06:06:23.112Z",
   },
 ];
 
@@ -242,4 +246,4 @@ const current_data = {
   ],
 };
 
-export { user, articles, current_data };
+export { users, articles, current_data };

@@ -90,15 +90,17 @@ const ArticleTable = () => {
   const renderValue = (value, colKey) => {
     if (colKey === "thumbnail") {
       return (
-        <img
-          src={value}
-          alt="thumbnail"
-          className="h-[50px] object-cover rounded items-center"
-          onError={(e) => {
-            e.target.onerror = null; // tránh loop
-            e.target.src = thumnailDefault;
-          }}
-        />
+        <div className="flex justify-center items-center">
+          <img
+            src={value}
+            alt="thumbnail"
+            className="h-[50px] object-cover rounded items-center"
+            onError={(e) => {
+              e.target.onerror = null; // tránh loop
+              e.target.src = thumnailDefault;
+            }}
+          />
+        </div>
       );
     }
     if (colKey === "external_url" && typeof value === "string") {
