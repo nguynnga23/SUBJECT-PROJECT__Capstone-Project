@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { articles } from "../../assets/sampleData";
@@ -299,22 +299,25 @@ const ArticleTable = () => {
                         </div>
                       </td>
                     ))}
-                  <td className="border p-2 text-center text-[10px]">
+                  <td className="border text-center text-[10px]">
                     <div className="flex justify-center">
                       {row.publishedAt !== null ? (
                         <FaLock
-                          size={20}
-                          className="text-primary  rounded m-1"
+                          title="Khóa bài viết"
+                          size={18}
+                          className="text-primary rounded m-1"
                         />
                       ) : (
                         <IoEarthSharp
-                          size={20}
-                          className="text-green-500  rounded m-1"
+                          title="Công khai bài viết"
+                          size={18}
+                          className="text-green-500 rounded m-1"
                         />
                       )}
                       <RiDeleteBin6Fill
-                        size={20}
-                        className="text-red-500  rounded m-1"
+                        title="Xóa bài viết"
+                        size={18}
+                        className="text-red-500 rounded m-1"
                       />
                     </div>
                   </td>
