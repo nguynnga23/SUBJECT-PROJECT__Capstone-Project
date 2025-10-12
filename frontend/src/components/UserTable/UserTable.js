@@ -3,11 +3,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { users } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
-import { RiDeleteBin6Fill } from "react-icons/ri";
-import { IoEarthSharp } from "react-icons/io5";
 import { FaLock, FaLockOpen } from "react-icons/fa";
-import { MdMarkEmailRead, MdOutlineMailLock } from "react-icons/md";
-
 // helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "Đang cập nhật ...";
@@ -144,6 +140,13 @@ const UserTable = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
+  const handleLock = (row) => {
+    alert(row.studentID);
+  };
+  const handleUnLock = (row) => {
+    alert(row.studentID);
+  };
+
   return (
     <div className="p-3 pb-0">
       {/* Filter + Sort + Column Picker */}
@@ -277,7 +280,11 @@ const UserTable = () => {
             </thead>
             <tbody>
               {currentData.map((row, index) => (
-                <tr key={row.id || index} className="cursor-pointer">
+                <tr
+                  key={row.id || index}
+                  className="cursor-pointer"
+                  onClick={() => navigate(`/admin/user/${row.studentID}`)}
+                >
                   <td className="border p-2 text-center">
                     {startIndex + index + 1}
                   </td>
@@ -294,31 +301,23 @@ const UserTable = () => {
                       </td>
                     ))}
                   <td className="border text-center text-[10px]">
-                    <div className="flex justify-center">
+                    <div
+                      className="flex justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {!row.blocked ? (
                         <FaLock
                           title="Khóa tài khoản"
-                          size={18}
-                          className="text-red-500 rounded m-1"
+                          size={25}
+                          className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
+                          onClick={() => handleLock(row)}
                         />
                       ) : (
                         <FaLockOpen
                           title="Mở khóa tài khoản"
-                          size={18}
-                          className="primary rounded m-1"
-                        />
-                      )}
-                      {row.confirmed ? (
-                        <MdMarkEmailRead
-                          title="Xác minh email"
-                          size={18}
-                          className="text-primary rounded m-1"
-                        />
-                      ) : (
-                        <MdOutlineMailLock
-                          title="Hủy xác minh email"
-                          size={18}
-                          className="text-red-500 rounded m-1"
+                          size={25}
+                          className="text-primary rounded-full border m-2 cursor-pointer p-1"
+                          onClick={() => handleUnLock(row)}
                         />
                       )}
                     </div>

@@ -4,8 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { articles } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { IoEarthSharp } from "react-icons/io5";
-import { FaLock } from "react-icons/fa";
+import { FaLock, FaUnlock } from "react-icons/fa";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -151,6 +150,16 @@ const ArticleTable = () => {
   // Lấy dữ liệu trang hiện tại
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleDelete = (row) => {
+    alert(row.title);
+  };
+  const handleLock = (row) => {
+    alert(row.title);
+  };
+  const handleUnlock = (row) => {
+    alert(row.title);
+  };
 
   return (
     <div className="p-3 pb-0">
@@ -306,20 +315,23 @@ const ArticleTable = () => {
                       {row.publishedAt !== null ? (
                         <FaLock
                           title="Khóa bài viết"
-                          size={18}
-                          className="text-primary rounded m-1"
+                          size={25}
+                          className="text-yellow-400 rounded-full border m-1 cursor-pointer p-1"
+                          onClick={() => handleLock(row)}
                         />
                       ) : (
-                        <IoEarthSharp
-                          title="Công khai bài viết"
-                          size={18}
-                          className="text-green-500 rounded m-1"
+                        <FaUnlock
+                          title="Mở khóa bài viết"
+                          size={25}
+                          className="text-primary rounded-full border m-1 cursor-pointer p-1"
+                          onClick={() => handleUnlock(row)}
                         />
                       )}
                       <RiDeleteBin6Fill
                         title="Xóa bài viết"
-                        size={18}
-                        className="text-red-500 rounded m-1"
+                        size={25}
+                        className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
+                        onClick={() => handleDelete(row)}
                       />
                     </div>
                   </td>
