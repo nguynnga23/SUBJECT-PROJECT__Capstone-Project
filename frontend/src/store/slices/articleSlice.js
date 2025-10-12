@@ -1,11 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { list } from "../../assets/sampleData";
+import { articles } from "../../assets/sampleData";
 
 const articleSlice = createSlice({
   name: "article",
   initialState: {
     listMarked: [1, 2],
-    allArticles: list,
+    allArticles: articles,
   },
   reducers: {
     markArticle: (state, action) => {

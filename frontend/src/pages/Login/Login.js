@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
-import { departments } from "../../assets/sampleData";
 import { useNavigate } from "react-router-dom";
 import { user } from "../../assets/sampleData";
 import { useDispatch } from "react-redux";
@@ -9,7 +8,6 @@ import { setUser } from "../../store/slices/authSlice";
 function Login() {
   const dispatch = useDispatch();
   const [showPassword, setShowPassword] = useState(false);
-  const department_default = departments[0];
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +29,7 @@ function Login() {
       if (currentUser.role === "ADMIN") {
         navigate(`/admin/dashboard`);
       } else {
-        navigate(`/department/${department_default.id}`);
+        navigate(`/department`);
       }
     } catch (err) {
       console.error(err);

@@ -323,7 +323,7 @@ const DepartmentTable = () => {
         <tbody>
           {filtered.map((dept, index) => (
             <tr key={dept.id} className="cursor-pointer">
-              <td className="border p-2">{index + 1}</td>
+              <td className="border p-2 text-center">{index + 1}</td>
               {allColumns
                 .filter((c) => visibleCols.includes(c.key))
                 .map((col) => (

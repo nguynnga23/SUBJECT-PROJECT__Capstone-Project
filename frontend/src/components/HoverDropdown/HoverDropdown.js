@@ -26,7 +26,7 @@ function HoverDropdown({ label, items = [], onSelect }) {
       <FaChevronDown size={10} className="mt-1 ml-1" />
 
       {isHovered && (
-        <div className="absolute left-0 top-6 max-w-[180px] min-w-[120px] whitespace-nowrap bg-white border rounded shadow-md transition duration-300 z-50">
+        <div className="absolute left-0 top-6 max-w-[190px] min-w-[130px] whitespace-nowrap bg-white border rounded shadow-md transition duration-300 z-50">
           <ul className="text-[12px] text-gray-700">
             {items.map((item, index) => (
               <li

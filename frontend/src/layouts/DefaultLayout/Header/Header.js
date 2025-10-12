@@ -2,7 +2,7 @@ import { FaSearch, FaRegUser, FaRegBell, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
 import HoverDropdown from "../../../components/HoverDropdown";
 import { useState } from "react";
-import { departments } from "../../../assets/sampleData.js";
+import { current_data } from "../../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
 import MarkedForm from "../../../components/Form/MarkedForm";
@@ -30,7 +30,9 @@ function Header() {
     },
   ];
 
-  const [department, setDepartment] = useState(departments[0] || null);
+  const [department, setDepartment] = useState(
+    current_data.department_sources[0] || null
+  );
   const [category, setCategory] = useState(null);
   const [userProfile, setUserProfile] = useState(false);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
@@ -65,11 +67,11 @@ function Header() {
           src={logo}
         />
 
-        <div className="flex items-center gap-6 text-sm text-gray-700">
-          <div className="flex gap-4 ">
+        <div className="flex items-center gap-6 text-sm text-gray-700]">
+          <div className="flex gap-4">
             <HoverDropdown
               label={department.name || "Không có thông tin khoa nào"}
-              items={departments}
+              items={current_data.department_sources}
               onSelect={handleDepartmentSelect}
             />
           </div>
@@ -100,7 +102,7 @@ function Header() {
                 alt="avatar"
                 className="w-8 h-8 rounded-full"
               />
-              <div className="flex gap-4 cursor-pointer relative">
+              <div className="flex items-center gap-4 cursor-pointer relative text-[13px]">
                 <HoverDropdown
                   label={currentUser?.username}
                   items={user_profile}
@@ -138,7 +140,7 @@ function Header() {
                 )}
               </div>
             </div>
-            <div className="relative bg-gray-200 p-2 m-2 rounded-[8px] cursor-pointer">
+            <div className="relative bg-gray-200 p-2 m-3 rounded-[8px] cursor-pointer">
               <FaRegBell
                 className={`${
                   showNotifyForm ? "text-red-500" : "text-gray-500"
