@@ -1,25 +1,43 @@
-const user = [
+const users = [
   {
-    username: "Huy Nguyễn",
+    role: {
+      name: "Public",
+    },
+    username: "Huy Nguyen",
     email: "huynguyen@gmail.com",
-    password: "123",
-    role: "USER",
-    avatar: "https://i.pravatar.cc/40",
-    number: "0384784472",
-    department: "Khoa Công Nghệ Thông Tin",
-    studentId: "21128101",
-    classRoom: "DHKTPM17B",
+    class: "DHKTPM17B",
+    confirmed: true,
+    blocked: false,
+    phone: "0834784472",
+    studentID: "21128101",
+    department: {
+      department_name: "Khoa Công Nghệ Thông Tin IUH",
+    },
+    avatar: {
+      url: "http://localhost:1337/uploads/images_e7f3510546.jpg",
+    },
+    createdAt: "2025-10-12T05:27:21.462Z",
+    updatedAt: "2025-10-12T05:43:17.144Z",
   },
   {
-    username: "Nga Nguyễn",
+    role: {
+      name: "Authenticated",
+    },
+    username: "Nga Nguyen",
     email: "nganguyen@gmail.com",
-    password: "123",
-    role: "ADMIN",
-    avatar: "https://i.pravatar.cc/40",
-    number: "0384784472",
-    department: "Khoa Công Nghệ Thông Tin",
-    studentId: "21128101",
-    classRoom: "DHKTPM17C",
+    class: "DHKTPM17C",
+    confirmed: true,
+    blocked: false,
+    phone: "0334784472",
+    studentID: "21130791",
+    department: {
+      department_name: "Khoa Công Nghệ Thông Tin IUH",
+    },
+    avatar: {
+      url: "http://localhost:1337/uploads/images_1_122b08ae9f.jpg",
+    },
+    createdAt: "2025-10-12T05:28:15.078Z",
+    updatedAt: "2025-10-12T06:06:23.112Z",
   },
 ];
 
@@ -60,6 +78,27 @@ const articles = [
     external_publish_date: "2025-09-25",
     publishedAt: null,
     createdAt: "2025-09-27T02:22:35.774Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 3,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025",
+    summary: "",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày [22/9/2025 đến\n28/9/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_22_09_den_28_09_61777703fb.xls)\n\nLịch thi Giữa kỳ HK1/2025-2026 từ ngày [29/9/2025 đến\n05/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_29_09_den_05_10_3e08a35c28.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_slug:
+      "news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_publish_date: "2025-09-15",
+    publishedAt: "2025-09-27T02:22:36.706Z",
+    createdAt: "2025-09-27T02:22:36.692Z",
     category: {
       category_name: "THÔNG BÁO SINH VIÊN",
       department_source: {
@@ -207,4 +246,4 @@ const current_data = {
   ],
 };
 
-export { user, articles, current_data };
+export { users, articles, current_data };

@@ -27,7 +27,7 @@ function Header() {
 
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
-      navigate("/");
+      navigate("/login");
       return;
     }
     setUserProfile(up);
@@ -55,7 +55,7 @@ function Header() {
 
           <div className="flex items-center gap-2">
             <img
-              src={currentUser?.avatar}
+              src={currentUser?.avatar.url}
               alt="avatar"
               className="w-8 h-8 rounded-full"
             />

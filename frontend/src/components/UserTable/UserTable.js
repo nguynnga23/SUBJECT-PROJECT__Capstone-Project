@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { articles } from "../../assets/sampleData";
+import { users } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
-import { RiDeleteBin6Fill } from "react-icons/ri";
-import { FaLock, FaUnlock } from "react-icons/fa";
-
+import { FaLock, FaLockOpen } from "react-icons/fa";
 // helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "Đang cập nhật ...";
@@ -32,34 +30,37 @@ const formatDateVN = (dateString) => {
 
 // định nghĩa cột
 const allColumns = [
-  { key: "thumbnail", label: "Thumbnail" },
-  { key: "title", label: "Tên bài viết" },
-  { key: "external_url", label: "Bài viết gốc" },
-  { key: "external_publish_date", label: "Ngày đăng" },
-  { key: "department_source", label: "Khoa/Viện" },
-  { key: "category", label: "Loại tin tức" },
-  { key: "createdAt", label: "Ngày thu thập" },
+  { key: "avatar", label: "Ảnh đại diện" },
+  { key: "studentID", label: "Mã sinh viên" },
+  { key: "username", label: "Tên tài khoản" },
+  { key: "email", label: "Email" },
+  { key: "class", label: "Lớp học" },
+  { key: "phone", label: "Số điện thoại" },
+  { key: "department", label: "Khoa" },
+  { key: "createdAt", label: "Ngày tạo TK" },
+  { key: "updatedAt", label: "Cập nhật gần nhất" },
 ];
 
-const ArticleTable = () => {
+const UserTable = () => {
   const navigate = useNavigate();
 
   // normalize data từ sampleData
-  const normalizedData = articles.map((a, idx) => ({
+  const normalizedData = users.map((a, idx) => ({
     id: idx + 1,
-    title: a.title,
-    external_url: a.external_url,
-    external_publish_date: a.external_publish_date,
-    department_source: a.category.department_source.label,
-    category: a.category.category_name,
-    thumbnail: a.thumbnail,
+    avatar: a.avatar.url,
+    studentID: a.studentID,
+    username: a.username,
+    email: a.email,
+    class: a.class,
+    phone: a.phone,
+    department: a.department.department_name,
     createdAt: a.createdAt,
-    publishedAt: a.publishedAt,
+    updatedAt: a.updatedAt,
   }));
 
   const [data, setData] = useState(normalizedData);
 
-  const hiddenDefaultCols = ["category", "createdAt"];
+  const hiddenDefaultCols = ["phone", "department", "createdAt", "updatedAt"];
   const [visibleCols, setVisibleCols] = useState(
     allColumns
       .map((c) => c.key)
@@ -67,7 +68,7 @@ const ArticleTable = () => {
   );
 
   // filter
-  const [filterField, setFilterField] = useState("title");
+  const [filterField, setFilterField] = useState("studentID");
   const [filterValue, setFilterValue] = useState("");
 
   // sort
@@ -87,35 +88,23 @@ const ArticleTable = () => {
 
   // render value theo col
   const renderValue = (value, colKey) => {
-    if (colKey === "thumbnail") {
+    if (colKey === "avatar") {
       return (
         <div className="flex justify-center items-center">
           <img
             src={value}
-            alt="thumbnail"
-            className="h-[50px] object-cover rounded items-center"
+            alt="avatar"
+            className="h-[30px] w-[30px] object-cover rounded-full"
             onError={(e) => {
-              e.target.onerror = null; // tránh loop
+              e.target.onerror = null;
               e.target.src = thumnailDefault;
             }}
           />
         </div>
       );
     }
-    if (colKey === "external_url" && typeof value === "string") {
-      return (
-        <a
-          href={value}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          {value}
-        </a>
-      );
-    }
 
-    if (colKey === "external_publish_date" || colKey === "createdAt") {
+    if (colKey === "createdAt" || colKey === "updatedAt") {
       return formatDateVN(value);
     }
 
@@ -151,14 +140,11 @@ const ArticleTable = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleDelete = (row) => {
-    alert(row.title);
-  };
   const handleLock = (row) => {
-    alert(row.title);
+    alert(row.studentID);
   };
-  const handleUnlock = (row) => {
-    alert(row.title);
+  const handleUnLock = (row) => {
+    alert(row.studentID);
   };
 
   return (
@@ -178,7 +164,7 @@ const ArticleTable = () => {
             {openFilter && (
               <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
                 {allColumns
-                  .filter((c) => c.key !== "thumbnail")
+                  .filter((c) => c.key !== "avatar")
                   .map((c) => (
                     <div
                       key={c.key}
@@ -220,7 +206,7 @@ const ArticleTable = () => {
             {openSort && (
               <div className="absolute mt-1 border bg-white rounded shadow z-10 w-[180px] max-h-[150px] overflow-y-auto scroll-container">
                 {allColumns
-                  .filter((c) => c.key !== "thumbnail")
+                  .filter((c) => c.key !== "avatar")
                   .map((c) => (
                     <div
                       key={c.key}
@@ -294,7 +280,11 @@ const ArticleTable = () => {
             </thead>
             <tbody>
               {currentData.map((row, index) => (
-                <tr key={row.id || index} className="cursor-pointer">
+                <tr
+                  key={row.id || index}
+                  className="cursor-pointer hover:bg-sub"
+                  onClick={() => navigate(`/admin/user/${row.studentID}`)}
+                >
                   <td className="border p-2 text-center">
                     {startIndex + index + 1}
                   </td>
@@ -311,28 +301,25 @@ const ArticleTable = () => {
                       </td>
                     ))}
                   <td className="border text-center text-[10px]">
-                    <div className="flex justify-center">
-                      {row.publishedAt !== null ? (
+                    <div
+                      className="flex justify-center"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {!row.blocked ? (
                         <FaLock
-                          title="Khóa bài viết"
+                          title="Khóa tài khoản"
                           size={25}
-                          className="text-yellow-400 rounded-full border m-1 cursor-pointer p-1"
+                          className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
                           onClick={() => handleLock(row)}
                         />
                       ) : (
-                        <FaUnlock
-                          title="Mở khóa bài viết"
+                        <FaLockOpen
+                          title="Mở khóa tài khoản"
                           size={25}
-                          className="text-primary rounded-full border m-1 cursor-pointer p-1"
-                          onClick={() => handleUnlock(row)}
+                          className="text-primary rounded-full border m-2 cursor-pointer p-1"
+                          onClick={() => handleUnLock(row)}
                         />
                       )}
-                      <RiDeleteBin6Fill
-                        title="Xóa bài viết"
-                        size={25}
-                        className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
-                        onClick={() => handleDelete(row)}
-                      />
                     </div>
                   </td>
                 </tr>
@@ -382,4 +369,4 @@ const ArticleTable = () => {
   );
 };
 
-export default ArticleTable;
+export default UserTable;
