@@ -42,7 +42,7 @@ const allColumns = [
   { key: "createdAt", label: "Ngày thu thập" },
 ];
 
-const ArticleTable = () => {
+const UserTable = () => {
   const navigate = useNavigate();
 
   // normalize data từ sampleData
@@ -366,4 +366,4 @@ const ArticleTable = () => {
   );
 };
 
-export default ArticleTable;
+export default UserTable;

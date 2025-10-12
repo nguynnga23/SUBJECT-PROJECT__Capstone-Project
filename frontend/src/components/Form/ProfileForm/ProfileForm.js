@@ -6,9 +6,7 @@ function ProfileForm({
   currentUser,
   setShowUpdatePasswordForm,
 }) {
-  const [avatarPreview, setAvatarPreview] = useState(
-    "https://i.pravatar.cc/40"
-  );
+  const [avatarPreview, setAvatarPreview] = useState(currentUser.avatar.url);
   const fileInputRef = useRef(null);
   const [editMode, setEditMode] = useState(false);
   const [preCurrentUser, setPreCurrentUser] = useState(currentUser || {});
@@ -74,7 +72,7 @@ function ProfileForm({
             {currentUser ? currentUser.username : "N/A"}
           </h2>
           <i className="text-sm">
-            {currentUser ? currentUser.studentId : "N/A"}
+            {currentUser ? currentUser.studentID : "N/A"}
           </i>
         </div>
       </div>
@@ -100,8 +98,8 @@ function ProfileForm({
           <input
             type="text"
             placeholder="Nhập số điện thoại"
-            name="number"
-            value={formData.number || ""}
+            name="phone"
+            value={formData.phone || ""}
             onChange={handleChange}
             disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
@@ -116,7 +114,7 @@ function ProfileForm({
             type="text"
             placeholder="Tên khoa"
             name="department"
-            value={formData.department || ""}
+            value={formData.department?.department_name || ""}
             onChange={handleChange}
             disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
@@ -130,8 +128,8 @@ function ProfileForm({
           <input
             type="text"
             placeholder="Tên lớp học"
-            name="classRoom"
-            value={formData.classRoom || ""}
+            name="class"
+            value={formData.class || ""}
             onChange={handleChange}
             disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"

@@ -76,7 +76,10 @@ function AnimatedRoutes() {
           path="/admin/setting"
           element={<AdminLayout children={<Setting />} />}
         />
-
+        <Route
+          path="/department"
+          element={<DefaultLayout children={<Department />} />}
+        />
         <Route
           path="/department/:id"
           element={<DefaultLayout children={<Department />} />}

@@ -98,7 +98,7 @@ function Header() {
           <div className="flex w-[200px]">
             <div className="flex items-center gap-2">
               <img
-                src={currentUser?.avatar}
+                src={currentUser?.avatar.url}
                 alt="avatar"
                 className="w-8 h-8 rounded-full"
               />

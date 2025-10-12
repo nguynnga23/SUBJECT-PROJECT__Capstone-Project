@@ -16,9 +16,7 @@ function Login() {
 
   const handleLogin = () => {
     try {
-      const currentUser = user.find(
-        (u) => u.email === email && u.password === password
-      );
+      const currentUser = user.find((u) => u.email === email);
       if (!currentUser) {
         alert("Sai tài khoản hoặc mật khẩu.");
         return;
@@ -26,7 +24,7 @@ function Login() {
 
       dispatch(setUser({ user: currentUser }));
 
-      if (currentUser.role === "ADMIN") {
+      if (currentUser.role.name === "Authenticated") {
         navigate(`/admin/dashboard`);
       } else {
         navigate(`/department`);
