@@ -282,7 +282,7 @@ const UserTable = () => {
               {currentData.map((row, index) => (
                 <tr
                   key={row.id || index}
-                  className="cursor-pointer"
+                  className="cursor-pointer hover:bg-sub"
                   onClick={() => navigate(`/admin/user/${row.studentID}`)}
                 >
                   <td className="border p-2 text-center">
@@ -327,41 +327,43 @@ const UserTable = () => {
             </tbody>
           </table>
         </div>
-        <div className="flex justify-center items-center mt-2 space-x-1">
-          {/* Prev */}
-          <button
-            className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          >
-            &lt;
-          </button>
+        {currentPage > 1 && (
+          <div className="flex justify-center items-center mt-2 space-x-1">
+            {/* Prev */}
+            <button
+              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
+              &lt;
+            </button>
 
-          {/* Page Numbers */}
-          {[...Array(totalPages)].map((_, index) => {
-            const page = index + 1;
-            return (
-              <button
-                key={page}
-                className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                  page === currentPage ? "bg-primary text-white" : ""
-                }`}
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </button>
-            );
-          })}
+            {/* Page Numbers */}
+            {[...Array(totalPages)].map((_, index) => {
+              const page = index + 1;
+              return (
+                <button
+                  key={page}
+                  className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
+                    page === currentPage ? "bg-primary text-white" : ""
+                  }`}
+                  onClick={() => setCurrentPage(page)}
+                >
+                  {page}
+                </button>
+              );
+            })}
 
-          {/* Next */}
-          <button
-            className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          >
-            &gt;
-          </button>
-        </div>
+            {/* Next */}
+            <button
+              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -67,12 +67,14 @@ const UserDetail = () => {
                         title="Khóa tài khoản"
                         size={25}
                         className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
+                        onClick={() => setBlocked(true)}
                       />
                     ) : (
                       <FaLockOpen
                         title="Mở khóa tài khoản"
                         size={25}
-                        className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
+                        className="text-yellow-400 rounded-lg border m-2 cursor-pointer p-1"
+                        onClick={() => setBlocked(false)}
                       />
                     )}
                   </span>

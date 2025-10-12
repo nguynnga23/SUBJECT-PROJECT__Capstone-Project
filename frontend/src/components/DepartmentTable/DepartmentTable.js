@@ -3,6 +3,8 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
 import { current_data } from "../../assets/sampleData";
+import { RiDeleteBin6Fill } from "react-icons/ri";
+import { FaLock, FaUnlock } from "react-icons/fa";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -176,6 +178,10 @@ const DepartmentTable = () => {
     navigate(`${departmentId}`);
   };
 
+  const handleDelete = (row) => {
+    alert(row.label);
+  };
+
   return (
     <div className="p-3">
       <div className="flex w-full pb-2 justify-between  text-sm">
@@ -318,11 +324,12 @@ const DepartmentTable = () => {
                   {col.label}
                 </th>
               ))}
+            <th className="border p-2 w-[100px]">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           {filtered.map((dept, index) => (
-            <tr key={dept.id} className="cursor-pointer">
+            <tr key={dept.id} className="cursor-pointer hover:bg-sub">
               <td className="border p-2 text-center">{index + 1}</td>
               {allColumns
                 .filter((c) => visibleCols.includes(c.key))
@@ -335,6 +342,16 @@ const DepartmentTable = () => {
                     {renderValue(dept[col.key], col.key, dept.id)}
                   </td>
                 ))}
+              <td className="border text-center text-[10px]">
+                <div className="flex justify-center">
+                  <RiDeleteBin6Fill
+                    title="Xóa khoa viện"
+                    size={25}
+                    className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
+                    onClick={() => handleDelete(dept)}
+                  />
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>

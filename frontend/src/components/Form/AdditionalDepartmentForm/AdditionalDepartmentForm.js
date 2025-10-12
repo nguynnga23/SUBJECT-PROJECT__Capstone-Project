@@ -68,7 +68,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
               <div className="col-span-1 grid grid-cols-1 gap-4">
                 <div>
                   <label className="block text-blue-700 font-medium mb-1">
-                    Website <span className="text-red-500">(*)</span>
+                    Website <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -80,7 +80,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
                 </div>
                 <div>
                   <label className="block text-blue-700 font-medium mb-1">
-                    Tên Khoa <span className="text-red-500">(*)</span>
+                    Tên Khoa <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -90,14 +90,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
                     className={`w-full border rounded px-3 py-2 `}
                   />
                 </div>
-                <div>
-                  <label className="block text-blue-700 font-medium mb-1">
-                    Cấu hình thu thập tin tức
-                  </label>
-                  <div className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer">
-                    {"Cập nhật"}
-                  </div>
-                </div>
+
                 <div>
                   <label className="block text-blue-700 font-medium mb-1">
                     Các loại thông tin bài viết

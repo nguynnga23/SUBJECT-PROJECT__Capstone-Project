@@ -70,7 +70,7 @@ function DepartmentDetail() {
             <div className="col-span-1 grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Website <span className="text-red-500">(*)</span>
+                  Website <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -85,7 +85,7 @@ function DepartmentDetail() {
               </div>
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Tên Khoa <span className="text-red-500">(*)</span>
+                  Tên Khoa <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"

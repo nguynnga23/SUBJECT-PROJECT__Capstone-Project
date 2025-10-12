@@ -59,7 +59,7 @@ function AdditionalCategoryForm({
             {/* Website */}
             <div>
               <label className="block text-blue-700 font-medium mb-1">
-                URL tin tức <span className="text-red-500">(*)</span>
+                URL tin tức <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -72,7 +72,7 @@ function AdditionalCategoryForm({
             {/* Tên tin tức */}
             <div>
               <label className="block text-blue-700 font-medium mb-1">
-                Tên tin tức <span className="text-red-500">(*)</span>
+                Tên tin tức <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -86,8 +86,7 @@ function AdditionalCategoryForm({
             <div className="w-full flex justify-between items-center">
               <div>
                 <label className="block text-blue-700 font-medium mb-1">
-                  Mốc thời gian thu thập{" "}
-                  <span className="text-red-500">(*)</span>
+                  Mốc thời gian thu thập
                 </label>
                 <DatePicker
                   selected={
