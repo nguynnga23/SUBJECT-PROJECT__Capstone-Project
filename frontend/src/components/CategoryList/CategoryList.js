@@ -4,10 +4,10 @@ import { useState } from "react";
 
 const itemsPerPage = 6;
 
-const CategoryList = ({ categoryName, list }) => {
+const CategoryList = ({ categoryName, articles }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
-  const totalPages = Math.ceil(list.length / itemsPerPage);
+  const totalPages = Math.ceil(articles.length / itemsPerPage);
 
   const nextSlide = () => {
     setCurrentPage((prev) => (prev + 1) % totalPages);
@@ -59,14 +59,14 @@ const CategoryList = ({ categoryName, list }) => {
           transform: `translateX(-${(100 / totalPages) * currentPage}%)`,
         }}
       >
-        {list.length > 0 ? (
+        {articles.length > 0 ? (
           Array.from({ length: totalPages }).map((_, pageIdx) => (
             <div
               key={pageIdx}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full shrink-0 gap-2"
               style={{ width: `${100 / totalPages}%` }}
             >
-              {list
+              {articles
                 .slice(
                   pageIdx * itemsPerPage,
                   pageIdx * itemsPerPage + itemsPerPage

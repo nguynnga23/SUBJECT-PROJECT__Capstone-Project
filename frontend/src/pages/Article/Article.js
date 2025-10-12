@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { list } from "../../assets/sampleData";
+import { articles } from "../../assets/sampleData";
 import { marked } from "marked";
 import { BsSend } from "react-icons/bs";
 import { FaRegBookmark, FaChevronRight } from "react-icons/fa";
@@ -11,7 +11,7 @@ import { useState } from "react";
 function Article() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const foundArticle = list.find((l) => l.id.toString() === id);
+  const foundArticle = articles.find((l) => l.id.toString() === id);
   const [showSummary, setShowSummary] = useState(false);
 
   const ShowSummary = () => {
@@ -84,7 +84,7 @@ function Article() {
             <p className="font-medium">Tin tức tương tự</p>
           </div>
 
-          {list.map((l, idx) => (
+          {articles.map((l, idx) => (
             <div key={idx} className="p-1 ">
               <ArticleItem article={l} />
             </div>

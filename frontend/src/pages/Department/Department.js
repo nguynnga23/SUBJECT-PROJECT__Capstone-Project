@@ -1,13 +1,13 @@
 import ContactInfo from "../../components/ContactInfo";
 import CategoryList from "../../components/CategoryList";
 import { useParams } from "react-router-dom";
-import { departments } from "../../assets/sampleData";
+import { current_data, articles } from "../../assets/sampleData";
 import BannerSlider from "../../components/BannerSlider";
 
 function Department() {
   const { id, cat_id } = useParams();
-  const departmentId = id ?? departments[0].id.toString();
-  const foundDepartment = departments.find(
+  const departmentId = id ?? current_data.department_sources[0].id.toString();
+  const foundDepartment = current_data.department_sources.find(
     (dept) => dept.id.toString() === departmentId
   );
 
@@ -27,7 +27,10 @@ function Department() {
         {!foundCategory ? (
           foundDepartment?.categories?.map((category, idx) => (
             <div key={idx} className="mb-2">
-              <CategoryList categoryName={category.name} list={category.list} />
+              <CategoryList
+                categoryName={category.category_name}
+                articles={articles}
+              />
             </div>
           ))
         ) : (
@@ -35,7 +38,7 @@ function Department() {
             <div className="mb-2">
               <CategoryList
                 categoryName={foundCategory.name}
-                list={foundCategory.list}
+                articles={articles}
               />
             </div>
           </div>
