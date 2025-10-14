@@ -124,7 +124,6 @@ export default function FilterScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* Header giống iOS sheet */}
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -133,37 +132,11 @@ export default function FilterScreen({ navigation, route }) {
           <Ionicons name="chevron-back" size={20} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Topic</Text>
-        <TouchableOpacity style={styles.iconBtn}>
-          <Ionicons name="share-outline" size={20} />
-        </TouchableOpacity>
-      </View>
-
-      {/* Title lớn */}
-      <View style={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: 4 }}>
-        <Text style={styles.bigTitle}>Lọc theo Khoa</Text>
-        <Text style={styles.subText}>
-          Chọn khoa để xem thông báo/bài viết liên quan.
-        </Text>
+        <TouchableOpacity style={styles.iconBtn}></TouchableOpacity>
       </View>
 
       {/* Search + Chips */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 8 }}>
-        <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={18} />
-          <TextInput
-            placeholder="Tìm khoa..."
-            value={q}
-            onChangeText={setQ}
-            style={{ flex: 1, paddingHorizontal: 8, height: 36 }}
-            returnKeyType="search"
-          />
-          {q ? (
-            <TouchableOpacity onPress={() => setQ("")}>
-              <Ionicons name="close-circle" size={16} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
-
         {loadingFac ? (
           <View style={{ paddingVertical: 12 }}>
             <ActivityIndicator />
@@ -187,9 +160,6 @@ export default function FilterScreen({ navigation, route }) {
       </View>
 
       {/* Recommended / Latest list */}
-      <View style={{ paddingHorizontal: 20, paddingVertical: 6 }}>
-        <Text style={styles.sectionTitle}>Bài viết gợi ý</Text>
-      </View>
 
       {loadingFeed ? (
         <View
@@ -229,19 +199,6 @@ export default function FilterScreen({ navigation, route }) {
           showsVerticalScrollIndicator={false}
         />
       )}
-
-      {/* Apply bar */}
-      <View style={styles.bottomBar}>
-        <TouchableOpacity
-          onPress={() => setSelectedIds(new Set())}
-          style={[styles.bottomBtn, { backgroundColor: "#f2f2f2" }]}
-        >
-          <Text style={[styles.bottomBtnText, { color: "#111" }]}>Reset</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleApply} style={styles.bottomBtn}>
-          <Text style={styles.bottomBtnText}>Áp dụng ({selectedIds.size})</Text>
-        </TouchableOpacity>
-      </View>
     </SafeAreaView>
   );
 }

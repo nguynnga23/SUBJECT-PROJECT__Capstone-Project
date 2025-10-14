@@ -107,12 +107,6 @@ export default function SearchScreen({ navigation }) {
       {/* Header giống Home */}
       <View style={styles.header}>
         <Text style={styles.logo}>Unifeed.news</Text>
-        <Ionicons
-          name="notifications-outline"
-          size={24}
-          color="#000"
-          onPress={() => navigation.navigate("Notifications")}
-        />
       </View>
 
       {/* Search bar */}

@@ -98,7 +98,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.header}>
         <Text style={styles.logo}>Unifeed.news</Text>
         <Ionicons
-          name="notifications-outline"
+          name="list-outline"
           size={24}
           color="#000"
           onPress={() => navigation.navigate("Filter")}
