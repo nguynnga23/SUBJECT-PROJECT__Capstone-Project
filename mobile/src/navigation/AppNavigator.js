@@ -10,7 +10,7 @@ import SearchScreen from "../screens/Search/SearchScreen";
 import Bookmark from "../screens/Bookmark/Bookmark";
 import ProfileScreen from "../screens/Profile/ProfileScreen";
 import LoginScreen from "../screens/Auth/LoginScreen";
-import NotificationScreen from "../screens/Home/Notification/NotificationScreen";
+import FilterScreen from "../screens/Home/Filter/FilterScreen";
 import ArticleDetail from "../screens/Home/Article/ArticleDetail";
 import RegisterScreen from "../screens/Auth/RegisterScreen";
 import ChatScreen from "../screens/Chat/ChatScreen";
@@ -46,11 +46,11 @@ function MainTabs({ onLogout }) {
         component={SearchScreen}
         options={{ title: "Khám phá" }}
       />
-      <Tab.Screen
+      {/* <Tab.Screen
         name="Chat"
         component={ChatScreen}
         options={{ title: "Chat" }}
-      />
+      /> */}
       <Tab.Screen
         name="Bookmark"
         component={Bookmark}
@@ -97,7 +97,7 @@ export default function AppNavigator() {
         {/* Các stack screen public */}
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="ArticleDetail" component={ArticleDetail} />
-        <Stack.Screen name="Notifications" component={NotificationScreen} />
+        <Stack.Screen name="Filter" component={FilterScreen} />
 
         {/* Auth screens */}
         <Stack.Screen name="Login">

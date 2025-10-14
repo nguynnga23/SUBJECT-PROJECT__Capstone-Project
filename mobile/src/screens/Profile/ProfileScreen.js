@@ -57,12 +57,6 @@ export default function ProfileScreen({ navigation, onLogout }) {
     <SafeAreaView style={styles.safe}>
       <View style={styles.header}>
         <Text style={styles.logo}>Unifeed.news</Text>
-        <Ionicons
-          name="notifications-outline"
-          size={24}
-          color="#000"
-          onPress={() => navigation?.navigate?.("Notifications")}
-        />
       </View>
 
       {!user ? (

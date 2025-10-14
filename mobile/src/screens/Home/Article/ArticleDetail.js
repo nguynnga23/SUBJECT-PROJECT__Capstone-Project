@@ -16,7 +16,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-markdown-display";
 import { getArticleById } from "../../../api/home";
-import { domains, ENV } from "../../../config";
+import { APP_ENV, DEV_DOMAIN, STAGING_DOMAIN, PROD_DOMAIN, PORT } from "@env";
+
 import { addBookmarks } from "../../../api/bookmark";
 /* ---------- Helpers ---------- */
 function getHostName(url) {
@@ -72,9 +73,9 @@ export default function ArticleDetailScreen({ route, navigation }) {
     if (!raw) return "";
     return raw.replaceAll(
       "http://localhost:1337",
-      `http://${domains[ENV]}:1337`
+      `http://192.168.110.135:1337`
     );
-  }, [article, ENV]);
+  }, [article]);
 
   const sourceSite = useMemo(
     () => article?.source || getHostName(article?.externalUrl),
