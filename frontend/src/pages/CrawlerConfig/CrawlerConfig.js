@@ -1,17 +1,15 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { updateDepartment } from "../../store/slices/departmentSlice";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { MdChevronRight } from "react-icons/md";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 
 function CrawlerConfig() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const departments = useSelector((state) => state.department.listDepartment);
-  const department = departments.find((a) => a.id.toString() === id);
-  const crawler_config = department.crawler_config;
+  const { state: department } = useLocation();
+  const crawler_config = department.crawlerConfig;
 
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState(crawler_config || {});
@@ -25,12 +23,6 @@ function CrawlerConfig() {
 
   const handleSave = () => {
     try {
-      dispatch(
-        updateDepartment({
-          id: department.id,
-          data: formData,
-        })
-      );
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
@@ -60,9 +52,11 @@ function CrawlerConfig() {
             <MdChevronRight />
             <span
               className=" cursor-pointer hover:border-b"
-              onClick={() => navigate(`/admin/department/${department.id}`)}
+              onClick={() =>
+                navigate(`/admin/department/${department?.documentId}`)
+              }
             >
-              {department.label}
+              {department?.label}
             </span>
             <MdChevronRight />
             <span className="font-medium">{"Cấu hình thu thập tin tức"}</span>

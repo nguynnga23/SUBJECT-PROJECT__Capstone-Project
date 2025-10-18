@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
-import { current_data } from "../../assets/sampleData";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { FaLock, FaUnlock } from "react-icons/fa";
+import { getAllCategory } from "../../apis/category";
+import { getAllDepartmentSource } from "../../apis/department_source";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -42,7 +42,38 @@ const formatDateVN = (dateString) => {
 
 const DepartmentTable = () => {
   const navigate = useNavigate();
-  const [data, setData] = useState(current_data?.department_sources || {});
+  const mergeData = async () => {
+    const [categories, departments] = await Promise.all([
+      getAllCategory(),
+      getAllDepartmentSource(),
+    ]);
+    const map = {};
+
+    // Khởi tạo từng department_source với mảng categories rỗng
+    departments.forEach((dept) => {
+      map[dept.documentId] = { ...dept, categories: [] };
+    });
+
+    // Đưa category vào đúng department_source
+    categories.forEach((cat) => {
+      const deptId = cat.departmentSource.documentId;
+      if (map[deptId]) {
+        map[deptId].categories.push(cat);
+      }
+    });
+
+    return Object.values(map);
+  };
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const merged = await mergeData();
+      setData(merged);
+    };
+    fetchData();
+  }, []);
 
   const hiddenDefaultCols = ["createdAt", "crawler_config"];
 
@@ -174,8 +205,8 @@ const DepartmentTable = () => {
     );
   };
 
-  const handleShowDepartmentDetail = (departmentId) => {
-    navigate(`${departmentId}`);
+  const handleShowDepartmentDetail = (department) => {
+    navigate(`${department.documentId}`, { state: department });
   };
 
   const handleDelete = (row) => {
@@ -337,9 +368,9 @@ const DepartmentTable = () => {
                   <td
                     key={col.key}
                     className="border p-2"
-                    onClick={() => handleShowDepartmentDetail(dept.id)}
+                    onClick={() => handleShowDepartmentDetail(dept)}
                   >
-                    {renderValue(dept[col.key], col.key, dept.id)}
+                    {renderValue(dept[col.key], col.key, dept.documentId)}
                   </td>
                 ))}
               <td className="border text-center text-[10px]">
@@ -375,11 +406,11 @@ const DepartmentTable = () => {
                 key={item.id}
                 onClick={() =>
                   navigate(
-                    `/admin/department/${arrayPopup.departmentId}/category/${item.id}`
+                    `/admin/department/${arrayPopup.departmentId}/category/${item.documentId}`
                   )
                 }
               >
-                {JSON.stringify(item?.category_name)}
+                {JSON.stringify(item?.categoryName)}
               </li>
             ))}
           </ul>

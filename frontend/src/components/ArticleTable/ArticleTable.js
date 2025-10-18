@@ -276,7 +276,7 @@ const ArticleTable = () => {
       </div>
 
       {/* Table */}
-      <div className="flex flex-col h-[467px]">
+      <div className="flex flex-col">
         <div className="flex-1 overflow-y-hidden">
           <table className="border w-full text-sm table-auto">
             <thead>

@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addDepartment } from "../../../store/slices/departmentSlice";
-import { v4 as uuidv4 } from "uuid";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AdditionalCategoryForm from "../AdditionalCategoryForm";
 import { MdAddCircle } from "react-icons/md";
 import { LiaTimesCircle } from "react-icons/lia";
+import { postNewDepartmentSource } from "../../../apis/department_source";
 
 function AdditionalDepartmentForm({ setShowModal }) {
   const [formData, setFormData] = useState({
@@ -17,27 +16,45 @@ function AdditionalDepartmentForm({ setShowModal }) {
   const dispatch = useDispatch();
   const [showFormCategory, setShowFormCategory] = useState(false);
   const [preDataCategory, setPreDataCategory] = useState(null);
+  const [errors, setErrors] = useState({});
+  const department = useSelector(
+    (state) => state.department.currentDepartment || {}
+  );
+  const urlRegex = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i;
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+
+    // Nếu là field url thì kiểm tra regex
+    if (name === "url") {
+      if (!urlRegex.test(value)) {
+        setErrors((prev) => ({
+          ...prev,
+          url: "URL không hợp lệ (VD: https://example.com)",
+        }));
+      } else {
+        setErrors((prev) => ({ ...prev, url: "" }));
+      }
+    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const isValid = formData.url.trim() !== "" && formData.label.trim() !== "";
+  const isValid =
+    formData.url.trim() !== "" && formData.label.trim() !== "" && !errors.url;
 
   const handleSubmit = () => {
+    if (errors.url) {
+      alert("Vui lòng nhập URL hợp lệ trước khi lưu!");
+      return;
+    }
     try {
-      const newDepartment = {
-        id: uuidv4(),
+      postNewDepartmentSource({
         url: formData.url,
         label: formData.label,
-        crawler_config: formData.crawler_config,
-        categories: formData.categories,
-      };
-
-      dispatch(addDepartment(newDepartment));
+        department_id: department.documentId,
+      });
 
       toast.success(
-        `Đã thêm mới ${newDepartment.label} thành công, hãy bổ sung các loại tin tức của khoa!`
+        `Đã thêm mới thành công, hãy bổ sung các loại tin tức của khoa!`
       );
     } catch (error) {
       toast.error(`Thêm mới không thành công. Vui lòng thử lại sau!`);
@@ -77,6 +94,11 @@ function AdditionalDepartmentForm({ setShowModal }) {
                     onChange={handleChange}
                     className={`w-full border rounded px-3 py-2`}
                   />
+                  {errors?.url && (
+                    <p className="text-red-500 text-[10px] mt-1">
+                      {errors.url}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-blue-700 font-medium mb-1">
