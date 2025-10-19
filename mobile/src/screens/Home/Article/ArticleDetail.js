@@ -16,9 +16,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import Markdown from "react-native-markdown-display";
 import { getArticleById } from "../../../api/home";
+import { getUser, getToken } from "../../../api/storage";
 import { APP_ENV, DEV_DOMAIN, STAGING_DOMAIN, PROD_DOMAIN, PORT } from "@env";
 
-import { addBookmarks } from "../../../api/bookmark";
+import {
+  addBookmarks,
+  removeBookmarks,
+  checkBookmark,
+} from "../../../api/bookmark";
 /* ---------- Helpers ---------- */
 function getHostName(url) {
   try {
@@ -39,7 +44,6 @@ function formatDate(input) {
 }
 
 function estimateReadingTime(md = "") {
-  // Rất đơn giản: bỏ bớt ký tự markdown, đếm từ
   const text = md
     .replace(/!\[[^\]]*\]\([^)]+\)/g, "") // ảnh ![alt](url)
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // link [text](url) -> text
@@ -61,19 +65,24 @@ const MetaChip = ({ icon, text }) => (
 );
 
 export default function ArticleDetailScreen({ route, navigation }) {
-  const preloadedArticle = route?.params?.article;
   const articleId = route?.params?.articleId;
-
+  const preloadedArticle = route?.params?.article;
   const [article, setArticle] = useState(preloadedArticle || null);
   const [loading, setLoading] = useState(!preloadedArticle && !!articleId);
-
+  const [isBookmarked, setIsBookmarked] = useState(
+    Boolean(preloadedArticle?.isBookmarked || preloadedArticle?.bookmarkId)
+  );
+  const [bookmarkId, setBookmarkId] = useState(
+    preloadedArticle?.bookmarkId ?? null
+  );
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
   // Chuẩn hoá content và meta
   const fixedContent = useMemo(() => {
     const raw = article?.content || "";
     if (!raw) return "";
     return raw.replaceAll(
       "http://localhost:1337",
-      `http://192.168.110.135:1337`
+      `http://192.168.111.155:1337`
     );
   }, [article]);
 
@@ -108,11 +117,39 @@ export default function ArticleDetailScreen({ route, navigation }) {
   );
 
   useEffect(() => {
+    if (!articleId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await checkBookmark(articleId);
+        if (cancelled) return;
+        setIsBookmarked(Boolean(res?.isBookmarked));
+        setBookmarkId(res?.bookmarkId ?? null);
+      } catch (e) {
+        console.warn(
+          "checkBookmark failed:",
+          e?.status,
+          e?.message || String(e)
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [articleId]);
+
+  useEffect(() => {
     if (!preloadedArticle && articleId) {
       (async () => {
         try {
           const data = await getArticleById(articleId);
           setArticle(data);
+
+          // Nếu BE trả trạng thái bookmark theo user, set lại state ở đây:
+          if (data?.isBookmarked || data?.bookmarkId) {
+            setIsBookmarked(Boolean(data?.isBookmarked || data?.bookmarkId));
+            setBookmarkId(data?.bookmarkId || null);
+          }
         } catch (e) {
           console.error("Fetch article failed:", e);
         } finally {
@@ -142,6 +179,73 @@ export default function ArticleDetailScreen({ route, navigation }) {
       return;
     }
     Linking.openURL(url);
+  };
+
+  // Toggle Bookmark (optimistic + rollback)
+  const onToggleBookmark = async () => {
+    if (!article && !articleId) return;
+    if (bookmarkBusy) return;
+    if (bookmarkBusy) return;
+
+    const me = await getUser();
+    const userId = me?.documentId;
+
+    if (!userId) {
+      Alert.alert(
+        "Cần đăng nhập",
+        "Bạn cần đăng nhập để lưu hoặc quản lý bookmark.",
+        [
+          { text: "Hủy", style: "cancel" },
+          {
+            text: "Đăng nhập",
+            onPress: () => navigation.navigate("Login"),
+          },
+        ]
+      );
+      return;
+    }
+
+    setBookmarkBusy(true);
+
+    const prevIs = isBookmarked;
+    const prevId = bookmarkId;
+    setIsBookmarked(!prevIs);
+
+    try {
+      if (!prevIs) {
+        // Add
+        const res = await addBookmarks(articleId); // nếu BE nhận UID, truyền documentId
+        const newId = res?.data?.documentId;
+        if (!newId) throw new Error("Missing bookmark id");
+        setBookmarkId(String(newId));
+      } else {
+        // Remove
+        if (!bookmarkId) throw new Error("No bookmarkId to remove");
+        await removeBookmarks(bookmarkId);
+        setBookmarkId(null);
+      }
+    } catch (e) {
+      // Nếu BE trả 409 (đã tồn tại) coi như thành công
+      if (e?.status === 409) {
+        try {
+          const payload = JSON.parse(e.message || "{}");
+          if (payload?.id) setBookmarkId(String(payload.id));
+        } catch {}
+        setIsBookmarked(true);
+      } else if (e?.status === 401) {
+        // TODO: mở modal login nếu app bạn có (giữ nguyên UX)
+        // setShowLogin(true);
+        setIsBookmarked(prevIs);
+        setBookmarkId(prevId);
+      } else {
+        console.error("Bookmark toggle failed:", e);
+        setIsBookmarked(prevIs);
+        setBookmarkId(prevId);
+        Alert.alert("Lỗi", "Không thể cập nhật bookmark. Vui lòng thử lại.");
+      }
+    } finally {
+      setBookmarkBusy(false);
+    }
   };
 
   if (loading) {
@@ -227,14 +331,21 @@ export default function ArticleDetailScreen({ route, navigation }) {
         <TouchableOpacity onPress={onShare}>
           <Ionicons name="color-wand-outline" size={22} />
         </TouchableOpacity>
+
         {article?.externalUrl ? (
           <TouchableOpacity onPress={openSource}>
             <Ionicons name="globe-outline" size={22} />
           </TouchableOpacity>
         ) : null}
-        <TouchableOpacity>
-          <Ionicons name="bookmarks-outline" size={22} />
+
+        {/* Nút Bookmark */}
+        <TouchableOpacity onPress={onToggleBookmark} disabled={bookmarkBusy}>
+          <Ionicons
+            name={isBookmarked ? "bookmark" : "bookmark-outline"}
+            size={22}
+          />
         </TouchableOpacity>
+
         <TouchableOpacity onPress={onShare}>
           <Ionicons name="share-outline" size={22} />
         </TouchableOpacity>
@@ -304,7 +415,6 @@ const styles = StyleSheet.create({
   link: {
     color: "#1a73e8",
     textDecorationLine: "underline",
-
     flexShrink: 1,
   },
   avatar: {
