@@ -48,12 +48,13 @@ public class BookmarkController {
     }
 
     @PostMapping
-    public ResponseEntity<?> create(
-            @RequestHeader("Authorization") String authHeader,
-            @RequestBody BookmarkReq req
-    ) {
+    public ResponseEntity<?> create(@RequestBody BookmarkReq req) {
         try {
-            String token = authHeader.replace("Bearer ", "");
+            if (req == null || req.userId() == null || req.articleId() == null) {
+                return ResponseEntity.badRequest().body(Map.of("ok", false, "message", "userId/articleId is required"));
+            }
+
+            log.info("Create bookmark req: userId={}, articleId={}", req.userId(), req.articleId());
 
             Map<String, Object> data = new HashMap<>();
             data.put("user", Map.of("connect", List.of(req.userId())));
@@ -64,21 +65,34 @@ public class BookmarkController {
                     "/bookmarks",
                     body,
                     new ParameterizedTypeReference<StrapiSingle<BookmarkFlat>>() {},
-                    token
+                    null
             );
 
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
 
-        } catch (RestClientResponseException e) {
+        } catch (org.springframework.web.client.RestClientResponseException e) {
+            // Strapi trả 4xx/5xx → trả đúng mã + message từ Strapi (đừng gom 500)
+            log.error("Strapi responded {}: {}", e.getRawStatusCode(), e.getResponseBodyAsString());
             return ResponseEntity.status(e.getRawStatusCode())
-                    .body(Map.of("ok", false, "message", safeExtractStrapiMessage(e.getResponseBodyAsString())));
+                    .body(Map.of("ok", false, "status", e.getRawStatusCode(),
+                            "message", safeExtractStrapiMessage(e.getResponseBodyAsString())));
+        } catch (org.springframework.web.client.RestClientException e) {
+            // Lỗi network/timeout/resolve host
+            log.error("Strapi call failed (RestClientException)", e);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .body(Map.of("ok", false, "message", "Upstream unavailable (Strapi)"));
+        } catch (org.springframework.http.converter.HttpMessageConversionException e) {
+            // Lỗi parse/mapping JSON (thường do sai kiểu ID hoặc response không giống model)
+            log.error("JSON mapping/conversion error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("ok", false, "message", "JSON mapping error"));
         } catch (Exception ex) {
+            // Bắt mọi thứ còn lại nhưng LOG STACKTRACE, không dùng println
+            log.error("Create bookmark failed", ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("ok", false, "message", "Failed to create bookmark"));
         }
     }
-
-
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getBookmarksByUser(
@@ -86,6 +100,7 @@ public class BookmarkController {
     ) {
         try {
             var p = new LinkedMultiValueMap<String, String>();
+            p.add("filters[user][documentId][$eq]", String.valueOf(userId));
             p.add("populate", "user");
             p.add("populate", "article");
 
@@ -102,7 +117,6 @@ public class BookmarkController {
                     .toList();
 
             return ResponseEntity.ok(vms);
-
         } catch (RestClientResponseException e) {
             return ResponseEntity.status(e.getRawStatusCode())
                     .body(Map.of("ok", false,
@@ -147,4 +161,35 @@ public class BookmarkController {
         }
     }
 
+    @GetMapping("/check")
+    public ResponseEntity<?> checkBookmark(
+            @RequestParam("userId") String userId,
+            @RequestParam("articleId") String articleId
+    ) {
+        try {
+            var params = new LinkedMultiValueMap<String, String>();
+
+            params.add("filters[user][documentId][$eq]", userId);
+            params.add("filters[article][documentId][$eq]", articleId);
+
+            params.add("fields[0]", "id");
+            params.add("pagination[pageSize]", "1");
+
+            var type = new ParameterizedTypeReference<StrapiPageFlat<BookmarkFlat>>() {};
+            var res = strapiClient.get("/bookmarks", type, params, null);
+
+            boolean exists = (res != null && !res.data().isEmpty());
+            String bookmarkId = exists ? String.valueOf(res.data().get(0).documentId()) : null;
+
+            return ResponseEntity.ok(Map.of(
+                    "ok", true,
+                    "isBookmarked", exists,
+                    "bookmarkId", exists ? bookmarkId : ""
+            ));
+
+        } catch (Exception e) {
+            log.error("Check bookmark failed", e);
+            return ResponseEntity.status(500).body(Map.of("ok", false, "message", "Failed to check bookmark"));
+        }
+    }
 }

@@ -10,11 +10,30 @@ export async function getMyBookmarks(userId) {
   });
 }
 
-export async function addBookmarks(userId, articleId) {
+export async function checkBookmark(articleId) {
   const me = await getUser();
-  userId = me?.documentId;
+  const userId = me?.documentId;
+
+  const qs = new URLSearchParams({
+    userId: String(userId),
+    articleId: String(articleId),
+  }).toString();
+
+  return apiRequest(`/bookmarks/check?${qs}`, { method: "GET" });
+}
+
+export async function addBookmarks(articleId) {
+  const me = await getUser();
+  const userId = me?.documentId;
+  console.log(userId);
   return apiRequest("/bookmarks", {
     method: "POST",
     body: JSON.stringify({ userId, articleId }),
+  });
+}
+
+export async function removeBookmarks(documentId) {
+  return apiRequest(`/bookmarks/${documentId}`, {
+    method: "DELETE",
   });
 }
