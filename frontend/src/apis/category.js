@@ -1,6 +1,5 @@
 export const getAllCategory = async () => {
   try {
-    // 1. Lấy danh sách tất cả watch (bản rút gọn)
     const response = await fetch(`http://localhost:8080/v1/categories`, {
       method: "GET",
       headers: {
@@ -18,6 +17,61 @@ export const getAllCategory = async () => {
     return response.json();
   } catch (err) {
     console.error("Lỗi khi lấy danh sách loại bài viết", err);
+    throw err;
+  }
+};
+
+export const getCategoryById = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/categories/${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error("Lỗi từ server:", errorData || response.statusText);
+      throw new Error(
+        errorData?.message || `Lỗi ${response.status}: ${response.statusText}`
+      );
+    }
+    return response.json();
+  } catch (err) {
+    console.error("Lỗi khi lấy thông tin loại bài viết", err);
+    throw err;
+  }
+};
+
+export const postNewCategory = async ({
+  category_name,
+  category_url,
+  department_source_id,
+}) => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/categories`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        category_name,
+        category_url,
+        department_source_id,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error("Lỗi từ server:", errorData || response.statusText);
+      throw new Error(
+        errorData?.message || `Lỗi ${response.status}: ${response.statusText}`
+      );
+    }
+    return response.json();
+  } catch (err) {
+    console.error("Lỗi khi lấy thông tin loại bài viết", err);
     throw err;
   }
 };

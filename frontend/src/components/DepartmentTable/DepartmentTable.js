@@ -3,7 +3,6 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { getAllCategory } from "../../apis/category";
 import { getAllDepartmentSource } from "../../apis/department_source";
 
 const allColumns = [
@@ -42,34 +41,11 @@ const formatDateVN = (dateString) => {
 
 const DepartmentTable = () => {
   const navigate = useNavigate();
-  const mergeData = async () => {
-    const [categories, departments] = await Promise.all([
-      getAllCategory(),
-      getAllDepartmentSource(),
-    ]);
-    const map = {};
-
-    // Khởi tạo từng department_source với mảng categories rỗng
-    departments.forEach((dept) => {
-      map[dept.documentId] = { ...dept, categories: [] };
-    });
-
-    // Đưa category vào đúng department_source
-    categories.forEach((cat) => {
-      const deptId = cat.departmentSource.documentId;
-      if (map[deptId]) {
-        map[deptId].categories.push(cat);
-      }
-    });
-
-    return Object.values(map);
-  };
-
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
-      const merged = await mergeData();
+      const merged = await getAllDepartmentSource();
       setData(merged);
     };
     fetchData();

@@ -57,29 +57,15 @@ export const postNewDepartmentSource = async ({
   label,
   url,
 }) => {
-  // Tách key từ url
-  const baseKey = url.match(/https?:\/\/(?:www\.)?([a-zA-Z0-9-]+)/)?.[1];
-  if (!baseKey) throw new Error("URL không hợp lệ");
-
   try {
-    // 1. Lấy danh sách hiện có
     const existingList = await fetch(
       `http://localhost:8080/v1/department-sources`
     ).then((res) => res.json());
 
-    // 2. Check URL đã tồn tại chưa
     const alreadyExists = existingList.find((item) => item.url === url);
     if (alreadyExists) {
       return { message: "URL đã tồn tại, không tạo mới", data: alreadyExists };
     }
-
-    // 3. Sinh key_departmentSource mới nếu trùng
-    let newKey = baseKey;
-    let counter = 1;
-    while (existingList.some((item) => item.keyDepartmentSource === newKey)) {
-      newKey = `${baseKey}${counter++}`;
-    }
-    // 4. Tạo mới
     const response = await fetch(
       `http://localhost:8080/v1/department-sources`,
       {
@@ -90,7 +76,6 @@ export const postNewDepartmentSource = async ({
         body: JSON.stringify({
           label,
           url,
-          keyDepartmentSource: newKey,
           department_id,
         }),
       }

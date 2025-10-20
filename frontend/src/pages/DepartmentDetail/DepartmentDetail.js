@@ -10,10 +10,7 @@ import { getDepartmentSourceById } from "../../apis/department_source";
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [data, setData] = useState([]);
-  const [categories, setCategories] = useState([]);
-
   useEffect(() => {
     const fetchData = async () => {
       const data = await getDepartmentSourceById(id);
@@ -121,8 +118,8 @@ function DepartmentDetail() {
                   Các loại thông tin bài viết
                 </label>
                 <ul className="space-y-2 relative">
-                  {categories?.length > 0 ? (
-                    (categories || []).map((c) => (
+                  {data?.categories?.length > 0 ? (
+                    (data?.categories || []).map((c) => (
                       <li
                         key={c.documentId}
                         className="relative border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
@@ -171,6 +168,7 @@ function DepartmentDetail() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
               <div className="opacity-0 animate-fadeIn">
                 <AdditionalCategoryForm
+                  department_source_id={data.documentId}
                   preData={preDataCategory}
                   setShowFormCategory={setShowFormCategory}
                   onAddCategory={(newCategory) => {

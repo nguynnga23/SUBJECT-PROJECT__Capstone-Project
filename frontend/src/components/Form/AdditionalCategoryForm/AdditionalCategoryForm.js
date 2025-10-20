@@ -3,12 +3,12 @@ import { LiaTimesCircle } from "react-icons/lia";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { v4 as uuidv4 } from "uuid";
+import { postNewCategory } from "../../../apis/category";
 
 function AdditionalCategoryForm({
   preData,
   setShowFormCategory,
-  onAddCategory,
+  department_source_id,
 }) {
   const [formData, setFormData] = useState(preData || {});
 
@@ -25,16 +25,11 @@ function AdditionalCategoryForm({
 
   const handleSave = () => {
     try {
-      const newCategory = {
-        id: uuidv4(),
-        category_url: formData.category_url,
-        category_name: formData.category_name,
-        last_external_publish_date: formData.last_external_publish_date,
-        isNew: true,
-      };
-
-      // ✅ Thêm vào Redux store
-      onAddCategory(newCategory);
+      postNewCategory({
+        category_name: formData.category_name.trim(),
+        category_url: formData?.category_url.trim(),
+        department_source_id,
+      });
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
