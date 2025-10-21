@@ -1,5 +1,6 @@
 // src/screens/Home/Article/ArticleDetail.js
 import React, { useEffect, useState, useMemo } from "react";
+import { Modal } from "react-native";
 import {
   View,
   Text,
@@ -76,6 +77,10 @@ export default function ArticleDetailScreen({ route, navigation }) {
     preloadedArticle?.bookmarkId ?? null
   );
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
+  const [summaryVisible, setSummaryVisible] = useState(false);
+  const [summaryText, setSummaryText] = useState("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
+
   // Chuẩn hoá content và meta
   const fixedContent = useMemo(() => {
     const raw = article?.content || "";
@@ -247,6 +252,27 @@ export default function ArticleDetailScreen({ route, navigation }) {
       setBookmarkBusy(false);
     }
   };
+  const onSummarize = async () => {
+    try {
+      // setSummaryLoading(true);
+      setSummaryVisible(true); // mở popup trước, hiển thị loading
+
+      // const res = await getArticleSummary(idForSummary);
+      // // BE có thể trả res = { summary: "..."} hoặc { data: { summary: "..." } }
+      // const text = res?.summary || res?.data?.summary || "";
+      // if (!text) {
+      //   setSummaryText("Không có nội dung tóm tắt.");
+      // } else {
+      //   setSummaryText(text);
+      // }
+    } catch (e) {
+      console.error("Summary failed:", e);
+      setSummaryText("Không thể lấy tóm tắt. Vui lòng thử lại.");
+      setSummaryVisible(true);
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -328,7 +354,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
 
       {/* Bottom actions */}
       <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={onShare}>
+        <TouchableOpacity onPress={onSummarize} disabled={summaryLoading}>
           <Ionicons name="color-wand-outline" size={22} />
         </TouchableOpacity>
 
@@ -350,6 +376,40 @@ export default function ArticleDetailScreen({ route, navigation }) {
           <Ionicons name="share-outline" size={22} />
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={summaryVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setSummaryVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Text style={styles.modalTitle}>Tóm tắt bài viết</Text>
+
+            {summaryLoading ? (
+              <View style={{ paddingVertical: 16 }}>
+                <ActivityIndicator size="small" />
+                <Text style={{ marginTop: 8, color: "#555" }}>
+                  Đang tạo tóm tắt...
+                </Text>
+              </View>
+            ) : (
+              <ScrollView style={{ maxHeight: 300 }}>
+                <Text style={styles.modalBody}>{summaryText}</Text>
+              </ScrollView>
+            )}
+
+            <View style={{ height: 12 }} />
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setSummaryVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>Đóng</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -445,6 +505,29 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
   },
   bottomText: { marginLeft: 6, fontSize: 14, color: "#444" },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+  },
+  modalCard: {
+    width: "100%",
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  modalBody: { fontSize: 15, color: "#333", lineHeight: 22 },
+  modalButton: {
+    alignSelf: "flex-end",
+    backgroundColor: "#1a73e8",
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  modalButtonText: { color: "#fff", fontWeight: "600" },
 });
 
 const markdownStyles = {
