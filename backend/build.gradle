@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-vector-store-elasticsearch'
     implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
     implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
+//    implementation("org.springframework.ai:spring-ai-google-genai:1.1.0-M3")
     implementation 'org.springframework.ai:spring-ai-markdown-document-reader'
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
     compileOnly 'org.projectlombok:lombok'
