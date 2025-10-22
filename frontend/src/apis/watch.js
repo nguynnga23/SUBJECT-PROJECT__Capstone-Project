@@ -1,11 +1,11 @@
 export const getAllWatch = async () => {
   try {
     // 1. Lấy danh sách tất cả watch (bản rút gọn)
-    const response = await fetch(`http://localhost:5000/api/v1/watch`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/watch`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": "db028c4e41297c6f7a146a115a256f6a",
+        "x-api-key": process.env.REACT_APP_X_API_KEY,
       },
     });
 
@@ -26,12 +26,12 @@ export const getAllWatch = async () => {
       ids.map(async (id) => {
         try {
           const detailRes = await fetch(
-            `http://localhost:5000/api/v1/watch/${id}`,
+            `${process.env.REACT_APP_API_URL}/watch/${id}`,
             {
               method: "GET",
               headers: {
                 "Content-Type": "application/json",
-                "x-api-key": "db028c4e41297c6f7a146a115a256f6a",
+                "x-api-key": process.env.REACT_APP_X_API_KEY,
               },
             }
           );
@@ -49,5 +49,30 @@ export const getAllWatch = async () => {
   } catch (error) {
     console.error("Lỗi khi lấy danh sách trang web theo dõi", error);
     throw error;
+  }
+};
+
+export const postNewWatch = async (watchData) => {
+  try {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/watch`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.REACT_APP_X_API_KEY,
+      },
+      body: JSON.stringify(watchData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${errorData.message || "Unknown error"}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error posting watch:", error);
+    return null;
   }
 };

@@ -4,11 +4,12 @@ import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { postNewCategory } from "../../../apis/category";
+import { postNewWatch } from "../../../apis/watch";
 
 function AdditionalCategoryForm({
   preData,
   setShowFormCategory,
-  department_source_id,
+  department_source,
 }) {
   const [formData, setFormData] = useState(preData || {});
 
@@ -25,11 +26,21 @@ function AdditionalCategoryForm({
 
   const handleSave = () => {
     try {
-      postNewCategory({
-        category_name: formData.category_name.trim(),
-        category_url: formData?.category_url.trim(),
-        department_source_id,
-      });
+      try {
+        postNewCategory({
+          category_name: formData.category_name.trim(),
+          category_url: formData?.category_url.trim(),
+          department_source_id: department_source.documentId,
+        });
+      } catch (error) {}
+      try {
+        const watchData = {
+          url: formData?.category_url.trim(),
+          title:
+            department_source?.label + " - " + formData.category_name.trim(),
+        };
+        postNewWatch(watchData);
+      } catch (error) {}
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);

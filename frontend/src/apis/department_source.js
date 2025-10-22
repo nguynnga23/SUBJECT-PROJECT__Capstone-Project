@@ -92,3 +92,27 @@ export const postNewDepartmentSource = async ({
     throw err;
   }
 };
+
+export const deleteDepartmentById = async (id) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/v1/department-sources/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Lỗi ${response.status}`);
+    }
+
+    return { message: "Xoá department thành công", status: response.status };
+  } catch (err) {
+    console.error("Lỗi khi xoá department:", err);
+    throw err;
+  }
+};

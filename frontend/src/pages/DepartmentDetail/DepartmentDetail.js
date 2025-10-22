@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { useDispatch } from "react-redux";
-import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
 import AdditionalCategoryForm from "../../components/Form/AdditionalCategoryForm";
 import { getDepartmentSourceById } from "../../apis/department_source";
@@ -20,8 +18,6 @@ function DepartmentDetail() {
   }, []);
 
   const [editMode, setEditMode] = useState(false);
-
-  console.log(data);
 
   const [showFormCategory, setShowFormCategory] = useState(false);
   const [preDataCategory, setPreDataCategory] = useState(null);
@@ -168,7 +164,7 @@ function DepartmentDetail() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
               <div className="opacity-0 animate-fadeIn">
                 <AdditionalCategoryForm
-                  department_source_id={data.documentId}
+                  department_source={data}
                   preData={preDataCategory}
                   setShowFormCategory={setShowFormCategory}
                   onAddCategory={(newCategory) => {

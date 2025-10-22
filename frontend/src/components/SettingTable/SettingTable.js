@@ -59,8 +59,6 @@ const SettingTable = () => {
     };
     fetchData();
   }, []);
-  console.log(data);
-
   const hiddenDefaultCols = ["last_checked"];
   const [visibleCols, setVisibleCols] = useState(
     allColumns

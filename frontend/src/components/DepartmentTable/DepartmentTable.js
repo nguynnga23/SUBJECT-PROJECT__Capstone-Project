@@ -3,7 +3,10 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { getAllDepartmentSource } from "../../apis/department_source";
+import {
+  deleteDepartmentById,
+  getAllDepartmentSource,
+} from "../../apis/department_source";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -186,7 +189,10 @@ const DepartmentTable = () => {
   };
 
   const handleDelete = (row) => {
-    alert(row.label);
+    try {
+      deleteDepartmentById(row.documentId);
+      alert(row.documentId);
+    } catch (err) {}
   };
 
   return (

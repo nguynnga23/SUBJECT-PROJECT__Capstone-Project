@@ -4,7 +4,7 @@ import { MdChevronRight } from "react-icons/md";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { getCategoryById } from "../../apis/category";
+import { deleteCategoryById, getCategoryById } from "../../apis/category";
 
 function CategoryDetail() {
   const { id, cat_id } = useParams();
@@ -49,6 +49,16 @@ function CategoryDetail() {
       </h2>
     );
   }
+
+  const handleDelete = (cat_id) => {
+    try {
+      deleteCategoryById(cat_id);
+      toast.success(`Đã xóa thành công!`);
+      navigate(`/admin/department/${id}`);
+    } catch (error) {
+      toast.error(`Xóa không thành công. Vui lòng thử lại sau!`);
+    }
+  };
 
   return (
     <div className="flex-1 w-full">
@@ -140,12 +150,20 @@ function CategoryDetail() {
                   {/* Nút hành động */}
                   <div className="mt-6 flex justify-end gap-4">
                     {!editMode ? (
-                      <button
-                        onClick={() => setEditMode(true)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded"
-                      >
-                        Chỉnh sửa
-                      </button>
+                      <>
+                        <button
+                          className="px-4 py-2 bg-red-600 text-white rounded"
+                          onClick={() => handleDelete(cat_id)}
+                        >
+                          Xóa
+                        </button>
+                        <button
+                          onClick={() => setEditMode(true)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded"
+                        >
+                          Chỉnh sửa
+                        </button>
+                      </>
                     ) : (
                       <>
                         <button

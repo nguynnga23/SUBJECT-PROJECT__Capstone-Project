@@ -75,3 +75,24 @@ export const postNewCategory = async ({
     throw err;
   }
 };
+
+export const deleteCategoryById = async (id) => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/categories/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Lỗi ${response.status}`);
+    }
+
+    return { message: "Xoá loại tin tức thành công", status: response.status };
+  } catch (err) {
+    console.error("Lỗi khi xoá loại tin tức:", err);
+    throw err;
+  }
+};
