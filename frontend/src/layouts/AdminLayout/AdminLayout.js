@@ -4,9 +4,14 @@ import Sidebar from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { BiListUl } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { setCurrentDepartment } from "../../store/slices/departmentSlice";
+import { getAllDepartment } from "../../apis/department";
 
 function AdminLayout({ children }) {
   const location = useLocation();
+  const dispatch = useDispatch();
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -28,6 +33,21 @@ function AdminLayout({ children }) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const [department, setDepartment] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAllDepartment();
+        if (data) {
+          setDepartment(data);
+        }
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
+  dispatch(setCurrentDepartment(department[0]));
 
   return (
     <div className="relative flex w-full mx-auto">

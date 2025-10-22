@@ -1,36 +1,31 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { updateDepartment } from "../../store/slices/departmentSlice";
+import { MdChevronRight } from "react-icons/md";
 import { toast } from "react-toastify";
+import { getDepartmentSourceById } from "../../apis/department_source";
 
 function CrawlerConfig() {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const departments = useSelector((state) => state.department.listDepartment);
-  const department = departments.find((a) => a.id.toString() === id);
-  const crawler_config = department.crawler_config;
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getDepartmentSourceById(id);
+      setData(data);
+    };
+    fetchData();
+  }, []);
 
+  const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(crawler_config || {});
 
   const isValid = true;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
   };
 
   const handleSave = () => {
     try {
-      dispatch(
-        updateDepartment({
-          id: department.id,
-          data: formData,
-        })
-      );
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
@@ -38,7 +33,7 @@ function CrawlerConfig() {
     setEditMode(false);
   };
 
-  if (!department) {
+  if (!data) {
     return (
       <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center">
         Không tìm thấy thông tin Khoa/Viện này!
@@ -60,9 +55,9 @@ function CrawlerConfig() {
             <MdChevronRight />
             <span
               className=" cursor-pointer hover:border-b"
-              onClick={() => navigate(`/admin/department/${department.id}`)}
+              onClick={() => navigate(`/admin/department/${data?.documentId}`)}
             >
-              {department.label}
+              {data?.label}
             </span>
             <MdChevronRight />
             <span className="font-medium">{"Cấu hình thu thập tin tức"}</span>
@@ -77,7 +72,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="relative_url_list"
-                  value={formData.relative_url_list || ""}
+                  value={data?.crawlerConfig?.relativeUrlList || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -92,7 +87,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="relative_url"
-                  value={formData.relative_url || ""}
+                  value={data?.crawlerConfig?.relativeUrl || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -107,7 +102,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="next_pages"
-                  value={formData.next_pages || ""}
+                  value={data?.crawlerConfig?.nextPages || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -122,7 +117,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="content"
-                  value={formData.content || ""}
+                  value={data?.crawlerConfig?.content || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -137,7 +132,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="thumbnail"
-                  value={formData.thumbnail || ""}
+                  value={data?.crawlerConfig?.thumbnail || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -152,7 +147,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="title"
-                  value={formData.title || ""}
+                  value={data?.crawlerConfig?.title || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -167,7 +162,7 @@ function CrawlerConfig() {
                 <input
                   type="text"
                   name="external_publish_date"
-                  value={formData.external_publish_date || ""}
+                  value={data?.crawlerConfig?.externalPublishDate || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -191,7 +186,6 @@ function CrawlerConfig() {
               <>
                 <button
                   onClick={() => {
-                    setFormData(crawler_config); // reset
                     setEditMode(false);
                   }}
                   className="px-8 py-2 bg-gray-300 rounded"

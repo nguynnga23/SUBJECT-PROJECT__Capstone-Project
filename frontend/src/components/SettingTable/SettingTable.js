@@ -1,66 +1,65 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
-import { users } from "../../assets/sampleData";
-import { thumnailDefault } from "../../assets";
-import { FaLock, FaLockOpen } from "react-icons/fa";
+import { FaRegCirclePause } from "react-icons/fa6";
+import { BiSkipNextCircle } from "react-icons/bi";
+import { getAllWatch } from "../../apis/watch";
+
 // helper format date
-const formatDateVN = (dateString) => {
-  if (!dateString) return "Đang cập nhật ...";
-  const date = new Date(dateString);
-  if (isNaN(date)) return "Không hợp lệ";
+const formatDateVN = (timestamp) => {
+  const now = Date.now();
+  const time = timestamp * 1000; // nếu timestamp là giây
+  const diff = Math.floor((now - time) / 1000); // chênh lệch theo giây
 
-  const weekdays = [
-    "Chủ nhật",
-    "Thứ 2",
-    "Thứ 3",
-    "Thứ 4",
-    "Thứ 5",
-    "Thứ 6",
-    "Thứ 7",
-  ];
+  if (diff < 60) return `${diff} giây trước`;
+  if (diff < 3600) return `${Math.floor(diff / 60)} phút trước`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} giờ trước`;
+  if (diff < 86400 * 2) return `Hôm qua`;
 
-  const dayOfWeek = weekdays[date.getDay()];
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
+  // Nếu quá 2 ngày thì hiển thị ngày giờ
+  const date = new Date(time);
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const hh = String(date.getHours()).padStart(2, "0");
+  const mi = String(date.getMinutes()).padStart(2, "0");
 
-  return `${dayOfWeek}, ngày ${day}/${month}/${year}`;
+  return `${dd}/${mm}/${yyyy} - ${hh}:${mi}`;
 };
 
 // định nghĩa cột
 const allColumns = [
-  { key: "avatar", label: "Ảnh đại diện" },
-  { key: "studentID", label: "Mã sinh viên" },
-  { key: "username", label: "Tên tài khoản" },
-  { key: "email", label: "Email" },
-  { key: "class", label: "Lớp học" },
-  { key: "phone", label: "Số điện thoại" },
-  { key: "department", label: "Khoa" },
-  { key: "createdAt", label: "Ngày tạo TK" },
-  { key: "updatedAt", label: "Cập nhật gần nhất" },
+  { key: "title", label: "Tên Trang theo dõi" },
+  { key: "url", label: "URL" },
+  { key: "last_checked", label: "Kiểm tra gần nhất" },
+  { key: "last_changed", label: "Thay đổi gần nhất" },
 ];
 
-const UserTable = () => {
-  const navigate = useNavigate();
+const SettingTable = () => {
+  const [data, setData] = useState([]);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getAllWatch();
+        const arr = Object.entries(res).map(([id, item]) => ({
+          id, // lấy key làm id
+          title: item.title,
+          url: item.url,
+          last_checked: item.last_checked,
+          last_changed: item.last_changed,
+          last_error: item.last_error,
+          viewed: item.viewed,
+          paused: item.paused,
+        }));
 
-  // normalize data từ sampleData
-  const normalizedData = users.map((a, idx) => ({
-    id: idx + 1,
-    avatar: a.avatar.url,
-    studentID: a.studentID,
-    username: a.username,
-    email: a.email,
-    class: a.class,
-    phone: a.phone,
-    department: a.department.department_name,
-    createdAt: a.createdAt,
-    updatedAt: a.updatedAt,
-  }));
-
-  const [data, setData] = useState(normalizedData);
-
-  const hiddenDefaultCols = ["phone", "department", "createdAt", "updatedAt"];
+        setData(arr);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+    fetchData();
+  }, []);
+  const hiddenDefaultCols = ["last_checked"];
   const [visibleCols, setVisibleCols] = useState(
     allColumns
       .map((c) => c.key)
@@ -68,7 +67,7 @@ const UserTable = () => {
   );
 
   // filter
-  const [filterField, setFilterField] = useState("studentID");
+  const [filterField, setFilterField] = useState("title");
   const [filterValue, setFilterValue] = useState("");
 
   // sort
@@ -80,32 +79,18 @@ const UserTable = () => {
   const [openSort, setOpenSort] = useState(false);
 
   // lọc
-  let filtered = data.filter((d) =>
-    String(d[filterField] || "")
-      .toLowerCase()
-      .includes(filterValue.toLowerCase())
-  );
+  let filtered = Array.isArray(data)
+    ? data.filter((d) =>
+        String(d[filterField] || "")
+          .toLowerCase()
+          .includes(filterValue.toLowerCase())
+      )
+    : [];
 
   // render value theo col
   const renderValue = (value, colKey) => {
-    if (colKey === "avatar") {
-      return (
-        <div className="flex justify-center items-center">
-          <img
-            src={value}
-            alt="avatar"
-            className="h-[30px] w-[30px] object-cover rounded-full"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = thumnailDefault;
-            }}
-          />
-        </div>
-      );
-    }
-
-    if (colKey === "createdAt" || colKey === "updatedAt") {
-      return formatDateVN(value);
+    if (colKey === "last_changed" || colKey === "last_checked") {
+      return value ? formatDateVN(Number(value)) : "N/A"; // hoặc "-"
     }
 
     if (!value || value?.length === 0) {
@@ -280,11 +265,7 @@ const UserTable = () => {
             </thead>
             <tbody>
               {currentData.map((row, index) => (
-                <tr
-                  key={row.id || index}
-                  className="cursor-pointer hover:bg-sub"
-                  onClick={() => navigate(`/admin/user/${row.studentID}`)}
-                >
+                <tr key={row.id || index}>
                   <td className="border p-2 text-center">
                     {startIndex + index + 1}
                   </td>
@@ -295,9 +276,7 @@ const UserTable = () => {
                         key={col.key}
                         className="border p-2 min-w-[20px] max-w-[200px]"
                       >
-                        <div className="line-clamp-2">
-                          {renderValue(row[col.key], col.key)}
-                        </div>
+                        <div>{renderValue(row[col.key], col.key)}</div>
                       </td>
                     ))}
                   <td className="border text-center text-[10px]">
@@ -305,18 +284,18 @@ const UserTable = () => {
                       className="flex justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {!row.blocked ? (
-                        <FaLock
-                          title="Khóa tài khoản"
-                          size={25}
-                          className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
+                      {!row.paused ? (
+                        <FaRegCirclePause
+                          title="Dừng theo dõi"
+                          size={23}
+                          className="text-yellow-400 rounded-full m-2 cursor-pointer"
                           onClick={() => handleLock(row)}
                         />
                       ) : (
-                        <FaLockOpen
-                          title="Mở khóa tài khoản"
-                          size={25}
-                          className="text-primary rounded-full border m-2 cursor-pointer p-1"
+                        <BiSkipNextCircle
+                          title="Tiếp tục theo dõi"
+                          size={26}
+                          className="text-primary rounded-full m-2 cursor-pointer"
                           onClick={() => handleUnLock(row)}
                         />
                       )}
@@ -337,7 +316,6 @@ const UserTable = () => {
             >
               &lt;
             </button>
-
             {/* Page Numbers */}
             {[...Array(totalPages)].map((_, index) => {
               const page = index + 1;
@@ -369,4 +347,4 @@ const UserTable = () => {
   );
 };
 
-export default UserTable;
+export default SettingTable;

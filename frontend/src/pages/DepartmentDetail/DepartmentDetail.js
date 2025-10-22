@@ -1,42 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { updateDepartment } from "../../store/slices/departmentSlice";
 import { toast } from "react-toastify";
 import AdditionalCategoryForm from "../../components/Form/AdditionalCategoryForm";
+import { getDepartmentSourceById } from "../../apis/department_source";
 
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const departments = useSelector((state) => state.department.listDepartment);
-  const department = departments.find((a) => a.id.toString() === id);
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getDepartmentSourceById(id);
+      setData(data);
+    };
+    fetchData();
+  }, []);
 
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(department || {});
 
   const [showFormCategory, setShowFormCategory] = useState(false);
   const [preDataCategory, setPreDataCategory] = useState(null);
 
-  const isValid =
-    formData.website?.trim() !== "" &&
-    formData.code?.trim() !== "" &&
-    formData.name?.trim() !== "";
+  const isValid = data.label?.trim() !== "" && data.url?.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setData({ ...data, [name]: value });
   };
 
   const handleSave = () => {
     try {
-      dispatch(
-        updateDepartment({
-          id: department.id,
-          data: formData,
-        })
-      );
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
@@ -44,7 +38,7 @@ function DepartmentDetail() {
     setEditMode(false);
   };
 
-  if (!department) {
+  if (!data) {
     return (
       <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center">
         Không tìm thấy thông tin Khoa/Viện này!
@@ -63,7 +57,7 @@ function DepartmentDetail() {
               Danh sách Khoa/Viện
             </span>
             <MdChevronRight />
-            <span className="font-medium">{department.label}</span>
+            <span className="font-medium">{data.label}</span>
           </h2>
 
           <div className="p-6 grid grid-cols-2 gap-6">
@@ -75,7 +69,7 @@ function DepartmentDetail() {
                 <input
                   type="text"
                   name="url"
-                  value={formData.url || ""}
+                  value={data.url || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -90,7 +84,7 @@ function DepartmentDetail() {
                 <input
                   type="text"
                   name="label"
-                  value={formData.label || ""}
+                  value={data.label || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -106,7 +100,7 @@ function DepartmentDetail() {
                   className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
                   onClick={() =>
                     navigate(
-                      `/admin/department/${department.id}/crawler_config`
+                      `/admin/department/${data.documentId}/crawler_config`
                     )
                   }
                 >
@@ -120,15 +114,15 @@ function DepartmentDetail() {
                   Các loại thông tin bài viết
                 </label>
                 <ul className="space-y-2 relative">
-                  {formData.categories?.length > 0 ? (
-                    (formData.categories || []).map((c) => (
+                  {data?.categories?.length > 0 ? (
+                    (data?.categories || []).map((c) => (
                       <li
-                        key={c.id}
+                        key={c.documentId}
                         className="relative border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
                         onClick={() => {
                           if (!c.isNew) {
                             navigate(
-                              `/admin/department/${department.id}/category/${c.id}`
+                              `/admin/department/${data.documentId}/category/${c.documentId}`
                             );
                           } else {
                             setPreDataCategory(c);
@@ -136,7 +130,7 @@ function DepartmentDetail() {
                           }
                         }}
                       >
-                        {c.category_name}
+                        {c.categoryName}
                         {c.isNew && (
                           <span className="text-primary absolute right-[10px] p-[3px] italic">
                             Chưa lưu
@@ -170,10 +164,11 @@ function DepartmentDetail() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
               <div className="opacity-0 animate-fadeIn">
                 <AdditionalCategoryForm
+                  department_source={data}
                   preData={preDataCategory}
                   setShowFormCategory={setShowFormCategory}
                   onAddCategory={(newCategory) => {
-                    setFormData((prev) => ({
+                    setData((prev) => ({
                       ...prev,
                       categories: [...prev.categories, newCategory],
                     }));
@@ -195,7 +190,7 @@ function DepartmentDetail() {
             <>
               <button
                 onClick={() => {
-                  setFormData(department); // reset
+                  setData(data); // reset
                   setEditMode(false);
                 }}
                 className="px-8 py-2 bg-gray-300 rounded"

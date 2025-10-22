@@ -1,33 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { MdChevronRight, MdAddCircle } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
+import { MdChevronRight } from "react-icons/md";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { deleteCategoryById, getCategoryById } from "../../apis/category";
 
 function CategoryDetail() {
   const { id, cat_id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const departments = useSelector((state) => state.department.listDepartment);
-  const department = departments.find((a) => a.id.toString() === id);
-  const category = department.categories.find(
-    (c) => c.id.toString() === cat_id
-  );
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const merged = await getCategoryById(cat_id);
+      setData(merged);
+    };
+    fetchData();
+  }, []);
 
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState(category || {});
 
   const isValid =
-    formData?.category_url &&
-    formData.category_url.trim() !== "" &&
-    formData?.category_name &&
-    formData.category_name.trim() !== "";
+    data?.category_url &&
+    data.category_url.trim() !== "" &&
+    data?.category_name &&
+    data.category_name.trim() !== "";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setData({ ...data, [name]: value });
   };
 
   const handleSave = () => {
@@ -39,13 +42,23 @@ function CategoryDetail() {
     setEditMode(false);
   };
 
-  if (!department) {
+  if (!data) {
     return (
       <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center">
         Không tìm thấy thông tin loại tin tức này này!
       </h2>
     );
   }
+
+  const handleDelete = (cat_id) => {
+    try {
+      deleteCategoryById(cat_id);
+      toast.success(`Đã xóa thành công!`);
+      navigate(`/admin/department/${id}`);
+    } catch (error) {
+      toast.error(`Xóa không thành công. Vui lòng thử lại sau!`);
+    }
+  };
 
   return (
     <div className="flex-1 w-full">
@@ -61,12 +74,12 @@ function CategoryDetail() {
             <MdChevronRight />
             <span
               className=" cursor-pointer hover:border-b"
-              onClick={() => navigate(`/admin/department/${department.id}`)}
+              onClick={() => navigate(`/admin/department/${id}`)}
             >
-              {department.label}
+              {data?.departmentSource?.label}
             </span>
             <MdChevronRight />
-            <span className="font-medium">{category?.category_name}</span>
+            <span className="font-medium">{data?.categoryName}</span>
           </h2>
 
           <div className="p-6 grid grid-cols-1 gap-6 h-full w-full">
@@ -80,7 +93,7 @@ function CategoryDetail() {
                 <input
                   type="text"
                   name="category_url"
-                  value={formData.category_url || ""}
+                  value={data.categoryUrl || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -96,7 +109,7 @@ function CategoryDetail() {
                 <input
                   type="text"
                   name="category_name"
-                  value={formData.category_name || ""}
+                  value={data.categoryName || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -112,8 +125,8 @@ function CategoryDetail() {
                   </label>
                   <DatePicker
                     selected={
-                      formData.last_external_publish_date
-                        ? new Date(formData.last_external_publish_date)
+                      data.lastExternalPublishDate
+                        ? new Date(data.lastExternalPublishDate)
                         : null
                     }
                     onChange={(date) =>
@@ -124,7 +137,7 @@ function CategoryDetail() {
                         },
                       })
                     }
-                    dateFormat="dd/MM/yyyy"
+                    datedataat="dd/MM/yyyy"
                     placeholderText="Chọn ngày"
                     popperPlacement="bottom-start"
                     disabled={!editMode}
@@ -137,17 +150,25 @@ function CategoryDetail() {
                   {/* Nút hành động */}
                   <div className="mt-6 flex justify-end gap-4">
                     {!editMode ? (
-                      <button
-                        onClick={() => setEditMode(true)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded"
-                      >
-                        Chỉnh sửa
-                      </button>
+                      <>
+                        <button
+                          className="px-4 py-2 bg-red-600 text-white rounded"
+                          onClick={() => handleDelete(cat_id)}
+                        >
+                          Xóa
+                        </button>
+                        <button
+                          onClick={() => setEditMode(true)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded"
+                        >
+                          Chỉnh sửa
+                        </button>
+                      </>
                     ) : (
                       <>
                         <button
                           onClick={() => {
-                            setFormData(category); // reset
+                            setData(data); // reset
                             setEditMode(false);
                           }}
                           className="px-8 py-2 bg-gray-300 rounded"

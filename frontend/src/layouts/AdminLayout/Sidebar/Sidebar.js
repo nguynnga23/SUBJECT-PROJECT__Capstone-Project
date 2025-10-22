@@ -6,6 +6,7 @@ import {
   FaUsers,
   FaCog,
 } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const menuItems = [
   { label: "Dashboard", icon: <FaTachometerAlt />, path: "/admin/dashboard" },
@@ -20,10 +21,14 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const department = useSelector(
+    (state) => state.department.currentDepartment || {}
+  );
+
   return (
     <aside className="h-screen w-full bg-white border-r shadow-sm  left-0 top-0 z-10">
       <div className="p-4 font-bold text-[17px] text-primary flex justify-center">
-        Khoa Công Nghệ Thông Tin
+        {department.departmentName}
       </div>
       <nav className="flex flex-col gap-1 px-4">
         {menuItems.map((item) => (

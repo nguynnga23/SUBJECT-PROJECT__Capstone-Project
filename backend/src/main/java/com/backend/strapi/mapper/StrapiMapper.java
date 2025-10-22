@@ -4,6 +4,8 @@ import com.backend.strapi.model.*;
 import com.backend.strapi.vm.*;
 
 import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.Objects;
 
 public class StrapiMapper {
 
@@ -77,6 +79,14 @@ public class StrapiMapper {
         vm.setUrl(ds.url());
         vm.setLabel(ds.label());
         vm.setDepartment(toVM(ds.department()));
+        vm.setCategories(
+                ds.categories() == null
+                        ? Collections.emptyList()
+                        : ds.categories().stream()
+                        .map(StrapiMapper::toVM)
+                        .filter(Objects::nonNull)
+                        .toList()
+        );
         return vm;
     }
 

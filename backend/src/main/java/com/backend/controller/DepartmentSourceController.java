@@ -36,6 +36,7 @@ public class DepartmentSourceController {
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department");
         p.add("populate", "crawler_config");
+        p.add("populate", "categories");
         var raw = client.get("/department-sources", new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {
         },
         p,
@@ -52,6 +53,7 @@ null);
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department");
         p.add("populate", "crawler_config");
+        p.add("populate", "categories");
         var resp = client.get(
                 "/department-sources/" + documentId,
                 new ParameterizedTypeReference<StrapiSingle<DepartmentSourceFlat>>() {
