@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { articles } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { FaLock, FaUnlock } from "react-icons/fa";
+import { getAllArticles } from "../../apis/article";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -34,30 +35,38 @@ const formatDateVN = (dateString) => {
 const allColumns = [
   { key: "thumbnail", label: "Thumbnail" },
   { key: "title", label: "Tên bài viết" },
-  { key: "external_url", label: "Bài viết gốc" },
-  { key: "external_publish_date", label: "Ngày đăng" },
-  { key: "department_source", label: "Khoa/Viện" },
+  { key: "externalUrl", label: "Bài viết gốc" },
+  { key: "externalPublishDate", label: "Ngày đăng" },
+  { key: "departmentSource", label: "Khoa/Viện" },
   { key: "category", label: "Loại tin tức" },
   { key: "createdAt", label: "Ngày thu thập" },
 ];
 
 const ArticleTable = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  // normalize data từ sampleData
-  const normalizedData = articles.map((a, idx) => ({
-    id: idx + 1,
-    title: a.title,
-    external_url: a.external_url,
-    external_publish_date: a.external_publish_date,
-    department_source: a.category.department_source.label,
-    category: a.category.category_name,
-    thumbnail: a.thumbnail,
-    createdAt: a.createdAt,
-    publishedAt: a.publishedAt,
-  }));
+  // // normalize data từ sampleData
+  // const normalizedData = articles.map((a, idx) => ({
+  //   id: idx + 1,
+  //   title: a.title,
+  //   external_url: a.external_url,
+  //   external_publish_date: a.external_publish_date,
+  //   department_source: a.category.department_source.label,
+  //   category: a.category.category_name,
+  //   thumbnail: a.thumbnail,
+  //   createdAt: a.createdAt,
+  //   publishedAt: a.publishedAt,
+  // }));
 
-  const [data, setData] = useState(normalizedData);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const merged = await getAllArticles();
+      setData(merged);
+    };
+    fetchData();
+  }, []);
 
   const hiddenDefaultCols = ["category", "createdAt"];
   const [visibleCols, setVisibleCols] = useState(
@@ -340,43 +349,45 @@ const ArticleTable = () => {
             </tbody>
           </table>
         </div>
-        {currentPage > 1 && (
-          <div className="flex justify-center items-center mt-2 space-x-1">
-            {/* Prev */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              &lt;
-            </button>
+        <div className="absolute bottom-[10px] right-[30px]">
+          {
+            <div className="flex justify-center items-center mt-2 space-x-1">
+              {/* Prev */}
+              <button
+                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
+                &lt;
+              </button>
 
-            {/* Page Numbers */}
-            {[...Array(totalPages)].map((_, index) => {
-              const page = index + 1;
-              return (
-                <button
-                  key={page}
-                  className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                    page === currentPage ? "bg-primary text-white" : ""
-                  }`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              );
-            })}
+              {/* Page Numbers */}
+              {[...Array(totalPages)].map((_, index) => {
+                const page = index + 1;
+                return (
+                  <button
+                    key={page}
+                    className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
+                      page === currentPage ? "bg-primary text-white" : ""
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
 
-            {/* Next */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-            >
-              &gt;
-            </button>
-          </div>
-        )}
+              {/* Next */}
+              <button
+                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                &gt;
+              </button>
+            </div>
+          }
+        </div>
       </div>
     </div>
   );

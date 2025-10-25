@@ -96,3 +96,28 @@ export const deleteCategoryById = async (id) => {
     throw err;
   }
 };
+
+export const putCategoryById = async ({ id, newCategory }) => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/categories/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newCategory),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Lỗi ${response.status}`);
+    }
+
+    return {
+      message: "Cập nhật category thành công",
+      status: response.status,
+    };
+  } catch (err) {
+    console.error("Lỗi khi cập nhật category:", err);
+    throw err;
+  }
+};

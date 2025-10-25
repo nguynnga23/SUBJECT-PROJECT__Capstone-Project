@@ -16,8 +16,8 @@ class DynamicIUHSpider(scrapy.Spider):
         self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
         self._token = UNIFEED_CMS_GRAPHQL_TOKEN
     
-        self.key_departmentSource = kwargs.pop('key_departmentSource', None)
-        self.key_category = kwargs.pop('key_category', None)
+        self.department_source_url = kwargs.pop('department_source_url', None)
+        self.category_url = kwargs.pop('category_url', None)
 
         self.page_counter = {}
         self.latest_dates = {}
@@ -26,8 +26,8 @@ class DynamicIUHSpider(scrapy.Spider):
         
     def get_configs_from_strapi(self): 
         variables = {
-            "key_departmentSource": self.key_departmentSource,
-            "key_category": self.key_category
+            "department_source_url":  self.department_source_url,
+            "category_url": self.category_url
         }
         
         res = requests.post(
@@ -99,13 +99,13 @@ class DynamicIUHSpider(scrapy.Spider):
             }
         )
         if res: 
-            print(f"✅ Cập nhật {self.key_departmentSource}/{self.key_category} → {last_date.strftime('%Y-%m-%d')}")
+            print(f"✅ Cập nhật {self.category_url} → {last_date.strftime('%Y-%m-%d')}")
 
     def parse_list(self, response):
         if self.cat:
             category_url = self.cat.get('category_url')
             last_date = self.cat.get('last_external_publish_date')
-        config_key = f"{self.key_departmentSource}_{self.key_category}"
+        config_key = f"{self.department_source_url}_{self.category_url}"
         current_page = self.page_counter.get(category_url, 1)
         self.page_counter[category_url] = current_page + 1
 

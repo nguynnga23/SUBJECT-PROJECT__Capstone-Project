@@ -18,7 +18,7 @@ function CategoryDetail() {
       setData(merged);
     };
     fetchData();
-  }, []);
+  }, [cat_id]);
 
   const [editMode, setEditMode] = useState(false);
 

@@ -3,19 +3,26 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight, MdAddCircle } from "react-icons/md";
 import { toast } from "react-toastify";
 import AdditionalCategoryForm from "../../components/Form/AdditionalCategoryForm";
-import { getDepartmentSourceById } from "../../apis/department_source";
+import {
+  deleteDepartmentById,
+  getDepartmentSourceById,
+  putDepartmentById,
+} from "../../apis/department_source";
+import PopupDelete from "../../components/PopupDelete";
 
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({});
+  const [originalData, setOriginalData] = useState({});
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getDepartmentSourceById(id);
-      setData(data);
+      const fetchedData = await getDepartmentSourceById(id);
+      setData(fetchedData);
+      setOriginalData(fetchedData);
     };
     fetchData();
-  }, []);
+  }, [id]);
 
   const [editMode, setEditMode] = useState(false);
 
@@ -23,19 +30,42 @@ function DepartmentDetail() {
   const [preDataCategory, setPreDataCategory] = useState(null);
 
   const isValid = data.label?.trim() !== "" && data.url?.trim() !== "";
+  const isChanged = JSON.stringify(data) !== JSON.stringify(originalData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
   };
 
-  const handleSave = () => {
+  const handleSave = async (dept_id) => {
     try {
-      toast.success(`Đã cập nhật thành công!`);
+      const newDepartment = {
+        label: data.label,
+        url: data.url,
+      };
+      const response = await putDepartmentById({
+        id: dept_id,
+        newDepartment: newDepartment,
+      });
+      if (response.status === 200) {
+        toast.success(`Đã cập nhật thành công!`);
+      }
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
     }
     setEditMode(false);
+  };
+
+  const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
+  const handleDelete = (dept_id) => {
+    try {
+      deleteDepartmentById(dept_id);
+      toast.success(`Đã xóa thành công!`);
+      setPopupDeleteOpen(false);
+      navigate(`/admin/department`);
+    } catch (error) {
+      toast.error(`Xóa không thành công. Vui lòng thử lại sau!`);
+    }
   };
 
   if (!data) {
@@ -180,17 +210,33 @@ function DepartmentDetail() {
         </div>
         <div className="p-5 flex justify-end gap-4">
           {!editMode ? (
-            <button
-              onClick={() => setEditMode(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded"
-            >
-              Chỉnh sửa
-            </button>
+            <>
+              <>
+                <button
+                  className="px-4 py-2 bg-red-600 text-white rounded"
+                  onClick={() => setPopupDeleteOpen(true)}
+                >
+                  Xóa
+                </button>
+                <PopupDelete
+                  isOpen={popupDeleteOpen}
+                  message={`Bạn có muốn xóa ${data.label} ?`}
+                  onConfirm={() => handleDelete(id)}
+                  onCancel={() => setPopupDeleteOpen(false)}
+                />
+              </>
+              <button
+                onClick={() => setEditMode(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Chỉnh sửa
+              </button>
+            </>
           ) : (
             <>
               <button
                 onClick={() => {
-                  setData(data); // reset
+                  setData(originalData); // reset
                   setEditMode(false);
                 }}
                 className="px-8 py-2 bg-gray-300 rounded"
@@ -198,11 +244,13 @@ function DepartmentDetail() {
                 Hủy
               </button>
               <button
-                className={`px-8 py-2 text-white rounded ${
-                  isValid ? "bg-green-600" : "bg-gray-300"
+                className={`px-8 py-2 text-white rounded transition ${
+                  isValid && isChanged
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-gray-300 cursor-not-allowed"
                 }`}
-                onClick={handleSave}
-                disabled={!isValid}
+                onClick={() => handleSave(id)}
+                disabled={!isValid || !isChanged}
               >
                 Lưu
               </button>

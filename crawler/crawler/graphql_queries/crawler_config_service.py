@@ -1,9 +1,12 @@
 GET_CRAWLER_CONFIG = """
-            query ($key_departmentSource: String, $key_category: String) {
+            
+            query ($department_source_url: String, $category_url: String) {
                 crawlerConfigs (
                   filters: {
                     department_source: {
-                      key_departmentSource: { eq: $key_departmentSource }
+                      url:  {
+                        eq: $department_source_url 
+                      }
                     }
                   }
                 ) {
@@ -14,8 +17,8 @@ GET_CRAWLER_CONFIG = """
                       key_departmentSource
                       categories (
                         filters: {
-                          key_category: {
-                            eq: $key_category
+                          category_url: {
+                            eq: $category_url
                           }
                         }
                       ){

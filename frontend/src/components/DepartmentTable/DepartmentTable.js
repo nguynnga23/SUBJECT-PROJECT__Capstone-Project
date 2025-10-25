@@ -3,10 +3,12 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
 import { RiDeleteBin6Fill } from "react-icons/ri";
+import { toast } from "react-toastify";
 import {
   deleteDepartmentById,
   getAllDepartmentSource,
 } from "../../apis/department_source";
+import PopupDelete from "../PopupDelete";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -188,10 +190,14 @@ const DepartmentTable = () => {
     navigate(`${department.documentId}`, { state: department });
   };
 
+  const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
+  const [selectedDept, setSelectedDept] = useState(null);
+
   const handleDelete = (row) => {
     try {
       deleteDepartmentById(row.documentId);
-      alert(row.documentId);
+      toast.success(`Đã xóa thành công!`);
+      setPopupDeleteOpen(false);
     } catch (err) {}
   };
 
@@ -361,7 +367,10 @@ const DepartmentTable = () => {
                     title="Xóa khoa viện"
                     size={25}
                     className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
-                    onClick={() => handleDelete(dept)}
+                    onClick={() => {
+                      setSelectedDept(dept);
+                      setPopupDeleteOpen(true);
+                    }}
                   />
                 </div>
               </td>
@@ -369,6 +378,12 @@ const DepartmentTable = () => {
           ))}
         </tbody>
       </table>
+      <PopupDelete
+        isOpen={popupDeleteOpen}
+        message={`Bạn có muốn xóa ${selectedDept?.label} ?`}
+        onConfirm={() => handleDelete(selectedDept)}
+        onCancel={() => setPopupDeleteOpen(false)}
+      />
       {arrayPopup.open && (
         <div
           className="absolute bg-white border shadow rounded z-50"

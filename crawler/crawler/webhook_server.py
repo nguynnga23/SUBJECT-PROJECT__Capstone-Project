@@ -44,14 +44,14 @@ async def webhook(request: Request):
             return {"error": "No category found for URL"}
 
         data = graph_data["data"]["categories"][0]
-        key_departmentSource = data["department_source"]["key_departmentSource"]
-        key_category = data["key_category"]
+        departmentSource_url = data["department_source"]["url"]
+        category_url = url_to_crawl
     
         subprocess.Popen(
             [
                 "poetry", "run", "scrapy", "crawl", "iuh",
-                "-a", f"key_departmentSource={key_departmentSource}",
-                "-a", f"key_category={key_category}",
+                "-a", f"departmentSource_url={departmentSource_url}",
+                "-a", f"category_url={category_url}",
             ],
             cwd=os.path.join(os.path.dirname(__file__), "..")
         )
