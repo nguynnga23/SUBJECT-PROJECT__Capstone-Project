@@ -9,21 +9,34 @@ import {
   putDepartmentById,
 } from "../../apis/department_source";
 import PopupDelete from "../../components/PopupDelete";
+import Spinner from "../../components/Spinner";
+import { useApi } from "../../hooks/useApi";
 
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { request: fetchDepartment, loading: loadingFetch } = useApi(
+    getDepartmentSourceById
+  );
+  const { request: updateDepartment, loading: loadingUpdate } =
+    useApi(putDepartmentById);
+
   const [data, setData] = useState({});
   const [originalData, setOriginalData] = useState({});
-  useEffect(() => {
-    const fetchData = async () => {
-      const fetchedData = await getDepartmentSourceById(id);
-      setData(fetchedData);
-      setOriginalData(fetchedData);
-    };
-    fetchData();
-  }, [id]);
+  const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchDepartment(id);
+        setData(fetched);
+        setOriginalData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, [id]);
   const [editMode, setEditMode] = useState(false);
 
   const [showFormCategory, setShowFormCategory] = useState(false);
@@ -32,31 +45,32 @@ function DepartmentDetail() {
   const isValid = data.label?.trim() !== "" && data.url?.trim() !== "";
   const isChanged = JSON.stringify(data) !== JSON.stringify(originalData);
 
+  const handleSave = async () => {
+    try {
+      const response = await updateDepartment({ id, newDepartment: data });
+      if (response.status === 200) {
+        toast.success("Cập nhật thành công!");
+        setOriginalData(data);
+      }
+    } catch {
+      toast.error("Cập nhật thất bại");
+    }
+    setEditMode(false);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
   };
 
-  const handleSave = async (dept_id) => {
-    try {
-      const newDepartment = {
-        label: data.label,
-        url: data.url,
-      };
-      const response = await putDepartmentById({
-        id: dept_id,
-        newDepartment: newDepartment,
-      });
-      if (response.status === 200) {
-        toast.success(`Đã cập nhật thành công!`);
-      }
-    } catch (error) {
-      toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
-    }
-    setEditMode(false);
-  };
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
-  const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
   const handleDelete = (dept_id) => {
     try {
       deleteDepartmentById(dept_id);
@@ -77,6 +91,11 @@ function DepartmentDetail() {
   }
   return (
     <div className="flex-1 relative">
+      {loadingUpdate && (
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex justify-center items-center z-50">
+          <Spinner />
+        </div>
+      )}
       <main className="p-2">
         <div>
           <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center h-[40px]">
@@ -249,7 +268,7 @@ function DepartmentDetail() {
                     ? "bg-green-600 hover:bg-green-700"
                     : "bg-gray-300 cursor-not-allowed"
                 }`}
-                onClick={() => handleSave(id)}
+                onClick={handleSave}
                 disabled={!isValid || !isChanged}
               >
                 Lưu

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { users } from "../../assets/sampleData";

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
-import { articles } from "../../assets/sampleData";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { FaLock, FaUnlock } from "react-icons/fa";
 import { getAllArticles } from "../../apis/article";
+import Spinner from "../../components/Spinner";
+import { useApi } from "../../hooks/useApi";
+import { toast } from "react-toastify";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -57,15 +58,20 @@ const ArticleTable = () => {
   //   createdAt: a.createdAt,
   //   publishedAt: a.publishedAt,
   // }));
-
+  const { request: fetchArticles, loading: loadingFetch } =
+    useApi(getAllArticles);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const merged = await getAllArticles();
-      setData(merged);
+    const load = async () => {
+      try {
+        const fetched = await fetchArticles();
+        setData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
     };
-    fetchData();
+    load();
   }, []);
 
   const hiddenDefaultCols = ["category", "createdAt"];
@@ -169,6 +175,14 @@ const ArticleTable = () => {
   const handleUnlock = (row) => {
     alert(row.title);
   };
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3 pb-0">

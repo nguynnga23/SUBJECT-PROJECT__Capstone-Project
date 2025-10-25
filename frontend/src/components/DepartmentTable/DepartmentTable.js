@@ -9,6 +9,8 @@ import {
   getAllDepartmentSource,
 } from "../../apis/department_source";
 import PopupDelete from "../PopupDelete";
+import Spinner from "../../components/Spinner";
+import { useApi } from "../../hooks/useApi";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -46,14 +48,20 @@ const formatDateVN = (dateString) => {
 
 const DepartmentTable = () => {
   const navigate = useNavigate();
+  const { request: fetchDepartments, loading: loadingFetch } = useApi(
+    getAllDepartmentSource
+  );
   const [data, setData] = useState([]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const merged = await getAllDepartmentSource();
-      setData(merged);
+    const load = async () => {
+      try {
+        const fetched = await fetchDepartments();
+        setData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
     };
-    fetchData();
+    load();
   }, []);
 
   const hiddenDefaultCols = ["createdAt", "crawler_config"];
@@ -200,6 +208,14 @@ const DepartmentTable = () => {
       setPopupDeleteOpen(false);
     } catch (err) {}
   };
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3">
