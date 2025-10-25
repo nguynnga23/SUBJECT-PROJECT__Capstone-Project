@@ -1,13 +1,60 @@
 package com.backend.strapi.mapper;
 
+import com.backend.entity.DocumentChunk;
 import com.backend.strapi.model.*;
 import com.backend.strapi.vm.*;
+import org.springframework.stereotype.Component;
 
 import java.time.ZoneOffset;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
+@Component
 public class StrapiMapper {
+
+    public static ArticleVM fromDocumentChunk(DocumentChunk d) {
+        if (d == null) return null;
+
+        Map<String, Object> meta = d.getMetadata();
+        Map<String, Object> cat  = meta != null ? (Map<String, Object>) meta.get("category") : null;
+
+        ArticleVM vm = new ArticleVM();
+        vm.setDocumentId(str(meta, "documentId", d.getId()));
+        vm.setTitle(str(meta, "title", null));
+
+        // content & externalUrl (lấy URL đầu tiên trong content markdown nếu có)
+        String raw = d.getContent();
+        vm.setExternalUrl(d.getContent());
+        vm.setContent(d.getContent());
+
+        // các trường optional nếu metadata có
+        vm.setSummary(str(meta, "summary", null));
+        vm.setThumbnail(str(meta, "thumbnail", null));
+        vm.setExternalSlug(str(meta, "external_slug", null));
+
+
+        vm.setCategory(toCategoryVM(cat));
+        return vm;
+    }
+
+    // ---------- Category ----------
+    private static CategoryVM toCategoryVM(Map<String, Object> c) {
+        if (c == null) return null;
+        CategoryVM vm = new CategoryVM();
+        vm.setDocumentId(str(c, "documentId", null));
+        vm.setCategoryName(str(c, "category_name", null));
+        vm.setCategoryUrl(str(c, "category_url", null));
+        vm.setKeyCategory(str(c, "key_category", null));
+        return vm;
+    }
+
+    // ---------- Helpers ----------
+    private static String str(Map<String, Object> m, String key, String defVal) {
+        if (m == null) return defVal;
+        Object v = m.get(key);
+        return v == null ? defVal : String.valueOf(v);
+    }
 
     public static ArticleVM toVM(ArticleFlat a) {
         if (a == null) return null;

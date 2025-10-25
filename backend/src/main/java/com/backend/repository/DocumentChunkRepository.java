@@ -11,10 +11,11 @@ import java.util.List;
 public interface DocumentChunkRepository extends ElasticsearchRepository<DocumentChunk, String> {
     @Query("""
         {
-          "match": {
-            "content": "?0" 
+          "multi_match": {
+            "query": "?0",
+            "fields": ["metadata.title^3", "content"]
           }
         }
-    """)
+        """)
     List<DocumentChunk> searchByContent(String keyword);
 }
