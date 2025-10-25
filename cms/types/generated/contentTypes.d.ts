@@ -382,7 +382,7 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     singularName: 'article';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     bookmarks: Schema.Attribute.Relation<'oneToMany', 'api::bookmark.bookmark'>;
