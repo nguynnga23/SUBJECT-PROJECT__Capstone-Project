@@ -29,7 +29,6 @@ public class StrapiWebhookController {
         return true;
     }
 
-    // Strapi -> afterCreate / afterUpdate
     @PostMapping("/article")
     public ResponseEntity<ApiOk> handleArticle(@RequestBody Map<String, Object> payload,
                                                @RequestHeader(value = "X-Webhook-Secret", required = false) String secret) {
