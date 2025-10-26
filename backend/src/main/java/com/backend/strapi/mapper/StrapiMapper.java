@@ -5,6 +5,7 @@ import com.backend.strapi.model.*;
 import com.backend.strapi.vm.*;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
@@ -22,13 +23,10 @@ public class StrapiMapper {
         ArticleVM vm = new ArticleVM();
         vm.setDocumentId(str(meta, "documentId", d.getId()));
         vm.setTitle(str(meta, "title", null));
+        vm.setExternalUrl(str(meta, "external_url", null));
 
-        // content & externalUrl (lấy URL đầu tiên trong content markdown nếu có)
-        String raw = d.getContent();
-        vm.setExternalUrl(d.getContent());
         vm.setContent(d.getContent());
-
-        // các trường optional nếu metadata có
+        vm.setExternalPublishDate(LocalDate.parse(str(meta, "external_publish_date", null)));
         vm.setSummary(str(meta, "summary", null));
         vm.setThumbnail(str(meta, "thumbnail", null));
         vm.setExternalSlug(str(meta, "external_slug", null));
@@ -46,6 +44,7 @@ public class StrapiMapper {
         vm.setCategoryName(str(c, "category_name", null));
         vm.setCategoryUrl(str(c, "category_url", null));
         vm.setKeyCategory(str(c, "key_category", null));
+        vm.setLastExternalPublishDate(LocalDate.parse(str(c, "last_external_publish_date", null)));
         return vm;
     }
 
