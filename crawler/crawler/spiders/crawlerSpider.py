@@ -16,7 +16,6 @@ class DynamicIUHSpider(scrapy.Spider):
         self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
         self._token = UNIFEED_CMS_GRAPHQL_TOKEN
     
-        self.department_source_url = kwargs.pop('department_source_url', None)
         self.category_url = kwargs.pop('category_url', None)
 
         self.page_counter = {}
@@ -26,22 +25,36 @@ class DynamicIUHSpider(scrapy.Spider):
         
     def get_configs_from_strapi(self): 
         variables = {
-            "department_source_url":  self.department_source_url,
             "category_url": self.category_url
         }
         
-        res = requests.post(
-            self._graphql_url_endpoint,
-            json={
-                "query": GET_CRAWLER_CONFIG,
-                "variables": variables
-            },
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {self._token}"
-            }
-        )  
-        return res.json()["data"]["crawlerConfigs"]
+        try:
+            res = requests.post(
+                self._graphql_url_endpoint,
+                json={
+                    "query": GET_CRAWLER_CONFIG,
+                    "variables": variables
+                },
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self._token}"
+                },
+                timeout=10
+            )
+        except requests.RequestException as e:
+            self.logger.error(f"Lỗi khi gọi Strapi API: {e}")
+            return None
+
+        if res.status_code != 200:
+            self.logger.error(f"Strapi API trả về lỗi HTTP {res.status_code}: {res.text}")
+            return None
+
+        data = res.json().get("data")
+        if not data or "crawlerConfigs" not in data or not data["crawlerConfigs"]:
+            self.logger.warning("Không có response hoặc crawlerConfigs rỗng từ Strapi")
+            return None
+
+        return data["crawlerConfigs"]
 
     def start_requests(self):
         configs = self.get_configs_from_strapi()
@@ -105,7 +118,7 @@ class DynamicIUHSpider(scrapy.Spider):
         if self.cat:
             category_url = self.cat.get('category_url')
             last_date = self.cat.get('last_external_publish_date')
-        config_key = f"{self.department_source_url}_{self.category_url}"
+        config_key = f"{self.category_url}"
         current_page = self.page_counter.get(category_url, 1)
         self.page_counter[category_url] = current_page + 1
 
@@ -187,6 +200,6 @@ class DynamicIUHSpider(scrapy.Spider):
         item['title'] = response.css(self.config['title']).get()
         item['content'] = response.css(self.config['content']).get()
         item['external_publish_date'] = response.meta.get('external_publish_date')
-
+        
         yield item
 

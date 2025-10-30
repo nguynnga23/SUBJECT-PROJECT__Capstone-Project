@@ -1,6 +1,8 @@
-function Spinner() {
+function Spinner({ size = "w-10 h-10", color = "border-primary" }) {
   return (
-    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    <div
+      className={`${size} border-4 ${color} border-t-transparent rounded-full animate-spin`}
+    ></div>
   );
 }
 
