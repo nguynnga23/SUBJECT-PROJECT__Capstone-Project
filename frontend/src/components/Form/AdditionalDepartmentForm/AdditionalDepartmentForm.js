@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import AdditionalCategoryForm from "../AdditionalCategoryForm";
 import { MdAddCircle } from "react-icons/md";
@@ -13,7 +13,6 @@ function AdditionalDepartmentForm({ setShowModal }) {
     crawler_config: {},
     categories: [],
   });
-  const dispatch = useDispatch();
   const [showFormCategory, setShowFormCategory] = useState(false);
   const [preDataCategory, setPreDataCategory] = useState(null);
   const [errors, setErrors] = useState({});
@@ -53,13 +52,10 @@ function AdditionalDepartmentForm({ setShowModal }) {
         department_id: department.documentId,
       });
 
-      toast.success(
-        `Đã thêm mới thành công, hãy bổ sung các loại tin tức của khoa!`
-      );
+      toast.success(`Đã thêm mới thành công`);
     } catch (error) {
       toast.error(`Thêm mới không thành công. Vui lòng thử lại sau!`);
     }
-
     setShowModal(false); // đóng modal
   };
 
@@ -168,7 +164,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
       <div>
         {showFormCategory && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="opacity-0 animate-fadeIn">
+            <div className="animate-slide-in">
               <AdditionalCategoryForm
                 preData={preDataCategory}
                 setShowFormCategory={setShowFormCategory}

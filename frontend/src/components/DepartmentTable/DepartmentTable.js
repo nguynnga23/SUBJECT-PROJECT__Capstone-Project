@@ -3,10 +3,14 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import AdditionalDepartmentForm from "../Form/AdditionalDepartmentForm/AdditionalDepartmentForm";
 import { RiDeleteBin6Fill } from "react-icons/ri";
+import { toast } from "react-toastify";
 import {
   deleteDepartmentById,
   getAllDepartmentSource,
 } from "../../apis/department_source";
+import PopupDelete from "../PopupDelete";
+import Spinner from "../../components/Spinner";
+import { useApi } from "../../hooks/useApi";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -44,14 +48,20 @@ const formatDateVN = (dateString) => {
 
 const DepartmentTable = () => {
   const navigate = useNavigate();
+  const { request: fetchDepartments, loading: loadingFetch } = useApi(
+    getAllDepartmentSource
+  );
   const [data, setData] = useState([]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const merged = await getAllDepartmentSource();
-      setData(merged);
+    const load = async () => {
+      try {
+        const fetched = await fetchDepartments();
+        setData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
     };
-    fetchData();
+    load();
   }, []);
 
   const hiddenDefaultCols = ["createdAt", "crawler_config"];
@@ -188,12 +198,24 @@ const DepartmentTable = () => {
     navigate(`${department.documentId}`, { state: department });
   };
 
+  const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
+  const [selectedDept, setSelectedDept] = useState(null);
+
   const handleDelete = (row) => {
     try {
       deleteDepartmentById(row.documentId);
-      alert(row.documentId);
+      toast.success(`Đã xóa thành công!`);
+      setPopupDeleteOpen(false);
     } catch (err) {}
   };
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3">
@@ -361,7 +383,10 @@ const DepartmentTable = () => {
                     title="Xóa khoa viện"
                     size={25}
                     className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
-                    onClick={() => handleDelete(dept)}
+                    onClick={() => {
+                      setSelectedDept(dept);
+                      setPopupDeleteOpen(true);
+                    }}
                   />
                 </div>
               </td>
@@ -369,6 +394,12 @@ const DepartmentTable = () => {
           ))}
         </tbody>
       </table>
+      <PopupDelete
+        isOpen={popupDeleteOpen}
+        message={`Bạn có muốn xóa ${selectedDept?.label} ?`}
+        onConfirm={() => handleDelete(selectedDept)}
+        onCancel={() => setPopupDeleteOpen(false)}
+      />
       {arrayPopup.open && (
         <div
           className="absolute bg-white border shadow rounded z-50"

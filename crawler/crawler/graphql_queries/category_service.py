@@ -31,9 +31,8 @@ FIND_KEY = """
                             category_url: {eq: $url}
                         }
                     ) {
-                        key_category
                         department_source {
-                            key_departmentSource
+                            url
                         }
                     }
                 }

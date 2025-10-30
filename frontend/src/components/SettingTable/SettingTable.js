@@ -2,7 +2,16 @@ import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { FaRegCirclePause } from "react-icons/fa6";
 import { BiSkipNextCircle } from "react-icons/bi";
-import { getAllWatch } from "../../apis/watch";
+import { IoMdRefresh } from "react-icons/io";
+import {
+  changePauseStatusWatch,
+  checkWatchNow,
+  getAllWatch,
+  sendMessageToWebhooksRightNow,
+} from "../../apis/watch";
+import { useApi } from "../../hooks/useApi";
+import { toast } from "react-toastify";
+import Spinner from "../Spinner";
 
 // helper format date
 const formatDateVN = (timestamp) => {
@@ -35,14 +44,35 @@ const allColumns = [
 ];
 
 const SettingTable = () => {
+  const { request: fetchWatchs, loading: loadingFetch } = useApi(getAllWatch);
+  const { request: fetchChangePauseStatus, loading: loadingChange } = useApi(
+    changePauseStatusWatch
+  );
+  const { request: fetchWatchNow, loading: loadingCheck } =
+    useApi(checkWatchNow);
+  const { request: fetchSendMessageNow, loading: loadingSendMessage } = useApi(
+    sendMessageToWebhooksRightNow
+  );
   const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchWatchs();
+        setData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, []);
   const [error, setError] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getAllWatch();
-        const arr = Object.entries(res).map(([id, item]) => ({
-          id, // lấy key làm id
+        const arr = res.map((item) => ({
+          id: item.id, // chính là uuid
           title: item.title,
           url: item.url,
           last_checked: item.last_checked,
@@ -59,6 +89,7 @@ const SettingTable = () => {
     };
     fetchData();
   }, []);
+
   const hiddenDefaultCols = ["last_checked"];
   const [visibleCols, setVisibleCols] = useState(
     allColumns
@@ -125,12 +156,45 @@ const SettingTable = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
-  const handleLock = (row) => {
-    alert(row.studentID);
+  const handleLock = async (row) => {
+    try {
+      const response = await fetchChangePauseStatus(row.id, !row.paused);
+      console.log(response);
+      if (response === "OK") {
+        toast.success("Cập nhật theo dõi thành công");
+      }
+    } catch (error) {
+      toast.error("Cập nhật theo dõi thất bại");
+    }
   };
-  const handleUnLock = (row) => {
-    alert(row.studentID);
+
+  const hanleCheckNow = async (row) => {
+    try {
+      const response = await fetchWatchNow(row.id);
+      if (response === "OK") {
+        try {
+          const response_1 = await fetchSendMessageNow(row.url);
+          if (response_1) {
+            toast.success("Đang tiến hành thu thập");
+          } else {
+            toast.error("Thu thập thất bại");
+          }
+        } catch (error) {
+          toast.error("Thu thập thất bại");
+        }
+      }
+    } catch (error) {
+      toast.error("Thu thập thất bại");
+    }
   };
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3 pb-0">
@@ -284,7 +348,11 @@ const SettingTable = () => {
                       className="flex justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {!row.paused ? (
+                      {loadingChange ? (
+                        <div className="inset-0 flex justify-center items-center z-50">
+                          <Spinner size="w-6 h-6" color="text-yellow-400" />
+                        </div>
+                      ) : !row.paused ? (
                         <FaRegCirclePause
                           title="Dừng theo dõi"
                           size={23}
@@ -296,7 +364,19 @@ const SettingTable = () => {
                           title="Tiếp tục theo dõi"
                           size={26}
                           className="text-primary rounded-full m-2 cursor-pointer"
-                          onClick={() => handleUnLock(row)}
+                          onClick={() => handleLock(row)}
+                        />
+                      )}
+                      {loadingCheck || loadingSendMessage ? (
+                        <div className="inset-0 flex justify-center items-center z-50">
+                          <Spinner size="w-6 h-6" />
+                        </div>
+                      ) : (
+                        <IoMdRefresh
+                          size={26}
+                          title="Thu thập ngay lập tức"
+                          className="text-primary rounded-full m-2 cursor-pointer"
+                          onClick={() => hanleCheckNow(row)}
                         />
                       )}
                     </div>
