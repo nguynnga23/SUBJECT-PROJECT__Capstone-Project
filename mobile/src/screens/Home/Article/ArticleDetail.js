@@ -341,9 +341,9 @@ export default function ArticleDetailScreen({ route, navigation }) {
         </View>
 
         {/* Thumbnail */}
-        {article.thumbnail ? (
+        {/* {article.thumbnail ? (
           <Image source={{ uri: article.thumbnail }} style={styles.thumbnail} />
-        ) : null}
+        ) : null} */}
 
         {/* Content */}
         <Markdown style={markdownStyles}>{fixedContent}</Markdown>

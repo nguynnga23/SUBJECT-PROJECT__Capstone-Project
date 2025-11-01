@@ -17,7 +17,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ArticleCard from "../Home/Article/ArticleCard";
-import { searchArticles } from "../../api/home"; // <-- nếu chưa có, xem mục (2)
+import { getArticlesByText } from "../../api/home"; // <-- nếu chưa có, xem mục (2)
 
 export default function SearchScreen({ navigation }) {
   const [q, setQ] = useState("");
@@ -34,7 +34,7 @@ export default function SearchScreen({ navigation }) {
     }
     setLoading(true);
     try {
-      const data = await searchArticles(keyword.trim());
+      const data = await getArticlesByText(keyword.trim());
       setResults(Array.isArray(data) ? data : []);
     } catch (e) {
       console.error("search error:", e);
@@ -59,17 +59,18 @@ export default function SearchScreen({ navigation }) {
     ({ item }) => (
       <ArticleCard
         item={{
-          author: item?.categoryName ?? "Unknown",
-          title: item?.title ?? "",
-          subtitle: item?.summary ?? "",
-          date: item?.external_publish_date ?? "",
-          views: item?.views?.toString?.() ?? "0",
-          comments: item?.comments?.toString?.() ?? "0",
-          thumb: item?.thumbnail ?? "",
+          author: item.category.categoryName,
+          title: item.title,
+          subtitle: item.summary,
+          date: item?.external_publish_date ?? item?.externalPublishDate ?? "",
+          views: "0",
+          comments: "0",
+          thumb: item.thumbnail,
+          externalUrl: item.externalUrl,
         }}
         onPress={() =>
           navigation.navigate("ArticleDetail", {
-            articleId: item?.documentId,
+            articleId: item.documentId,
             article: item,
           })
         }
@@ -123,11 +124,6 @@ export default function SearchScreen({ navigation }) {
           autoCorrect={false}
           clearButtonMode="while-editing"
         />
-        {!!q && (
-          <TouchableOpacity onPress={() => setQ("")}>
-            <Ionicons name="close-circle" size={18} color="#9AA0A6" />
-          </TouchableOpacity>
-        )}
       </View>
 
       <FlatList

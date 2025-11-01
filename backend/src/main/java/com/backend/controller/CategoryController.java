@@ -72,6 +72,7 @@ public class CategoryController {
             if (req.category_name() != null) data.put("category_name", req.category_name());
             if (req.category_url() != null) data.put("category_url", req.category_url());
             if (req.key_category() != null) data.put("key_category", req.key_category());
+            if (req.last_external_publish_date() != null) data.put("last_external_publish_date", req.last_external_publish_date());
 
             if (req.department_source_id() != null && !req.department_source_id().isBlank()) {
                 data.put("department_source", java.util.Map.of("connect", java.util.List.of(req.department_source_id())));
@@ -104,6 +105,7 @@ public class CategoryController {
             if (req.category_name() != null) data.put("category_name", req.category_name());
             if (req.category_url() != null) data.put("category_url", req.category_url());
             if (req.key_category() != null) data.put("key_category", req.key_category());
+            if (req.last_external_publish_date() != null) data.put("last_external_publish_date", req.last_external_publish_date());
 
             if (req.department_source_id() != null && !req.department_source_id().isBlank()) {
                 data.put("department_source", java.util.Map.of("connect", java.util.List.of(req.department_source_id())));

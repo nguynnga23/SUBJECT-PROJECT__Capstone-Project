@@ -57,7 +57,7 @@ export default function HomeScreen({ navigation }) {
           date: item?.external_publish_date ?? item?.externalPublishDate ?? "",
           views: "0",
           comments: "0",
-          thumb: item.thumbnail,
+          thumb: "",
           externalUrl: item.externalUrl,
         }}
         onPress={() =>

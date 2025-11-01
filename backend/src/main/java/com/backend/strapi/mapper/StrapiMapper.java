@@ -2,12 +2,33 @@ package com.backend.strapi.mapper;
 
 import com.backend.strapi.model.*;
 import com.backend.strapi.vm.*;
+import org.springframework.stereotype.Component;
 
-import java.time.ZoneOffset;
+import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
+@Component
 public class StrapiMapper {
+    // ---------- Category ----------
+    private static CategoryVM toCategoryVM(Map<String, Object> c) {
+        if (c == null) return null;
+        CategoryVM vm = new CategoryVM();
+        vm.setDocumentId(str(c, "documentId", null));
+        vm.setCategoryName(str(c, "category_name", null));
+        vm.setCategoryUrl(str(c, "category_url", null));
+        vm.setKeyCategory(str(c, "key_category", null));
+        vm.setLastExternalPublishDate(LocalDate.parse(str(c, "last_external_publish_date", null)));
+        return vm;
+    }
+
+    // ---------- Helpers ----------
+    private static String str(Map<String, Object> m, String key, String defVal) {
+        if (m == null) return defVal;
+        Object v = m.get(key);
+        return v == null ? defVal : String.valueOf(v);
+    }
 
     public static ArticleVM toVM(ArticleFlat a) {
         if (a == null) return null;

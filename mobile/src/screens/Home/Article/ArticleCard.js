@@ -39,9 +39,10 @@ export default function ArticleCard({ item, onPress }) {
           <Text style={styles.title} numberOfLines={3}>
             {item.title}
           </Text>
-          {item.thumb ? (
-            <Image source={{ uri: item.thumb }} style={styles.thumb} />
-          ) : null}
+          <Image
+            source={require("../../../../assets/img_default.png")}
+            style={styles.thumb}
+          />
         </View>
 
         {/* Subtitle */}
