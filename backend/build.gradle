@@ -1,10 +1,11 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.5.0'
-    id 'io.spring.dependency-management' version '1.1.7'
+    id 'org.springframework.boot' version '3.4.2'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 ext {
+    // Đặt version Spring AI tại đây
     springAiVersion = "1.0.3"
 }
 
@@ -23,29 +24,28 @@ configurations {
     }
 }
 
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.ai:spring-ai-pdf-document-reader"
+    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini"
+    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-embedding"
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:2.2.0"
+    implementation "com.github.ben-manes.caffeine:caffeine:3.1.8"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6"
+    implementation "org.springframework.ai:spring-ai-client-chat:1.0.3"
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
 repositories {
     mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.ai:spring-ai-starter-vector-store-elasticsearch'
-    implementation 'org.springframework.ai:spring-ai-pdf-document-reader'
-    implementation 'org.springframework.ai:spring-ai-starter-model-ollama'
-//    implementation("org.springframework.ai:spring-ai-google-genai:1.1.0-M3")
-    implementation 'org.springframework.ai:spring-ai-markdown-document-reader'
-    implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    compileOnly 'org.projectlombok:lombok'
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation("io.github.resilience4j:resilience4j-spring-boot3:2.2.0")
-    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
-}
-
+// *** ĐÂY LÀ NƠI CHUẨN ĐỂ QUẢN LÝ BOM ***
 dependencyManagement {
     imports {
         mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"

@@ -1,41 +1,16 @@
 package com.backend.strapi.mapper;
 
-import com.backend.entity.DocumentChunk;
 import com.backend.strapi.model.*;
 import com.backend.strapi.vm.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
 @Component
 public class StrapiMapper {
-
-    public static ArticleVM fromDocumentChunk(DocumentChunk d) {
-        if (d == null) return null;
-
-        Map<String, Object> meta = d.getMetadata();
-        Map<String, Object> cat  = meta != null ? (Map<String, Object>) meta.get("category") : null;
-
-        ArticleVM vm = new ArticleVM();
-        vm.setDocumentId(str(meta, "documentId", d.getId()));
-        vm.setTitle(str(meta, "title", null));
-        vm.setExternalUrl(str(meta, "external_url", null));
-
-        vm.setContent(d.getContent());
-        vm.setExternalPublishDate(LocalDate.parse(str(meta, "external_publish_date", null)));
-        vm.setSummary(str(meta, "summary", null));
-        vm.setThumbnail(str(meta, "thumbnail", null));
-        vm.setExternalSlug(str(meta, "external_slug", null));
-
-
-        vm.setCategory(toCategoryVM(cat));
-        return vm;
-    }
-
     // ---------- Category ----------
     private static CategoryVM toCategoryVM(Map<String, Object> c) {
         if (c == null) return null;
