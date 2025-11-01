@@ -251,17 +251,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
   };
   const onSummarize = async () => {
     try {
-      // setSummaryLoading(true);
       setSummaryVisible(true); // mở popup trước, hiển thị loading
-
-      // const res = await getArticleSummary(idForSummary);
-      // // BE có thể trả res = { summary: "..."} hoặc { data: { summary: "..." } }
-      // const text = res?.summary || res?.data?.summary || "";
-      // if (!text) {
-      //   setSummaryText("Không có nội dung tóm tắt.");
-      // } else {
-      //   setSummaryText(text);
-      // }
     } catch (e) {
       console.error("Summary failed:", e);
       setSummaryText("Không thể lấy tóm tắt. Vui lòng thử lại.");
@@ -312,11 +302,6 @@ export default function ArticleDetailScreen({ route, navigation }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Title */}
         <Text style={styles.title}>{article.title}</Text>
-
-        {/* Summary (nếu có) */}
-        {!!article.summary && !!article.summary.trim() && (
-          <Text style={styles.summary}>{article.summary}</Text>
-        )}
 
         {/* Meta chips */}
         <View style={styles.metaChips}>
@@ -384,18 +369,9 @@ export default function ArticleDetailScreen({ route, navigation }) {
           <View style={styles.modalCard}>
             <Text style={styles.modalTitle}>Tóm tắt bài viết</Text>
 
-            {summaryLoading ? (
-              <View style={{ paddingVertical: 16 }}>
-                <ActivityIndicator size="small" />
-                <Text style={{ marginTop: 8, color: "#555" }}>
-                  Đang tạo tóm tắt...
-                </Text>
-              </View>
-            ) : (
-              <ScrollView style={{ maxHeight: 300 }}>
-                <Text style={styles.modalBody}>{summaryText}</Text>
-              </ScrollView>
-            )}
+            <ScrollView style={{ maxHeight: 300 }}>
+              <Text style={styles.modalBody}>{article.summary}</Text>
+            </ScrollView>
 
             <View style={{ height: 12 }} />
             <TouchableOpacity

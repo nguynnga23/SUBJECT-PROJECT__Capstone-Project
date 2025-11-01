@@ -12,15 +12,20 @@ from w3lib.html import remove_tags
 import mimetypes
 
 from crawler.items import ArticleItem
+# ❗ ĐẢM BẢO CÁC CONFIG NÀY ĐÃ ĐƯỢC ĐỊNH NGHĨA
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
 from crawler.graphql_queries.article_service import CREATE_ARTICLE, IS_ARTICLE_EXIT
 
+# ❗ ĐỊNH NGHĨA URL CỦA DỊCH VỤ SPRING BOOT AI
+SPRING_BOOT_URL = "http://localhost:8080/v1/summary/article" 
+
 DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+    "Mozilla/50 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 )
 
 class ArticlePipeline:
+    # Lớp giữ nguyên theo định nghĩa cũ của bạn
     def _clean_title(self, adapter):
         title = adapter.get('title', '')
         cleaned_title = title.replace('\r\n', ' ').strip()
@@ -29,12 +34,10 @@ class ArticlePipeline:
     def _summarize_text(self, adapter, spider):
         adapter["summary"] = "" 
 
-    
     def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         self._clean_title(adapter)
         self._summarize_text(adapter, spider)
-
         return item 
 
 class CMSPipeline:
@@ -44,31 +47,64 @@ class CMSPipeline:
         self._token = UNIFEED_CMS_GRAPHQL_TOKEN
         pass
 
+    # ====================================================================
+    # ❗ PHƯƠNG THỨC GỌI API TÓM TẮT MỚI
+    # ====================================================================
+    def _summarize_text_ai(self, adapter, spider):
+        """Gọi API Spring Boot để tóm tắt nội dung (text/pdf) bằng Gemini."""
+        article_content = adapter.get('content', '')
+        print("article_content:", article_content);   
+        if not article_content:
+            adapter["summary"] = "Nội dung trống, không thể tóm tắt."
+            return
+
+        try:
+            payload = {"articleContent": article_content}
+            response = requests.post(
+                SPRING_BOOT_URL,
+                json=payload, 
+                headers={'Content-Type': 'application/json'}, 
+                timeout=45
+            )
+            
+            if response.status_code == 200:
+                summary_data = response.json()
+                adapter["summary"] = summary_data.get("summary", "Lỗi: Không tìm thấy trường 'summary' từ Spring AI.")
+                spider.logger.info(f"✅ Tóm tắt AI thành công cho: {adapter.get('title')}")
+            else:
+                adapter["summary"] = f"Lỗi HTTP {response.status_code} từ Spring AI."
+                spider.logger.warning(f"❌ Lỗi tóm tắt AI: {response.status_code}. Chi tiết: {response.text}")
+                
+        except requests.exceptions.RequestException as e:
+            adapter["summary"] = f"Lỗi kết nối dịch vụ Spring Boot: {e}"
+            spider.logger.error(f"❌ Lỗi kết nối API tóm tắt: {e}")
+
+
     def process_item(self, item, spider) -> ArticleItem:
         adapter = ItemAdapter(item)
         
         # Áp dụng Duplicate Filtering kiểm tra trùng external_url
         if self._is_article_exist(adapter.get('external_url')):
             spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
-            return  # bỏ qua nếu trùng
+            return 
         
         department_source_id = adapter.get('department_source_id')
         department_source_name = adapter.get('department_source_name')
         if not department_source_id:
             spider.logger.warning(f"❌ Không tìm thấy department với key: {department_source_name}")
-            return  # Bỏ qua nếu không có department
+            return
         
         category_name = adapter.get('category_name')
         category_id = adapter.get('category_id')
         if not category_id:
             spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_source_name}")
-            return  # Bỏ qua nếu không có category phù hợp
-    
+            return
+        
         # Upload file/image to Strapi
         department_source_url = adapter.get('department_source_url', '')
         strapi_url = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}'
 
-        # 1. Upload các file tài liệu, video, v.v.
+        # 1. Upload các file tài liệu, video, v.v. (Quan trọng: Cập nhật content)
         extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
         file_urls = self.extract_file_urls(adapter, extensions)
         if file_urls:
@@ -76,7 +112,7 @@ class CMSPipeline:
                 file_path = self.download_file(file_url, department_source_url)
                 new_url = self.upload_file_to_strapi(file_path, strapi_url, UNIFEED_CMS_GRAPHQL_TOKEN)
                 if new_url:
-                    self.replace_all_variants(adapter, file_url, new_url)
+                    self.replace_all_variants(adapter, file_url, new_url) # Thay URL gốc bằng URL Strapi công khai
 
         # 2. Upload hình ảnh
         img_urls = self.extract_image_urls(adapter)
@@ -96,20 +132,30 @@ class CMSPipeline:
         else:
             adapter['thumbnail'] = urljoin(adapter['department_source_url'], adapter['thumbnail'])
 
+
         # 3. Convert HTML → Markdown
         self._convert_html_to_markdown(adapter)
+        
+        # ❗ 4. GỌI DỊCH VỤ TÓM TẮT AI
+        self._summarize_text_ai(adapter, spider) 
+        
+        # 5. Tạo Article trên Strapi
         self._create_article(adapter, category_id)
+        
         return item
     
+    # ====================================================================
+    # CÁC HÀM HELPER CỦA BẠN (GIỮ NGUYÊN)
+    # ====================================================================
     def _convert_html_to_markdown(self, adapter):
         content = adapter.get('content', '')
         h = html2text.HTML2Text()
-        h.ignore_links = False  # Keep links in the Markdown output
+        h.ignore_links = False 
         markdown_content = h.handle(content)
         adapter['content'] = markdown_content
     
     def extract_image_urls(self, adapter):
-        content = adapter.get('content', '')        
+        content = adapter.get('content', '')
         soup = BeautifulSoup(content, 'html.parser')
         img_tags = soup.find_all('img')
         if img_tags:
@@ -118,7 +164,7 @@ class CMSPipeline:
         return None
 
     def extract_file_urls(self, adapter, extensions=None):
-        content = adapter.get('content', '')        
+        content = adapter.get('content', '')
         soup = BeautifulSoup(content, 'html.parser')
         if extensions is None:
             extensions = ['.pdf', '.docx', '.xlsx', '.doc', '.xls', '.zip', '.ppt', '.mp4']
@@ -156,7 +202,6 @@ class CMSPipeline:
 
         response = requests.get(full_url, headers=headers, allow_redirects=True)
       
-        # Check if the content is not an HTML error page
         if response.ok and "html" not in response.headers.get("Content-Type", ""):
             os.makedirs(save_dir, exist_ok=True)
             file_name = unquote(full_url.split('/')[-1])
@@ -172,7 +217,6 @@ class CMSPipeline:
         content = adapter.get('content', '')
         department_source_url = adapter.get('department_source_url', '')
 
-        # Các dạng URL có thể tồn tại trong content
         variants = [
             old_url,
             unquote(old_url),
@@ -217,7 +261,6 @@ class CMSPipeline:
         except Exception as e:
             print("❌ Exception occurred while creating article:", e)
     
-    # Áp dụng Duplicate Filtering          
     def _is_article_exist(self, external_url):
         response = requests.post(
             self._graphql_url_endpoint,
