@@ -116,3 +116,31 @@ export const deleteDepartmentById = async (id) => {
     throw err;
   }
 };
+
+export const putDepartmentById = async ({ id, newDepartment }) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/v1/department-sources/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newDepartment),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || `Lỗi ${response.status}`);
+    }
+
+    return {
+      message: "Cập nhật department thành công",
+      status: response.status,
+    };
+  } catch (err) {
+    console.error("Lỗi khi cập nhật department:", err);
+    throw err;
+  }
+};

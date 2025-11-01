@@ -76,8 +76,8 @@ CONCURRENT_REQUESTS_PER_IP = 1
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "crawler.pipelines.ArticlePipeline": 300,
-   "crawler.pipelines.CMSPipeline": 400
+   # "crawler.pipelines.ArticlePipeline": 300,
+   # "crawler.pipelines.CMSPipeline": 400
 }
 
 

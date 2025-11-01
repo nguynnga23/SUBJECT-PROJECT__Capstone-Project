@@ -54,13 +54,18 @@ export const getAllWatch = async () => {
 
 export const postNewWatch = async (watchData) => {
   try {
+    const dataToSend = {
+      include_filters: [".content"],
+      ...watchData,
+    };
+
     const response = await fetch(`${process.env.REACT_APP_API_URL}/watch`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": process.env.REACT_APP_X_API_KEY,
       },
-      body: JSON.stringify(watchData),
+      body: JSON.stringify(dataToSend),
     });
 
     if (!response.ok) {
@@ -73,6 +78,95 @@ export const postNewWatch = async (watchData) => {
     return data;
   } catch (error) {
     console.error("Error posting watch:", error);
+    return null;
+  }
+};
+
+export const checkWatchNow = async (uuid) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/watch/${uuid}?recheck=1`,
+      {
+        method: "GET",
+        headers: {
+          "x-api-key": process.env.REACT_APP_X_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${errorData.message || "Unknown error"}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error checking watch now:", error);
+    return null;
+  }
+};
+
+export const changePauseStatusWatch = async (uuid, status) => {
+  try {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/watch/${uuid}`,
+      {
+        method: "PUT",
+        headers: {
+          "x-api-key": process.env.REACT_APP_X_API_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          paused: status,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${errorData.message || "Unknown error"}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error change pause status of watch now:", error);
+    return null;
+  }
+};
+
+export const sendMessageToWebhooksRightNow = async (url) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8001/webhook/changedetection`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: `url:${url} | Test webhook from Changedetection.io. `,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `Error: ${response.status} - ${errorData.message || "Unknown error"}`
+      );
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error checking watch now:", error);
     return null;
   }
 };

@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 import subprocess
 import uvicorn
 import requests
+from fastapi.middleware.cors import CORSMiddleware
 from crawler.graphql_queries.category_service import FIND_KEY
 from crawler.config import (
     UNIFEED_CMS_GRAPHQL_HOST,
@@ -14,6 +15,14 @@ from crawler.config import (
 
 # Nếu GraphQL chạy trên Windows hoặc container khác thì sửa host:
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # hoặc ['http://localhost:3000'] nếu bạn muốn chặt chẽ hơn
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 GRAPHQL_URL = f"http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}"
 GRAPHQL_TOKEN = UNIFEED_CMS_GRAPHQL_TOKEN
@@ -29,29 +38,10 @@ async def webhook(request: Request):
         url_to_crawl = extract_url_from_message(payload.get("message", ""))
         if not url_to_crawl:
             return {"error": "No valid URL found in message"}
-
-        res = requests.post(
-            GRAPHQL_URL,
-            json={"query": FIND_KEY, "variables": {"url": url_to_crawl}},
-            headers={
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {GRAPHQL_TOKEN}",
-            },
-        )
-
-        graph_data = res.json()
-        if "errors" in graph_data or not graph_data.get("data") or not graph_data["data"]["categories"]:
-            return {"error": "No category found for URL"}
-
-        data = graph_data["data"]["categories"][0]
-        key_departmentSource = data["department_source"]["key_departmentSource"]
-        key_category = data["key_category"]
-    
         subprocess.Popen(
             [
                 "poetry", "run", "scrapy", "crawl", "iuh",
-                "-a", f"key_departmentSource={key_departmentSource}",
-                "-a", f"key_category={key_category}",
+                "-a", f"category_url={url_to_crawl}",
             ],
             cwd=os.path.join(os.path.dirname(__file__), "..")
         )

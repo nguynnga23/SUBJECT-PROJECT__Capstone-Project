@@ -42,12 +42,12 @@ function AdminLayout({ children }) {
         const data = await getAllDepartment();
         if (data) {
           setDepartment(data);
+          dispatch(setCurrentDepartment(data[0]));
         }
       } catch (error) {}
     };
     fetchData();
-  }, []);
-  dispatch(setCurrentDepartment(department[0]));
+  }, [department]);
 
   return (
     <div className="relative flex w-full mx-auto">

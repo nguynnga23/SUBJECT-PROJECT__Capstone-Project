@@ -85,10 +85,7 @@ export default function ArticleDetailScreen({ route, navigation }) {
   const fixedContent = useMemo(() => {
     const raw = article?.content || "";
     if (!raw) return "";
-    return raw.replaceAll(
-      "http://localhost:1337",
-      `http://192.168.111.155:1337`
-    );
+    return raw.replaceAll("http://localhost:1337", `http://172.28.41.216:1337`);
   }, [article]);
 
   const sourceSite = useMemo(
