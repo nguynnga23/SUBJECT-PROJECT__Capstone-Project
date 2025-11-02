@@ -12,11 +12,9 @@ from w3lib.html import remove_tags
 import mimetypes
 
 from crawler.items import ArticleItem
-# ❗ ĐẢM BẢO CÁC CONFIG NÀY ĐÃ ĐƯỢC ĐỊNH NGHĨA
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
 from crawler.graphql_queries.article_service import CREATE_ARTICLE, IS_ARTICLE_EXIT
 
-# ❗ ĐỊNH NGHĨA URL CỦA DỊCH VỤ SPRING BOOT AI
 SPRING_BOOT_URL = "http://localhost:8080/v1/summary/article" 
 
 DEFAULT_USER_AGENT = (
@@ -25,35 +23,15 @@ DEFAULT_USER_AGENT = (
 )
 
 class ArticlePipeline:
-    # Lớp giữ nguyên theo định nghĩa cũ của bạn
+    
     def _clean_title(self, adapter):
         title = adapter.get('title', '')
         cleaned_title = title.replace('\r\n', ' ').strip()
         adapter['title'] = cleaned_title
     
-    def _summarize_text(self, adapter, spider):
-        adapter["summary"] = "" 
-
-    def process_item(self, item, spider):
-        adapter = ItemAdapter(item)
-        self._clean_title(adapter)
-        self._summarize_text(adapter, spider)
-        return item 
-
-class CMSPipeline:
-
-    def __init__(self) -> None:
-        self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
-        self._token = UNIFEED_CMS_GRAPHQL_TOKEN
-        pass
-
-    # ====================================================================
-    # ❗ PHƯƠNG THỨC GỌI API TÓM TẮT MỚI
-    # ====================================================================
     def _summarize_text_ai(self, adapter, spider):
         """Gọi API Spring Boot để tóm tắt nội dung (text/pdf) bằng Gemini."""
         article_content = adapter.get('content', '')
-        print("article_content:", article_content);   
         if not article_content:
             adapter["summary"] = "Nội dung trống, không thể tóm tắt."
             return
@@ -79,6 +57,20 @@ class CMSPipeline:
             adapter["summary"] = f"Lỗi kết nối dịch vụ Spring Boot: {e}"
             spider.logger.error(f"❌ Lỗi kết nối API tóm tắt: {e}")
 
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        self._clean_title(adapter)
+        self._summarize_text_ai(adapter, spider)
+        return item 
+
+
+class CMSPipeline:
+
+    def __init__(self) -> None:
+        self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
+        self._token = UNIFEED_CMS_GRAPHQL_TOKEN
+        self._article_pipeline = ArticlePipeline()
+        pass
 
     def process_item(self, item, spider) -> ArticleItem:
         adapter = ItemAdapter(item)
@@ -86,19 +78,19 @@ class CMSPipeline:
         # Áp dụng Duplicate Filtering kiểm tra trùng external_url
         if self._is_article_exist(adapter.get('external_url')):
             spider.logger.info(f"Duplicate article skipped: {adapter.get('external_url')}")
-            return 
+            return item # Hoặc return None nếu bạn muốn bỏ qua item
         
         department_source_id = adapter.get('department_source_id')
         department_source_name = adapter.get('department_source_name')
         if not department_source_id:
             spider.logger.warning(f"❌ Không tìm thấy department với key: {department_source_name}")
-            return
+            return item # Hoặc return None
         
         category_name = adapter.get('category_name')
         category_id = adapter.get('category_id')
         if not category_id:
             spider.logger.warning(f"❌ Không tìm thấy category với key: {category_name} và department: {department_source_name}")
-            return
+            return item # Hoặc return None
         
         # Upload file/image to Strapi
         department_source_url = adapter.get('department_source_url', '')
@@ -135,18 +127,13 @@ class CMSPipeline:
 
         # 3. Convert HTML → Markdown
         self._convert_html_to_markdown(adapter)
-        
-        # ❗ 4. GỌI DỊCH VỤ TÓM TẮT AI
-        self._summarize_text_ai(adapter, spider) 
+    
         
         # 5. Tạo Article trên Strapi
         self._create_article(adapter, category_id)
         
         return item
-    
-    # ====================================================================
-    # CÁC HÀM HELPER CỦA BẠN (GIỮ NGUYÊN)
-    # ====================================================================
+
     def _convert_html_to_markdown(self, adapter):
         content = adapter.get('content', '')
         h = html2text.HTML2Text()
