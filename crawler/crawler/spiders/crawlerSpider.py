@@ -197,7 +197,6 @@ class DynamicIUHSpider(scrapy.Spider):
             )
 
     def parse_detail(self, response):
-
         item = ArticleItem()
         item['external_url'] = response.url
         item['external_slug'] = response.url.split('/')[-1]

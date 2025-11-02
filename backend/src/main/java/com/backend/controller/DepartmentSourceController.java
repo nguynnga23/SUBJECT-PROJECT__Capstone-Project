@@ -32,11 +32,17 @@ public class DepartmentSourceController {
     }
 
     @GetMapping
-    public List<DepartmentSourceVM> list(){
+    public List<DepartmentSourceVM> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize){
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department");
         p.add("populate", "crawler_config");
         p.add("populate", "categories");
+
+        p.add("pagination[page]", String.valueOf(page));
+        p.add("pagination[pageSize]", String.valueOf(pageSize));
+
         var raw = client.get("/department-sources", new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {
         },
         p,

@@ -3,6 +3,7 @@ package com.backend.strapi.vm;
 import com.backend.strapi.model.CrawlerConfigFlat;
 import lombok.Data;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data

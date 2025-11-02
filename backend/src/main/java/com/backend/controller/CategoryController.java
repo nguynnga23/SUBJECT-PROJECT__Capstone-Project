@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
@@ -72,7 +73,10 @@ public class CategoryController {
             if (req.category_name() != null) data.put("category_name", req.category_name());
             if (req.category_url() != null) data.put("category_url", req.category_url());
             if (req.key_category() != null) data.put("key_category", req.key_category());
-            if (req.last_external_publish_date() != null) data.put("last_external_publish_date", req.last_external_publish_date());
+            if (req.last_external_publish_date() != null) {
+                var date = req.last_external_publish_date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                , date);
+            }
 
             if (req.department_source_id() != null && !req.department_source_id().isBlank()) {
                 data.put("department_source", java.util.Map.of("connect", java.util.List.of(req.department_source_id())));
@@ -105,7 +109,10 @@ public class CategoryController {
             if (req.category_name() != null) data.put("category_name", req.category_name());
             if (req.category_url() != null) data.put("category_url", req.category_url());
             if (req.key_category() != null) data.put("key_category", req.key_category());
-            if (req.last_external_publish_date() != null) data.put("last_external_publish_date", req.last_external_publish_date());
+            if (req.last_external_publish_date() != null) {
+                var date = req.last_external_publish_date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                data.put("last_external_publish_date", date);
+            }
 
             if (req.department_source_id() != null && !req.department_source_id().isBlank()) {
                 data.put("department_source", java.util.Map.of("connect", java.util.List.of(req.department_source_id())));
