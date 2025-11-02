@@ -72,11 +72,11 @@ function AdditionalDepartmentForm({ setShowModal }) {
           onClick={() => setShowModal(false)}
         />
 
-        <div className="relative h-[500px]">
+        <div className="relative h-[300px]">
           <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center h-[40px]">
             Thêm Khoa/Viện mới
           </h2>
-          <div className="h-[400px] overflow-y-scroll">
+          <div className="overflow-y-scroll">
             <div className="p-6 grid grid-cols-1 gap-6">
               <div className="col-span-1 grid grid-cols-1 gap-4">
                 <div>
@@ -107,35 +107,6 @@ function AdditionalDepartmentForm({ setShowModal }) {
                     onChange={handleChange}
                     className={`w-full border rounded px-3 py-2 `}
                   />
-                </div>
-
-                <div>
-                  <label className="block text-blue-700 font-medium mb-1">
-                    Các loại thông tin bài viết
-                  </label>
-                  <ul className="space-y-2 relative">
-                    {(formData.categories || []).map((c) => (
-                      <li
-                        key={c.id}
-                        className="border border-blue-400 rounded px-3 py-2 bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          setPreDataCategory(c);
-                          setShowFormCategory(true);
-                        }}
-                      >
-                        {c.category_name}
-                      </li>
-                    ))}
-                    <button
-                      className={`absolute bottom-[-30px] right-[50%] text-green-600 hover:text-green-800`}
-                      title="Thêm loại tin tức mới"
-                      onClick={() => {
-                        setShowFormCategory(true);
-                      }}
-                    >
-                      <MdAddCircle size={24} />
-                    </button>
-                  </ul>
                 </div>
               </div>
             </div>

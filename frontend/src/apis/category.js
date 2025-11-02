@@ -48,7 +48,10 @@ export const postNewCategory = async ({
   category_name,
   category_url,
   department_source_id,
+  last_external_publish_date,
 }) => {
+  const today = new Date().toISOString().split("T")[0]; // yyyy-MM-dd
+  const publishDate = last_external_publish_date || today;
   try {
     const response = await fetch(`http://localhost:8080/v1/categories`, {
       method: "POST",
@@ -59,6 +62,7 @@ export const postNewCategory = async ({
         category_name,
         category_url,
         department_source_id,
+        last_external_publish_date: publishDate,
       }),
     });
 

@@ -156,35 +156,43 @@ const SettingTable = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
+  const [loadingLockId, setLoadingLockId] = useState(null);
+  const [loadingCheckId, setLoadingCheckId] = useState(null);
+
   const handleLock = async (row) => {
     try {
+      setLoadingLockId(row.id); // chỉ hiển thị loading cho dòng này
       const response = await fetchChangePauseStatus(row.id, !row.paused);
-      console.log(response);
       if (response === "OK") {
         toast.success("Cập nhật theo dõi thành công");
+      } else {
+        toast.error("Cập nhật theo dõi thất bại");
       }
     } catch (error) {
       toast.error("Cập nhật theo dõi thất bại");
+    } finally {
+      setLoadingLockId(null); // reset sau khi hoàn tất
     }
   };
 
-  const hanleCheckNow = async (row) => {
+  const handleCheckNow = async (row) => {
     try {
+      setLoadingCheckId(row.id); // chỉ loading dòng này
       const response = await fetchWatchNow(row.id);
       if (response === "OK") {
-        try {
-          const response_1 = await fetchSendMessageNow(row.url);
-          if (response_1) {
-            toast.success("Đang tiến hành thu thập");
-          } else {
-            toast.error("Thu thập thất bại");
-          }
-        } catch (error) {
+        const response_1 = await fetchSendMessageNow(row.url);
+        if (response_1) {
+          toast.success("Đang tiến hành thu thập");
+        } else {
           toast.error("Thu thập thất bại");
         }
+      } else {
+        toast.error("Thu thập thất bại");
       }
     } catch (error) {
       toast.error("Thu thập thất bại");
+    } finally {
+      setLoadingCheckId(null);
     }
   };
 
@@ -348,7 +356,7 @@ const SettingTable = () => {
                       className="flex justify-center"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {loadingChange ? (
+                      {loadingLockId === row.id ? (
                         <div className="inset-0 flex justify-center items-center z-50">
                           <Spinner size="w-6 h-6" color="text-yellow-400" />
                         </div>
@@ -367,7 +375,7 @@ const SettingTable = () => {
                           onClick={() => handleLock(row)}
                         />
                       )}
-                      {loadingCheck || loadingSendMessage ? (
+                      {loadingCheckId === row.id ? (
                         <div className="inset-0 flex justify-center items-center z-50">
                           <Spinner size="w-6 h-6" />
                         </div>
@@ -376,7 +384,7 @@ const SettingTable = () => {
                           size={26}
                           title="Thu thập ngay lập tức"
                           className="text-primary rounded-full m-2 cursor-pointer"
-                          onClick={() => hanleCheckNow(row)}
+                          onClick={() => handleCheckNow(row)}
                         />
                       )}
                     </div>

@@ -7,6 +7,7 @@ import { getAllArticles } from "../../apis/article";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
+import Pagination from "../Pagination";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -44,20 +45,6 @@ const allColumns = [
 ];
 
 const ArticleTable = () => {
-  // const navigate = useNavigate();
-
-  // // normalize data từ sampleData
-  // const normalizedData = articles.map((a, idx) => ({
-  //   id: idx + 1,
-  //   title: a.title,
-  //   external_url: a.external_url,
-  //   external_publish_date: a.external_publish_date,
-  //   department_source: a.category.department_source.label,
-  //   category: a.category.category_name,
-  //   thumbnail: a.thumbnail,
-  //   createdAt: a.createdAt,
-  //   publishedAt: a.publishedAt,
-  // }));
   const { request: fetchArticles, loading: loadingFetch } =
     useApi(getAllArticles);
   const [data, setData] = useState([]);
@@ -73,6 +60,17 @@ const ArticleTable = () => {
     };
     load();
   }, []);
+  const normalizedData = data.map((a, idx) => ({
+    id: idx + 1,
+    title: a.title,
+    externalUrl: a.externalUrl,
+    externalPublishDate: a.externalPublishDate,
+    departmentSource: a.category.departmentSource.label,
+    category: a.category.categoryName,
+    thumbnail: a.thumbnail,
+    createdAt: a.createdAt,
+    publishedAt: a.publishedAt,
+  }));
 
   const hiddenDefaultCols = ["category", "createdAt"];
   const [visibleCols, setVisibleCols] = useState(
@@ -94,7 +92,7 @@ const ArticleTable = () => {
   const [openSort, setOpenSort] = useState(false);
 
   // lọc
-  let filtered = data.filter((d) =>
+  let filtered = normalizedData.filter((d) =>
     String(d[filterField] || "")
       .toLowerCase()
       .includes(filterValue.toLowerCase())
@@ -159,10 +157,9 @@ const ArticleTable = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  // Lấy dữ liệu trang hiện tại
+  // Tính toán dữ liệu hiển thị theo phân trang
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -300,7 +297,7 @@ const ArticleTable = () => {
 
       {/* Table */}
       <div className="flex flex-col">
-        <div className="flex-1 overflow-y-hidden">
+        <div className="flex-1 max-h-[63.5vh] overflow-auto">
           <table className="border w-full text-sm table-auto">
             <thead>
               <tr className="bg-gray-100">
@@ -363,44 +360,14 @@ const ArticleTable = () => {
             </tbody>
           </table>
         </div>
-        <div className="absolute bottom-[10px] right-[30px]">
-          {
-            <div className="flex justify-center items-center mt-2 space-x-1">
-              {/* Prev */}
-              <button
-                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                &lt;
-              </button>
-
-              {/* Page Numbers */}
-              {[...Array(totalPages)].map((_, index) => {
-                const page = index + 1;
-                return (
-                  <button
-                    key={page}
-                    className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                      page === currentPage ? "bg-primary text-white" : ""
-                    }`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-
-              {/* Next */}
-              <button
-                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                &gt;
-              </button>
-            </div>
-          }
+        <div>
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={Math.ceil(data.length / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+          />
         </div>
       </div>
     </div>

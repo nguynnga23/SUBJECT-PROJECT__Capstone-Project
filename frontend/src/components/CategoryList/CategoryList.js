@@ -56,7 +56,8 @@ const CategoryList = ({
       {/* Header */}
       <div className="flex justify-between items-center p-3">
         <h2 className="text-base font-semibold text-gray-800">
-          <span className="text-red-500 font-bold">■</span> {categoryName}
+          <span className="text-red-500 font-bold">■</span>{" "}
+          {categoryName || "Danh sách bài viết"}
         </h2>
         <div className="flex text-gray-500">
           <button

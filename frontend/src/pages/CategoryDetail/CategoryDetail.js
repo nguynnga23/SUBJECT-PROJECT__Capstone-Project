@@ -48,7 +48,6 @@ function CategoryDetail() {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
   };
-
   const handleSave = async () => {
     try {
       const response = await updateCategory({
@@ -56,6 +55,9 @@ function CategoryDetail() {
         newCategory: {
           category_name: data.categoryName,
           category_url: data.categoryUrl,
+          last_external_publish_date: data.lastExternalPublishDate
+            ? new Date(data.lastExternalPublishDate).toISOString().split("T")[0]
+            : null,
         },
       });
       if (response.status === 200) {
@@ -170,12 +172,12 @@ function CategoryDetail() {
                     onChange={(date) =>
                       handleChange({
                         target: {
-                          name: "last_external_publish_date",
+                          name: "lastExternalPublishDate",
                           value: date ? date.toISOString() : "",
                         },
                       })
                     }
-                    datedataat="dd/MM/yyyy"
+                    dateFormat="dd/MM/yyyy"
                     placeholderText="Chọn ngày"
                     popperPlacement="bottom-start"
                     disabled={!editMode}

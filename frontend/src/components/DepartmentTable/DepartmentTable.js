@@ -11,6 +11,7 @@ import {
 import PopupDelete from "../PopupDelete";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
+import Pagination from "../Pagination";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -194,6 +195,13 @@ const DepartmentTable = () => {
     );
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Tính toán dữ liệu hiển thị theo phân trang
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
   const handleShowDepartmentDetail = (department) => {
     navigate(`${department.documentId}`, { state: department });
   };
@@ -363,7 +371,7 @@ const DepartmentTable = () => {
           </tr>
         </thead>
         <tbody>
-          {filtered.map((dept, index) => (
+          {currentData.map((dept, index) => (
             <tr key={dept.id} className="cursor-pointer hover:bg-sub">
               <td className="border p-2 text-center">{index + 1}</td>
               {allColumns
@@ -394,6 +402,15 @@ const DepartmentTable = () => {
           ))}
         </tbody>
       </table>
+      <div>
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={Math.ceil(data.length / itemsPerPage)}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+        />
+      </div>
       <PopupDelete
         isOpen={popupDeleteOpen}
         message={`Bạn có muốn xóa ${selectedDept?.label} ?`}

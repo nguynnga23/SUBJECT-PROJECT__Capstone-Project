@@ -2,10 +2,9 @@ import CategoryList from "../../components/CategoryList";
 import { useParams } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
 import { getDepartmentSourceById } from "../../apis/department_source";
-import { getCategoryById } from "../../apis/category";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getAllArticles } from "../../apis/article";
 
 function Department() {
