@@ -1,35 +1,60 @@
-import ContactInfo from "../../components/ContactInfo";
 import CategoryList from "../../components/CategoryList";
 import { useParams } from "react-router-dom";
-import { current_data, articles } from "../../assets/sampleData";
-import BannerSlider from "../../components/BannerSlider";
+import { useApi } from "../../hooks/useApi";
+import { getDepartmentSourceById } from "../../apis/department_source";
+import { getCategoryById } from "../../apis/category";
+import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllArticles } from "../../apis/article";
 
 function Department() {
   const { id, cat_id } = useParams();
-  const departmentId = id ?? current_data.department_sources[0].id.toString();
-  const foundDepartment = current_data.department_sources.find(
-    (dept) => dept.id.toString() === departmentId
+  const { request: fetchDepartment, loading: loadingFetch } = useApi(
+    getDepartmentSourceById
+  );
+  const { request: fetchArticles, loading: loadingArticleFetch } =
+    useApi(getAllArticles);
+  const [department, setDepartment] = useState({});
+  const [articles, setArticles] = useState([]);
+  const [category, setCategory] = useState(
+    useSelector((state) => state.category.currentCategory) || null
   );
 
-  const foundCategory = foundDepartment?.categories.find(
-    (cat) => cat.id.toString() === cat_id
-  );
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchDepartment(id);
+        setDepartment(fetched);
+      } catch (err) {
+        // toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, [id]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchArticles();
+        setArticles(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, [id]);
 
-  return foundDepartment ? (
+  return department ? (
     <div>
-      {foundDepartment?.bannerSliderList && (
-        <div className="flex items-center h-[300px]">
-          <BannerSlider list={foundDepartment.bannerSliderList} />
-        </div>
-      )}
-
       <div className="bg-gray-50">
-        {!foundCategory ? (
-          foundDepartment?.categories?.map((category, idx) => (
-            <div key={idx} className="mb-2">
+        {!category ? (
+          department?.categories?.map((category, idx) => (
+            <div key={idx}>
               <CategoryList
-                categoryName={category.category_name}
+                isCategoryFilter={false}
+                categoryName={category.categoryName}
                 articles={articles}
+                loadingFetch={loadingFetch}
               />
             </div>
           ))
@@ -37,18 +62,15 @@ function Department() {
           <div>
             <div className="mb-2">
               <CategoryList
-                categoryName={foundCategory.name}
+                isCategoryFilter={true}
+                categoryName={category.categoryName}
                 articles={articles}
+                loadingFetch={loadingFetch}
               />
             </div>
           </div>
         )}
       </div>
-      {foundDepartment?.info && (
-        <div>
-          <ContactInfo info={foundDepartment.info} />
-        </div>
-      )}
     </div>
   ) : (
     <div className="flex justify-center p-5">

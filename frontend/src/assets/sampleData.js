@@ -47,7 +47,8 @@ const articles = [
     thumbnail: "https://iuh.edu.vn/templates/2015/image/img_default.png",
     title:
       "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
-    summary: "",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
     content:
       "[ Tải về và Xem ](http://localhost:1337/uploads/TB_1769_2025_95c406cb83.pdf)\n\n",
     external_url:
@@ -68,7 +69,8 @@ const articles = [
     id: 2,
     thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
     title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025",
-    summary: "",
+    summary:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
     content:
       "Lịch thi Giữa kỳ HK1/2025-2026 từ [ngày 06/10/2025 đến\n12/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_06_10_den_12_10_db46618a7e.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
     external_url:
@@ -76,7 +78,7 @@ const articles = [
     external_slug:
       "news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
     external_publish_date: "2025-09-25",
-    publishedAt: null,
+    publishedAt: "2025-09-27T01:21:14.108Z",
     createdAt: "2025-09-27T02:22:35.774Z",
     category: {
       category_name: "THÔNG BÁO SINH VIÊN",
@@ -89,7 +91,209 @@ const articles = [
     id: 3,
     thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
     title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025",
-    summary: "",
+    summary:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày [22/9/2025 đến\n28/9/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_22_09_den_28_09_61777703fb.xls)\n\nLịch thi Giữa kỳ HK1/2025-2026 từ ngày [29/9/2025 đến\n05/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_29_09_den_05_10_3e08a35c28.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_slug:
+      "news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_publish_date: "2025-09-15",
+    publishedAt: "2025-09-27T02:22:36.706Z",
+    createdAt: "2025-09-27T02:22:36.692Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 4,
+    thumbnail: "https://iuh.edu.vn/templates/2015/image/img_default.png",
+    title:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "[ Tải về và Xem ](http://localhost:1337/uploads/TB_1769_2025_95c406cb83.pdf)\n\n",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_slug:
+      "thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T01:21:14.093Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Trang Thông Tin Chính Thức IUH",
+      },
+    },
+  },
+  {
+    id: 5,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025",
+    summary:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ [ngày 06/10/2025 đến\n12/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_06_10_den_12_10_db46618a7e.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_slug:
+      "news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T02:22:35.774Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 6,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025",
+    summary:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày [22/9/2025 đến\n28/9/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_22_09_den_28_09_61777703fb.xls)\n\nLịch thi Giữa kỳ HK1/2025-2026 từ ngày [29/9/2025 đến\n05/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_29_09_den_05_10_3e08a35c28.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_slug:
+      "news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_publish_date: "2025-09-15",
+    publishedAt: "2025-09-27T02:22:36.706Z",
+    createdAt: "2025-09-27T02:22:36.692Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 7,
+    thumbnail: "https://iuh.edu.vn/templates/2015/image/img_default.png",
+    title:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "[ Tải về và Xem ](http://localhost:1337/uploads/TB_1769_2025_95c406cb83.pdf)\n\n",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_slug:
+      "thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T01:21:14.093Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Trang Thông Tin Chính Thức IUH",
+      },
+    },
+  },
+  {
+    id: 8,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ [ngày 06/10/2025 đến\n12/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_06_10_den_12_10_db46618a7e.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_slug:
+      "news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T02:22:35.774Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 9,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày [22/9/2025 đến\n28/9/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_22_09_den_28_09_61777703fb.xls)\n\nLịch thi Giữa kỳ HK1/2025-2026 từ ngày [29/9/2025 đến\n05/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_29_09_den_05_10_3e08a35c28.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_slug:
+      "news.html@detail@155@3462@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-22-9-2025-den-05-10-2025",
+    external_publish_date: "2025-09-15",
+    publishedAt: "2025-09-27T02:22:36.706Z",
+    createdAt: "2025-09-27T02:22:36.692Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 10,
+    thumbnail: "https://iuh.edu.vn/templates/2015/image/img_default.png",
+    title:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "[ Tải về và Xem ](http://localhost:1337/uploads/TB_1769_2025_95c406cb83.pdf)\n\n",
+    external_url:
+      "https://iuh.edu.vn/vi/thong-bao-fi20/thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_slug:
+      "thong-bao-v-v-thi-sat-hach-tieng-anh-dau-vao-doi-voi-sinh-vien-khoa-20-va-khoa-21-a2583.html",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T01:21:14.093Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Trang Thông Tin Chính Thức IUH",
+      },
+    },
+  },
+  {
+    id: 11,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 06/10/2025 đến 12/10/2025",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
+    content:
+      "Lịch thi Giữa kỳ HK1/2025-2026 từ [ngày 06/10/2025 đến\n12/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_06_10_den_12_10_db46618a7e.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
+    external_url:
+      "https://fit.iuh.edu.vn/news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_slug:
+      "news.html@detail@155@3465@Lich-thi-Giua-ky-HK1-2025-2026-tu-ngay-06-10-2025-den-12-10-2025",
+    external_publish_date: "2025-09-25",
+    publishedAt: "2025-09-27T01:21:14.108Z",
+    createdAt: "2025-09-27T02:22:35.774Z",
+    category: {
+      category_name: "THÔNG BÁO SINH VIÊN",
+      department_source: {
+        label: "Khoa Công Nghệ Thông Tin",
+      },
+    },
+  },
+  {
+    id: 12,
+    thumbnail: "https://fit.iuh.edu.vn/upload/images/img_default.png",
+    title: "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày 22/9/2025 đến 05/10/2025",
+    summary:
+      "Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21. Thông báo v/v thi sát hạch Tiếng Anh đầu vào đối với sinh viên khóa 20 và khóa 21",
     content:
       "Lịch thi Giữa kỳ HK1/2025-2026 từ ngày [22/9/2025 đến\n28/9/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_22_09_den_28_09_61777703fb.xls)\n\nLịch thi Giữa kỳ HK1/2025-2026 từ ngày [29/9/2025 đến\n05/10/2025](http://localhost:1337/uploads/Lich_thi_GK_HK_1_2025_2026_tu_29_09_den_05_10_3e08a35c28.xls)\n\nSV chú ý theo dõi lịch thi thường xuyên trên [trang của sinh\nviên](http://sv.iuh.edu.vn/).\n\nNếu có vấn đề thắc mắc liên quan đến môn học hoặc đánh giá, điểm thành phần,\nSV liên hệ cho GV giảng dạy.\n\nCác phản ánh khác sinh viên liên hệ Khoa CNTT qua email:\n**FIT_IUH@iuh.edu.vn**\n\n",
     external_url:

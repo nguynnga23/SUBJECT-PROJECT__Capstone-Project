@@ -1,34 +1,66 @@
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import ArticleItem from "../ArtileItem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Spinner from "../Spinner";
 
-const itemsPerPage = 6;
+const itemsPerPage = 10;
 
-const CategoryList = ({ categoryName, articles }) => {
+const CategoryList = ({
+  categoryName,
+  articles,
+  loadingFetch,
+  isCategoryFilter,
+}) => {
+  const [displayedArticles, setDisplayedArticles] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-  const totalPages = Math.ceil(articles.length / itemsPerPage);
+  const fetchArticlesByPage = (page) => {
+    setLoading(true);
+
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const total = articles.length;
+        const totalPages = Math.ceil(total / itemsPerPage);
+
+        const startIdx = page * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const paginated = articles.slice(startIdx, endIdx);
+
+        resolve({ articles: paginated, totalPages });
+      }, 500);
+    });
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      const result = await fetchArticlesByPage(currentPage);
+      setDisplayedArticles(result.articles);
+      setTotalPages(result.totalPages);
+      setLoading(false);
+    };
+    loadData();
+  }, [currentPage, articles]);
 
   const nextSlide = () => {
-    setCurrentPage((prev) => (prev + 1) % totalPages);
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
   };
 
   const prevSlide = () => {
-    setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
-  };
-  const handleManualNav = (direction) => {
-    direction === "next" ? nextSlide() : prevSlide();
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
   };
 
   return (
     <div className="p-2 overflow-hidden w-full">
+      {/* Header */}
       <div className="flex justify-between items-center p-3">
         <h2 className="text-base font-semibold text-gray-800">
           <span className="text-red-500 font-bold">■</span> {categoryName}
         </h2>
         <div className="flex text-gray-500">
           <button
-            onClick={() => handleManualNav("prev")}
+            onClick={prevSlide}
             disabled={currentPage === 0}
             className={`p-2 rounded transition ${
               currentPage === 0
@@ -39,7 +71,7 @@ const CategoryList = ({ categoryName, articles }) => {
             <FaChevronLeft size={14} />
           </button>
           <button
-            onClick={() => handleManualNav("next")}
+            onClick={nextSlide}
             disabled={currentPage >= totalPages - 1}
             className={`p-2 rounded transition ${
               currentPage >= totalPages - 1
@@ -53,29 +85,18 @@ const CategoryList = ({ categoryName, articles }) => {
       </div>
 
       <div
-        className={`flex transition-transform duration-700 ease-in-out`}
-        style={{
-          width: `${100 * totalPages}%`,
-          transform: `translateX(-${(100 / totalPages) * currentPage}%)`,
-        }}
+        className={`transition-transform duration-700 ease-in-out w-full ${
+          !isCategoryFilter && "max-h-[400px]"
+        }  overflow-auto scroll-container`}
       >
-        {articles.length > 0 ? (
-          Array.from({ length: totalPages }).map((_, pageIdx) => (
-            <div
-              key={pageIdx}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 w-full shrink-0 gap-2"
-              style={{ width: `${100 / totalPages}%` }}
-            >
-              {articles
-                .slice(
-                  pageIdx * itemsPerPage,
-                  pageIdx * itemsPerPage + itemsPerPage
-                )
-                .map((article, idx) => (
-                  <div key={idx} className="w-full max-w-sm">
-                    <ArticleItem article={article} />
-                  </div>
-                ))}
+        {loading || loadingFetch ? (
+          <div className="flex justify-center items-center h-[80vh]">
+            <Spinner />
+          </div>
+        ) : displayedArticles.length > 0 ? (
+          displayedArticles.map((article, idx) => (
+            <div key={idx}>
+              <ArticleItem article={article} />
             </div>
           ))
         ) : (
@@ -84,14 +105,14 @@ const CategoryList = ({ categoryName, articles }) => {
           </i>
         )}
       </div>
-      {/* Pagination số */}
+
       {totalPages > 1 && (
-        <div className="flex justify-end m-3 mb-0 space-x-1">
+        <div className="flex justify-center m-3 mb-0 space-x-1">
           {Array.from({ length: totalPages }).map((_, pageIdx) => (
             <button
               key={pageIdx}
               onClick={() => setCurrentPage(pageIdx)}
-              className={` flex items-center justicy-center text-[9px] p-2 w-[20px] h-[20px] rounded-full ${
+              className={`flex items-center justify-center text-[9px] p-2 w-[20px] h-[20px] rounded-full ${
                 currentPage === pageIdx
                   ? "bg-blue-400 text-white"
                   : "bg-gray-200 hover:bg-gray-300"

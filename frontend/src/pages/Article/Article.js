@@ -6,19 +6,39 @@ import { FaRegBookmark, FaChevronRight } from "react-icons/fa";
 import { RxResume } from "react-icons/rx";
 import ArticleItem from "../../components/ArtileItem/ArticleItem";
 import ArticleSummary from "../../components/ArticleSummary";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { getArticleById } from "../../apis/article";
+import { useApi } from "../../hooks/useApi";
+import { toast } from "react-toastify";
 
 function Article() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const foundArticle = articles.find((l) => l.id.toString() === id);
+  const [data, setData] = useState(null);
+  const { request: fetchArticle, loading: loadingArticleFetch } =
+    useApi(getArticleById);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchArticle(id);
+        console.log(fetched);
+
+        setData(fetched);
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, [id]);
+
   const [showSummary, setShowSummary] = useState(false);
 
   const ShowSummary = () => {
     setShowSummary(!showSummary);
   };
 
-  return foundArticle ? (
+  return data ? (
     <div className="h-full flex justify-between mt-3 text-[12px] ">
       <div className="w-[73%]">
         <h2 className="w-[100%] items-center flex truncate text-[14px] p-4 pb-0 h-[45px]">
@@ -32,14 +52,14 @@ function Article() {
             className="cursor-pointer hover:border-b hover:text-blue-500"
           >{`Thông Tin Sinh Viên`}</a>
           <FaChevronRight size={12} className="m-1" />
-          <a className="max-w-[500px] truncate font-bold">{`${foundArticle.title}`}</a>
+          <a className="max-w-[500px] truncate font-bold">{`${data.title}`}</a>
         </h2>
-        <h1 className="font-bold text-[26px] p-4">{foundArticle.title}</h1>
+        <h1 className="font-bold text-[26px] p-4">{data.title}</h1>
         <div className="pl-4 pr-4 pb-4 flex justify-between items-center">
-          <i className="text-[13px]">{foundArticle.publishDate}</i>
+          <i className="text-[13px]">{data.publishDate}</i>
           <i>
             <a
-              href={foundArticle?.external_url}
+              href={data?.externalUrl}
               className="text-[13px] text-blue-500 hover:border-b"
             >
               Link đến bài viết gốc
@@ -58,12 +78,12 @@ function Article() {
           </button>
           {showSummary && (
             <div>
-              <ArticleSummary summary={foundArticle.summary} />
+              <ArticleSummary summary={data.summary} />
             </div>
           )}
         </div>
         <div
-          dangerouslySetInnerHTML={{ __html: marked(foundArticle.content) }}
+          dangerouslySetInnerHTML={{ __html: marked(data?.content) }}
           className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0"
         ></div>
       </div>

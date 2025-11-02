@@ -11,6 +11,15 @@ from crawler.graphql_queries.category_service import UPDATE_LAST_DATE
 
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
+    
+    custom_settings = {
+        "DEFAULT_REQUEST_HEADERS": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://fit.iuh.edu.vn/",
+        }
+    }
 
     def __init__(self, *args, **kwargs):
         self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
@@ -63,7 +72,11 @@ class DynamicIUHSpider(scrapy.Spider):
         self.config = configs[0]   
         self.dept = self.config.get('department_source', {})
         cats = self.dept.get("categories", [])
-        self.cat = cats[0] if len(cats) > 0 else None
+        
+        self.cat = None
+        for a in cats:
+            if a["category_url"] == self.category_url:
+                self.cat = a
         if self.cat:
             try:
                 self.cat['last_external_publish_date'] = datetime.strptime(
@@ -113,19 +126,19 @@ class DynamicIUHSpider(scrapy.Spider):
         )
         if res: 
             print(f"✅ Cập nhật {self.category_url} → {last_date.strftime('%Y-%m-%d')}")
-
+            
     def parse_list(self, response):
+        last_date = None
         if self.cat:
-            category_url = self.cat.get('category_url')
             last_date = self.cat.get('last_external_publish_date')
         config_key = f"{self.category_url}"
-        current_page = self.page_counter.get(category_url, 1)
-        self.page_counter[category_url] = current_page + 1
+        current_page = self.page_counter.get(self.category_url, 1)
+        self.page_counter[self.category_url] = current_page + 1
 
         articles = response.css(self.config['relative_url_list'])
         should_continue = True
         requests = []
-
+        
         for article in articles:
             relative_url = article.css(self.config['relative_url']).get()
             thumbnail = article.css(self.config['thumbnail']).get()
@@ -142,7 +155,6 @@ class DynamicIUHSpider(scrapy.Spider):
                 continue
 
             self.logger.info(f"📅 {relative_url} => {article_date} vs {last_date}")
-
             if article_date >= last_date:
                 # Lưu bài mới
                 if config_key not in self.latest_dates or article_date > self.latest_dates[config_key]:
@@ -159,11 +171,10 @@ class DynamicIUHSpider(scrapy.Spider):
                         }
                     )
                     requests.append(req)
-
             else:
                 self.logger.info("🛑 Tất cả bài trên trang hiện tại đều đã cũ → dừng crawler.")
                 should_continue = False
-                # Cập nhật last_date lên Strapi nếu có bài mới hơn
+                
                 if config_key in self.latest_dates:
                     new_date = self.latest_dates[config_key]
                     self.update_category_last_date(
@@ -175,15 +186,15 @@ class DynamicIUHSpider(scrapy.Spider):
             yield req
 
         # Nếu chưa gặp bài trùng hoặc cũ, tiếp tục sang trang tiếp theo
-        if should_continue:
-            next_pages = response.css(self.config['next_pages']).getall()
-            if next_pages:
-                next_page_url = urljoin(response.url, next_pages[-1])
-                yield scrapy.Request(
-                    url=next_page_url,
-                    callback=self.parse_list,
-                    meta=response.meta
-                )
+        next_pages = response.css(self.config['next_pages']).getall()
+        current_page = self.page_counter.get(self.category_url, 1)
+        if len(next_pages) >= current_page:
+            next_page_url = urljoin(response.url, next_pages[current_page - 1])
+            yield scrapy.Request(
+                url=next_page_url,
+                callback=self.parse_list,
+                meta=response.meta
+            )
 
     def parse_detail(self, response):
 
