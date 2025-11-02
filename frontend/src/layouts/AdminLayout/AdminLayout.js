@@ -47,7 +47,7 @@ function AdminLayout({ children }) {
       } catch (error) {}
     };
     fetchData();
-  }, [department]);
+  }, []);
 
   return (
     <div className="relative flex w-full mx-auto">

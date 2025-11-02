@@ -11,6 +11,15 @@ from crawler.graphql_queries.category_service import UPDATE_LAST_DATE
 
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
+    
+    custom_settings = {
+        "DEFAULT_REQUEST_HEADERS": {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://fit.iuh.edu.vn/",
+        }
+    }
 
     def __init__(self, *args, **kwargs):
         self._graphql_url_endpoint = f'http://{UNIFEED_CMS_GRAPHQL_HOST}:{UNIFEED_CMS_GRAPHQL_PORT}/{UNIFEED_CMS_GRAPHQL_ENDPOINT}'
@@ -63,7 +72,11 @@ class DynamicIUHSpider(scrapy.Spider):
         self.config = configs[0]   
         self.dept = self.config.get('department_source', {})
         cats = self.dept.get("categories", [])
-        self.cat = cats[0] if len(cats) > 0 else None
+        
+        self.cat = None
+        for a in cats:
+            if a["category_url"] == self.category_url:
+                self.cat = a
         if self.cat:
             try:
                 self.cat['last_external_publish_date'] = datetime.strptime(
@@ -202,4 +215,3 @@ class DynamicIUHSpider(scrapy.Spider):
         item['external_publish_date'] = response.meta.get('external_publish_date')
         
         yield item
-
