@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <Router>
-      <div className="flex w-full">
+      <div className="flex w-full ">
         <AnimatedRoutes />
         <ToastContainer position="top-right" autoClose={4000} />
       </div>

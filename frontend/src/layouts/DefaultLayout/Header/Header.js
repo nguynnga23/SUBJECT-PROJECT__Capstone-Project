@@ -1,7 +1,7 @@
 import { FaSearch, FaRegUser, FaRegBell, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
 import HoverDropdown from "../../../components/HoverDropdown";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { current_data } from "../../../assets/sampleData.js";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
@@ -11,6 +11,18 @@ import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePasswo
 import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
 import { logo } from "../../../assets/index.js";
 import { logoutOfSlice } from "../../../store/slices/authSlice.js";
+import { getAllDepartmentSource } from "../../../apis/department_source.js";
+import { useApi } from "../../../hooks/useApi.js";
+import { toast } from "react-toastify";
+import Spinner from "../../../components/Spinner/Spinner.js";
+import {
+  setCurrentDepartment,
+  setListDepartments,
+} from "../../../store/slices/departmentSlice.js";
+import {
+  clearCurrentCategory,
+  setCurrentCategory,
+} from "../../../store/slices/categorySlice.js";
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -30,23 +42,45 @@ function Header() {
     },
   ];
 
-  const [department, setDepartment] = useState(
-    current_data.department_sources[0] || null
+  const { request: fetchDepartments, loading: loadingFetch } = useApi(
+    getAllDepartmentSource
   );
-  const [category, setCategory] = useState(null);
+  const departments = useSelector((state) => state.department.departments);
+  const [department, setDepartment] = useState(
+    useSelector((state) => state.department.currentDepartment) || {}
+  );
+  useEffect(() => {
+    const load = async () => {
+      if (departments.length === 0) {
+        try {
+          const fetched = await fetchDepartments();
+          dispatch(setListDepartments(fetched));
+        } catch (err) {
+          toast.error("Không thể tải dữ liệu");
+        }
+      }
+    };
+    load();
+  }, [departments, dispatch]);
+  const [category, setCategory] = useState(
+    useSelector((state) => state.category.currentCategory) || {}
+  );
   const [userProfile, setUserProfile] = useState(false);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
   const [showNotifyForm, setShowNotifyForm] = useState(false);
 
   const handleDepartmentSelect = (dept) => {
     setDepartment(dept);
-    navigate(`/department/${dept.id}`);
+    dispatch(setCurrentDepartment(dept));
+    dispatch(clearCurrentCategory());
+    navigate(`/department/${dept.documentId}`);
     setCategory(null);
   };
 
   const handleCategorySelect = (cat) => {
     setCategory(cat);
-    navigate(`/department/${department.id}/category/${cat.id}`);
+    dispatch(setCurrentCategory(cat));
+    navigate(`/department/${department.documentId}/category/${cat.documentId}`);
   };
 
   const handleUserProfileSelect = (up) => {
@@ -69,15 +103,22 @@ function Header() {
 
         <div className="flex items-center gap-6 text-sm text-gray-700]">
           <div className="flex gap-4">
-            <HoverDropdown
-              label={department.name || "Không có thông tin khoa nào"}
-              items={current_data.department_sources}
-              onSelect={handleDepartmentSelect}
-            />
+            {!loadingFetch ? (
+              <HoverDropdown
+                label={department?.label || "Khoa/Viện"}
+                items={departments || {}}
+                onSelect={handleDepartmentSelect}
+              />
+            ) : (
+              <div className="flex justify-center items-center">
+                <Spinner size={"h-[20px] w-[20px]"} />
+              </div>
+            )}
           </div>
           <div className="flex gap-4 ">
             <HoverDropdown
-              label={category?.name || "Loại tin tức"}
+              label={category?.categoryName || "Loại tin tức"}
+              disable={!department}
               items={department.categories}
               onSelect={handleCategorySelect}
             />
