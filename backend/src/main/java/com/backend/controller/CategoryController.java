@@ -75,7 +75,7 @@ public class CategoryController {
             if (req.key_category() != null) data.put("key_category", req.key_category());
             if (req.last_external_publish_date() != null) {
                 var date = req.last_external_publish_date().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                , date);
+                data.put("last_external_publish_date", date);
             }
 
             if (req.department_source_id() != null && !req.department_source_id().isBlank()) {

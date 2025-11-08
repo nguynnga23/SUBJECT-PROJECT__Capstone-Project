@@ -27,7 +27,6 @@ export const getAllDepartmentSource = async () => {
 
 export const getDepartmentSourceById = async (id) => {
   try {
-    // 1. Lấy danh sách tất cả watch (bản rút gọn)
     const response = await fetch(
       `http://localhost:8080/v1/department-sources/${id}`,
       {
@@ -47,7 +46,7 @@ export const getDepartmentSourceById = async (id) => {
     }
     return response.json();
   } catch (err) {
-    console.error("Lỗi khi lấy danh sách trang web theo dõi", err);
+    console.error("Lỗi khi lấy trang web theo id", err);
     throw err;
   }
 };

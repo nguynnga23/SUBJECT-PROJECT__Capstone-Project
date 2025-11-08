@@ -1,28 +1,21 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { articles } from "../../assets/sampleData";
 
 const articleSlice = createSlice({
   name: "article",
   initialState: {
-    listMarked: [1, 2],
-    allArticles: articles,
+    pages: {},
+    total: 0,
   },
   reducers: {
-    markArticle: (state, action) => {
-      const { id } = action.payload || {};
-      if (id && !state.listMarked.includes(id)) {
-        state.listMarked.push(id);
-      }
+    setPageData: (state, action) => {
+      const { page, items } = action.payload;
+      state.pages[page] = items;
     },
-    removeMarked: (state, action) => {
-      const { id } = action.payload || {};
-      state.listMarked = state.listMarked.filter((item) => item !== id);
-    },
-    clearMarked: (state) => {
-      state.listMarked = [];
+    setTotal: (state, action) => {
+      state.total = action.payload;
     },
   },
 });
 
-export const { markArticle, removeMarked, clearMarked } = articleSlice.actions;
+export const { setPageData, setTotal } = articleSlice.actions;
 export default articleSlice.reducer;

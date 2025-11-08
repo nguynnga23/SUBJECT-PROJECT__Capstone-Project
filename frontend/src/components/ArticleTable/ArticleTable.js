@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { FaLock, FaUnlock } from "react-icons/fa";
-import { getAllArticles } from "../../apis/article";
+import { getAllArticles, getArticleCount } from "../../apis/article";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
 import Pagination from "../Pagination";
+import { setPageData, setTotal } from "../../store/slices/articleSlice";
+import { selectCurrentPageData } from "../../store/selector/articleSelectors";
+import { useDispatch, useSelector } from "react-redux";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -45,21 +49,55 @@ const allColumns = [
 ];
 
 const ArticleTable = () => {
+  const dispatch = useDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { request: fetchArticles, loading: loadingFetch } =
     useApi(getAllArticles);
-  const [data, setData] = useState([]);
+  const { request: fetchArticlesCount, loading: loadingFetchCount } =
+    useApi(getArticleCount);
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialPageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [itemsPerPage, setItemsPerPage] = useState(initialPageSize);
+  const totalItems = useSelector((state) => state.article.total);
+  const data = useSelector((state) =>
+    selectCurrentPageData(state, currentPage)
+  );
 
   useEffect(() => {
-    const load = async () => {
+    setSearchParams({
+      page: currentPage,
+      pageSize: itemsPerPage,
+    });
+  }, [currentPage, itemsPerPage, setSearchParams]);
+
+  useEffect(() => {
+    const loadTotal = async () => {
       try {
-        const fetched = await fetchArticles();
-        setData(fetched);
-      } catch (err) {
-        toast.error("Không thể tải dữ liệu");
+        const count = await fetchArticlesCount();
+        dispatch(setTotal(count));
+      } catch {
+        toast.error("Không thể lấy tổng số bài viết");
       }
     };
-    load();
-  }, []);
+    loadTotal();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const loadPage = async () => {
+      try {
+        // luôn fetch nếu currentPage hoặc itemsPerPage thay đổi
+        const fetched = await fetchArticles({ currentPage, itemsPerPage });
+        dispatch(setPageData({ page: currentPage, items: fetched }));
+      } catch {
+        toast.error("Không thể tải dữ liệu trang này");
+      }
+    };
+    loadPage();
+  }, [currentPage, itemsPerPage, dispatch]);
+
   const normalizedData = data.map((a, idx) => ({
     id: idx + 1,
     title: a.title,
@@ -106,7 +144,7 @@ const ArticleTable = () => {
           <img
             src={value}
             alt="thumbnail"
-            className="h-[50px] object-cover rounded items-center"
+            className="h-[30px] object-cover rounded items-center"
             onError={(e) => {
               e.target.onerror = null; // tránh loop
               e.target.src = thumnailDefault;
@@ -156,13 +194,6 @@ const ArticleTable = () => {
     );
   };
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  // Tính toán dữ liệu hiển thị theo phân trang
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
-
   const handleDelete = (row) => {
     alert(row.title);
   };
@@ -180,6 +211,7 @@ const ArticleTable = () => {
       </div>
     );
   }
+  const startIndex = (currentPage - 1) * itemsPerPage;
 
   return (
     <div className="p-3 pb-0">
@@ -297,8 +329,8 @@ const ArticleTable = () => {
 
       {/* Table */}
       <div className="flex flex-col">
-        <div className="flex-1 max-h-[63.5vh] overflow-auto">
-          <table className="border w-full text-sm table-auto">
+        <div className="flex-1 max-h-[70vh] overflow-auto">
+          <table className="border w-full text-[10px] table-auto">
             <thead>
               <tr className="bg-gray-100">
                 <th className="border p-2 w-[50px]">STT</th>
@@ -313,7 +345,7 @@ const ArticleTable = () => {
               </tr>
             </thead>
             <tbody>
-              {currentData.map((row, index) => (
+              {normalizedData.map((row, index) => (
                 <tr key={row.id || index} className="cursor-pointer">
                   <td className="border p-2 text-center">
                     {startIndex + index + 1}
@@ -364,7 +396,7 @@ const ArticleTable = () => {
           <Pagination
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
-            totalPages={Math.ceil(data.length / itemsPerPage)}
+            totalPages={Math.ceil(totalItems / itemsPerPage)}
             itemsPerPage={itemsPerPage}
             setItemsPerPage={setItemsPerPage}
           />

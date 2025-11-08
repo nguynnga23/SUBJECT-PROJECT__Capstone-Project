@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 export default function Pagination({
   currentPage,
@@ -9,24 +9,46 @@ export default function Pagination({
 }) {
   const [showLimitPopup, setShowLimitPopup] = useState(false);
   const popupRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
+  const handleClickOutside = useCallback(
+    (e) => {
       if (popupRef.current && !popupRef.current.contains(e.target)) {
         setShowLimitPopup(false);
       }
-    };
+    },
+    [popupRef]
+  );
+
+  useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [handleClickOutside]);
+  const getVisiblePages = () => {
+    const delta = 2;
+    const pages = [];
+
+    const start = Math.max(1, currentPage - delta);
+    const end = Math.min(totalPages, currentPage + delta);
+
+    if (start > 1) pages.push(1); // nút đầu tiên
+    if (start > 2) pages.push("..."); // dấu ...
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    if (end < totalPages - 1) pages.push("...");
+    if (end < totalPages) pages.push(totalPages); // nút cuối cùng
+
+    return pages;
+  };
 
   return (
     <div className="mt-3">
       <div className="flex justify-end items-center mt-2 space-x-3 relative">
-        {/* Lựa chọn số dòng mỗi trang */}
+        {/* ----------------- Select items per page ----------------- */}
         <div className="relative">
           <button
-            className="border rounded px-3 py-1 pb-0 text-[12px] bg-white shadow-sm hover:bg-gray-100"
+            className="border rounded px-3 py-1 text-[12px] bg-white shadow-sm hover:bg-gray-100"
             onClick={() => setShowLimitPopup((prev) => !prev)}
           >
             {itemsPerPage}
@@ -56,7 +78,9 @@ export default function Pagination({
           )}
         </div>
 
-        <div>
+        {/* ----------------- Pagination buttons ----------------- */}
+        <div className="flex items-center">
+          {/* Prev button */}
           <button
             className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
             disabled={currentPage === 1}
@@ -65,11 +89,15 @@ export default function Pagination({
             &lt;
           </button>
 
-          {[...Array(totalPages)].map((_, index) => {
-            const page = index + 1;
-            return (
+          {/* Page numbers */}
+          {getVisiblePages().map((page, index) =>
+            page === "..." ? (
+              <span key={`dots-${index}`} className="px-2 text-[10px]">
+                ...
+              </span>
+            ) : (
               <button
-                key={page}
+                key={`page-${page}`}
                 className={`p-[2px] m-1 text-[10px] w-[20px] h-[20px] border rounded-full ${
                   page === currentPage ? "bg-primary text-white" : ""
                 }`}
@@ -77,12 +105,13 @@ export default function Pagination({
               >
                 {page}
               </button>
-            );
-          })}
+            )
+          )}
 
+          {/* Next button */}
           <button
             className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={() => setCurrentPage(currentPage + 1)}
           >
             &gt;

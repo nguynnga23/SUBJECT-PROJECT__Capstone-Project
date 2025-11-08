@@ -430,10 +430,10 @@ const DepartmentTable = () => {
             className="max-h-[300px] text-[12px] overflow-y-auto"
             ref={popupRef}
           >
-            {arrayPopup.data.map((item) => (
+            {arrayPopup.data.map((item, index) => (
               <li
                 className="p-2.5 hover:bg-gray-200 cursor-pointer"
-                key={item.id}
+                key={index}
                 onClick={() =>
                   navigate(
                     `/admin/department/${arrayPopup.departmentId}/category/${item.documentId}`
