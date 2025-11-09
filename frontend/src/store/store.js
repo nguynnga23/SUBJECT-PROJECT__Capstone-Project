@@ -5,6 +5,7 @@ import { combineReducers } from "@reduxjs/toolkit";
 import authReducer from "./slices/authSlice";
 import articleReducer from "./slices/articleSlice";
 import departmentReducer from "./slices/departmentSlice";
+import departmentSourceReducer from "./slices/departmentSourceSlice";
 import categotyReducer from "./slices/categorySlice";
 
 const persistConfig = {
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   article: articleReducer,
   department: departmentReducer,
+  departmentSource: departmentSourceReducer,
   category: categotyReducer,
 });
 

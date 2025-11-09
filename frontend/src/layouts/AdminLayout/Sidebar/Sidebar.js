@@ -21,14 +21,10 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
-  const department = useSelector(
-    (state) => state.department.currentDepartment || {}
-  );
-
   return (
     <aside className="h-screen w-full bg-white border-r shadow-sm  left-0 top-0 z-10">
       <div className="p-4 font-bold text-[17px] text-primary flex justify-center">
-        {department.departmentName}
+        {"Khoa Công Nghệ Thông Tin"}
       </div>
       <nav className="flex flex-col gap-1 px-4">
         {menuItems.map((item) => (

@@ -1,20 +1,21 @@
-import { useState } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import AdditionalCategoryForm from "../AdditionalCategoryForm";
-import { MdAddCircle } from "react-icons/md";
 import { LiaTimesCircle } from "react-icons/lia";
 import { postNewDepartmentSource } from "../../../apis/department_source";
-
+import { addDepartmentSource } from "../../../store/slices/departmentSourceSlice";
+import { setCurrentDepartment } from "../../../store/slices/departmentSlice";
+import { getAllDepartment } from "../../../apis/department";
+import Spinner from "../../../components/Spinner";
+import { useApi } from "../../../hooks/useApi";
 function AdditionalDepartmentForm({ setShowModal }) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     url: "",
     label: "",
     crawler_config: {},
     categories: [],
   });
-  const [showFormCategory, setShowFormCategory] = useState(false);
-  const [preDataCategory, setPreDataCategory] = useState(null);
   const [errors, setErrors] = useState({});
   const department = useSelector(
     (state) => state.department.currentDepartment || {}
@@ -39,32 +40,57 @@ function AdditionalDepartmentForm({ setShowModal }) {
 
   const isValid =
     formData.url.trim() !== "" && formData.label.trim() !== "" && !errors.url;
-
-  const handleSubmit = () => {
+  const { request: fetchPostDepartmentSource, loading: loadingFetch } = useApi(
+    postNewDepartmentSource
+  );
+  const handleSubmit = async () => {
     if (errors.url) {
       alert("Vui lòng nhập URL hợp lệ trước khi lưu!");
       return;
     }
     try {
-      postNewDepartmentSource({
+      const res = await fetchPostDepartmentSource({
         url: formData.url,
         label: formData.label,
         department_id: department.documentId,
       });
-
-      toast.success(`Đã thêm mới thành công`);
+      const newItem = res.data ?? res;
+      if (newItem) {
+        dispatch(addDepartmentSource(newItem));
+        toast.success("Đã thêm mới thành công");
+      } else {
+        toast.error("Thêm mới không thành công. Vui lòng thử lại!");
+      }
     } catch (error) {
       toast.error(`Thêm mới không thành công. Vui lòng thử lại sau!`);
     }
-    setShowModal(false); // đóng modal
+    setShowModal(false);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await getAllDepartment();
+        if (data) {
+          dispatch(setCurrentDepartment(data[0]));
+        }
+      } catch (error) {}
+    };
+    fetchData();
+  }, []);
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
       <div
-        className={`w-[500px] mx-auto bg-white rounded space-y-6 p-6 shadow ${
-          showFormCategory ? "hidden" : ""
-        }`}
+        className={`w-[500px] mx-auto bg-white rounded space-y-6 p-6 shadow `}
       >
         {/* Nút đóng */}
         <LiaTimesCircle
@@ -132,24 +158,7 @@ function AdditionalDepartmentForm({ setShowModal }) {
           </div>
         </div>
       </div>
-      <div>
-        {showFormCategory && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="animate-slide-in">
-              <AdditionalCategoryForm
-                preData={preDataCategory}
-                setShowFormCategory={setShowFormCategory}
-                onAddCategory={(newCategory) => {
-                  setFormData((prev) => ({
-                    ...prev,
-                    categories: [...prev.categories, newCategory],
-                  }));
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
+      <div></div>
     </div>
   );
 }

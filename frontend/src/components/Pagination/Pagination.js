@@ -29,8 +29,8 @@ export default function Pagination({
     const start = Math.max(1, currentPage - delta);
     const end = Math.min(totalPages, currentPage + delta);
 
-    if (start > 1) pages.push(1); // nút đầu tiên
-    if (start > 2) pages.push("..."); // dấu ...
+    if (start > 1) pages.push(1);
+    if (start > 2) pages.push("...");
 
     for (let i = start; i <= end; i++) {
       pages.push(i);
@@ -43,8 +43,8 @@ export default function Pagination({
   };
 
   return (
-    <div className="mt-3">
-      <div className="flex justify-end items-center mt-2 space-x-3 relative">
+    <div className="absolute right-4 bottom-1">
+      <div className=" flex items-center mt-2 space-x-3 relative">
         {/* ----------------- Select items per page ----------------- */}
         <div className="relative">
           <button

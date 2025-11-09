@@ -11,7 +11,7 @@ function PopupDelete({ isOpen, onConfirm, onCancel, message }) {
     setTimeout(() => {
       setClosing(false);
       action();
-    }, 250); // thời gian khớp với animation 0.25s
+    }, 250);
   };
 
   return (
