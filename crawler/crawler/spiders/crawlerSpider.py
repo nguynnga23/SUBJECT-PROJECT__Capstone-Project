@@ -65,22 +65,6 @@ class DynamicIUHSpider(scrapy.Spider):
 
         return data["crawlerConfigs"]
 
-    def url_exists_in_strapi(self, url: str) -> bool:
-        try:
-            res = requests.post(
-                self._graphql_url_endpoint,
-                headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
-                json={'query': IS_ARTICLE_EXIT, 'variables': {'external_url': url}},
-                timeout=5 
-            )
-            res.raise_for_status()
-            data = res.json()
-            items = data.get('data', {}).get('articles', {}).get('data', [])
-            return len(items) > 0
-        except requests.RequestException as e:
-            self.logger.warning(f"⚠️ Kiểm tra tồn tại URL {url} thất bại: {e}")
-            return False
-
     def start_requests(self):
         configs = self.get_configs_from_strapi()
         if not configs:
@@ -175,11 +159,7 @@ class DynamicIUHSpider(scrapy.Spider):
             if article_date >= last_date:
                 if relative_url:
                     full_url = urljoin(response.url, relative_url)
-                    
-                    if self.url_exists_in_strapi(full_url):
-                        self.logger.info(f"⏭️ Bỏ qua: URL đã tồn tại trong CMS. {full_url}")
-                        continue 
-
+                
                     # Lưu bài mới
                     if config_key not in self.latest_dates or article_date > self.latest_dates[config_key]:
                         self.latest_dates[config_key] = article_date
