@@ -17,37 +17,48 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ArticleCard from "../Home/Article/ArticleCard";
-import { getArticlesByText } from "../../api/home"; // <-- nếu chưa có, xem mục (2)
+import { getArticlesByText } from "../../api/home";
 
 export default function SearchScreen({ navigation }) {
   const [q, setQ] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [aiAnswer, setAIAnswer] = useState(null);
 
-  // debounce 400ms
   const timer = useRef(null);
+
   const doSearch = useCallback(async (keyword) => {
     if (!keyword?.trim()) {
       setResults([]);
+      setAIAnswer(null);
       setLoading(false);
       return;
     }
     setLoading(true);
+    setAIAnswer(null);
+
     try {
-      const data = await getArticlesByText(keyword.trim());
-      setResults(Array.isArray(data) ? data : []);
+      const response = await getArticlesByText(keyword.trim());
+
+      const sources = response?.sources;
+      const answer = response?.aiAnswer;
+
+      setResults(Array.isArray(sources) ? sources : []);
+      setAIAnswer(answer || null);
     } catch (e) {
       console.error("search error:", e);
       setResults([]);
+      setAIAnswer("Đã xảy ra lỗi khi tìm kiếm hoặc kết nối dịch vụ RAG.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => doSearch(q), 400);
-    return () => clearTimeout(timer.current);
+  const handleSubmit = useCallback(() => {
+    if (timer.current) {
+      clearTimeout(timer.current);
+    }
+    doSearch(q);
   }, [q, doSearch]);
 
   const keyExtractor = useCallback(
@@ -59,7 +70,9 @@ export default function SearchScreen({ navigation }) {
     ({ item }) => (
       <ArticleCard
         item={{
-          author: item.category.categoryName,
+          author:
+            item.category?.departmentSource?.label ||
+            item.category?.categoryName,
           title: item.title,
           subtitle: item.summary,
           date: item?.external_publish_date ?? item?.externalPublishDate ?? "",
@@ -90,7 +103,15 @@ export default function SearchScreen({ navigation }) {
         ) : q.trim() ? (
           <>
             <Ionicons name="search-outline" size={26} color="#9AA0A6" />
-            <Text style={styles.emptyText}>Không tìm thấy kết quả phù hợp</Text>
+            {aiAnswer && results.length === 0 ? (
+              <Text style={[styles.emptyText, { color: "#B71C1C" }]}>
+                {aiAnswer}
+              </Text>
+            ) : (
+              <Text style={styles.emptyText}>
+                Không tìm thấy kết quả phù hợp
+              </Text>
+            )}
           </>
         ) : (
           <>
@@ -100,12 +121,27 @@ export default function SearchScreen({ navigation }) {
         )}
       </View>
     ),
-    [loading, q]
+    [loading, q, aiAnswer, results.length]
   );
+
+  const AIAnswerHeader = useMemo(() => {
+    if (aiAnswer && aiAnswer.trim() && results.length > 0) {
+      return (
+        <View style={styles.aiAnswerWrap}>
+          <Text style={styles.aiTitle}>🤖 Trả lời từ AI:</Text>
+
+          <Text style={styles.aiText}>{aiAnswer}</Text>
+
+          <View style={styles.separator} />
+          <Text style={styles.aiTitleSmall}>Nguồn tham khảo:</Text>
+        </View>
+      );
+    }
+    return null;
+  }, [aiAnswer, results.length]);
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Header giống Home */}
       <View style={styles.header}>
         <Text style={styles.logo}>Unifeed.news</Text>
       </View>
@@ -123,6 +159,7 @@ export default function SearchScreen({ navigation }) {
           autoCapitalize="none"
           autoCorrect={false}
           clearButtonMode="while-editing"
+          onSubmitEditing={handleSubmit}
         />
       </View>
 
@@ -132,6 +169,7 @@ export default function SearchScreen({ navigation }) {
         renderItem={renderItem}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={Empty}
+        ListHeaderComponent={AIAnswerHeader}
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={results.length === 0 && { flex: 1 }}
       />
@@ -168,6 +206,34 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   input: { flex: 1, marginLeft: 8, color: "#111827", fontSize: 15 },
+
+  // STYLE CHO RAG
+  aiAnswerWrap: {
+    backgroundColor: "#e3f2fd",
+    padding: 16,
+    marginHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: "#1976FF",
+  },
+  aiTitle: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "#1976FF",
+    marginBottom: 4,
+  },
+  aiTitleSmall: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginTop: 8,
+    color: "#374151",
+  },
+  aiText: {
+    fontSize: 15,
+    color: "#111827",
+  },
+  // ----------------------
 
   separator: {
     height: 1.2,
