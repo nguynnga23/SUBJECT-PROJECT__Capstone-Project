@@ -7,7 +7,8 @@ CREATE_ARTICLE = """
           $external_slug: String!,
           $external_url: String!,
           $external_publish_date: Date!,
-          $categoryId: ID!
+          $categoryId: ID!,
+          $content_hash: String!
         ) {
           createArticle(
             data: {
@@ -18,9 +19,11 @@ CREATE_ARTICLE = """
               external_slug: $external_slug,
               external_url: $external_url,
               external_publish_date: $external_publish_date,
-              category: $categoryId
+              category: $categoryId,
+              content_hash: $content_hash
             }
           ) {
+            documentId
             title
             summary
             thumbnail

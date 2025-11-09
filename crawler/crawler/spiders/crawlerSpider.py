@@ -8,7 +8,7 @@ import requests
 from crawler.config import UNIFEED_CMS_GRAPHQL_HOST, UNIFEED_CMS_GRAPHQL_PORT, UNIFEED_CMS_GRAPHQL_ENDPOINT, UNIFEED_CMS_GRAPHQL_TOKEN
 from crawler.graphql_queries.crawler_config_service import GET_CRAWLER_CONFIG
 from crawler.graphql_queries.category_service import UPDATE_LAST_DATE
-
+from crawler.graphql_queries.article_service import CREATE_ARTICLE, IS_ARTICLE_EXIT
 class DynamicIUHSpider(scrapy.Spider):
     name = "iuh"
     
@@ -65,11 +65,27 @@ class DynamicIUHSpider(scrapy.Spider):
 
         return data["crawlerConfigs"]
 
+    def url_exists_in_strapi(self, url: str) -> bool:
+        try:
+            res = requests.post(
+                self._graphql_url_endpoint,
+                headers={'Content-Type': 'application/json', 'Authorization': f'Bearer {self._token}'},
+                json={'query': IS_ARTICLE_EXIT, 'variables': {'external_url': url}},
+                timeout=5 
+            )
+            res.raise_for_status()
+            data = res.json()
+            items = data.get('data', {}).get('articles', {}).get('data', [])
+            return len(items) > 0
+        except requests.RequestException as e:
+            self.logger.warning(f"⚠️ Kiểm tra tồn tại URL {url} thất bại: {e}")
+            return False
+
     def start_requests(self):
         configs = self.get_configs_from_strapi()
         if not configs:
             raise CloseSpider("Không tìm thấy cấu hình crawler trong Strapi")
-        self.config = configs[0]   
+        self.config = configs[0]  
         self.dept = self.config.get('department_source', {})
         cats = self.dept.get("categories", [])
         
@@ -80,7 +96,7 @@ class DynamicIUHSpider(scrapy.Spider):
         if self.cat:
             try:
                 self.cat['last_external_publish_date'] = datetime.strptime(
-                   self.cat.get('last_external_publish_date', '2025-09-20'), "%Y-%m-%d"
+                    self.cat.get('last_external_publish_date', '2025-09-20'), "%Y-%m-%d"
                 ).date()
             except Exception:
                 self.cat['last_external_publish_date'] = datetime.strptime("2025-05-01", "%Y-%m-%d").date()
@@ -92,6 +108,7 @@ class DynamicIUHSpider(scrapy.Spider):
                 url=category_url,
                 callback=self.parse_list
             )
+
     def update_category_last_date(self, last_date):
         if self.cat:
             current_last_date_str = self.cat.get('last_external_publish_date')
@@ -153,15 +170,20 @@ class DynamicIUHSpider(scrapy.Spider):
             except Exception as e:
                 self.logger.warning(f"❌ Lỗi parse ngày: {date_str} | {e}")
                 continue
-
+            
             self.logger.info(f"📅 {relative_url} => {article_date} vs {last_date}")
             if article_date >= last_date:
-                # Lưu bài mới
-                if config_key not in self.latest_dates or article_date > self.latest_dates[config_key]:
-                    self.latest_dates[config_key] = article_date
-
                 if relative_url:
                     full_url = urljoin(response.url, relative_url)
+                    
+                    if self.url_exists_in_strapi(full_url):
+                        self.logger.info(f"⏭️ Bỏ qua: URL đã tồn tại trong CMS. {full_url}")
+                        continue 
+
+                    # Lưu bài mới
+                    if config_key not in self.latest_dates or article_date > self.latest_dates[config_key]:
+                        self.latest_dates[config_key] = article_date
+
                     req = scrapy.Request(
                         url=full_url,
                         callback=self.parse_detail,
@@ -172,7 +194,7 @@ class DynamicIUHSpider(scrapy.Spider):
                     )
                     requests.append(req)
             else:
-                self.logger.info("🛑 Tất cả bài trên trang hiện tại đều đã cũ → dừng crawler.")
+                self.logger.info("🛑 Tất cả bài trên trang hiện tại đều đã cũ → dừng pagination.")
                 should_continue = False
                 
                 if config_key in self.latest_dates:
@@ -185,10 +207,10 @@ class DynamicIUHSpider(scrapy.Spider):
         for req in requests:
             yield req
 
-        # Nếu chưa gặp bài trùng hoặc cũ, tiếp tục sang trang tiếp theo
+        # Nếu chưa gặp bài cũ, tiếp tục sang trang tiếp theo
         next_pages = response.css(self.config['next_pages']).getall()
         current_page = self.page_counter.get(self.category_url, 1)
-        if len(next_pages) >= current_page:
+        if should_continue and len(next_pages) >= current_page:
             next_page_url = urljoin(response.url, next_pages[current_page - 1])
             yield scrapy.Request(
                 url=next_page_url,
@@ -197,7 +219,6 @@ class DynamicIUHSpider(scrapy.Spider):
             )
 
     def parse_detail(self, response):
-
         item = ArticleItem()
         item['external_url'] = response.url
         item['external_slug'] = response.url.split('/')[-1]
