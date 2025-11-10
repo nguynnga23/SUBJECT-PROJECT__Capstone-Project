@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("/v1/articles")
 public class ArticleController {
@@ -24,9 +23,14 @@ public class ArticleController {
     }
 
     @GetMapping
-    public List<ArticleVM> list() {
+    public List<ArticleVM> list(@RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "15") Integer pageSize) {
+
         var p = new LinkedMultiValueMap<String, String>();
+
         p.add("populate[category][populate]", "department_source");
+        p.add("pagination[page]", String.valueOf(page));
+        p.add("pagination[pageSize]", String.valueOf(pageSize));
 
         p.add("sort[0]", "external_publish_date:desc");
         p.add("sort[1]", "createdAt:desc");
@@ -36,8 +40,7 @@ public class ArticleController {
                 new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {
                 },
                 p,
-                null
-        );
+                null);
 
         var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
         return data.stream()
@@ -65,28 +68,37 @@ public class ArticleController {
     public ResponseEntity<?> create(@RequestBody ArticleReq req) {
         try {
             var data = new java.util.HashMap<String, Object>();
-            if (req.title() != null) data.put("title", req.title());
-            if (req.content() != null) data.put("content", req.content());
-            if (req.external_url() != null) data.put("external_url", req.external_url());
-            if (req.summary() != null) data.put("summary", req.summary());
-            if (req.thumbnail() != null) data.put("thumbnail", req.thumbnail());
-            if (req.external_slug() != null) data.put("external_slug", req.external_slug());
+            if (req.title() != null)
+                data.put("title", req.title());
+            if (req.content() != null)
+                data.put("content", req.content());
+            if (req.external_url() != null)
+                data.put("external_url", req.external_url());
+            if (req.summary() != null)
+                data.put("summary", req.summary());
+            if (req.thumbnail() != null)
+                data.put("thumbnail", req.thumbnail());
+            if (req.external_slug() != null)
+                data.put("external_slug", req.external_slug());
 
             var body = java.util.Map.of("data", data);
 
             var created = client.postJson(
                     "/articles",
                     body,
-                    new org.springframework.core.ParameterizedTypeReference<com.backend.strapi.model.StrapiSingle<com.backend.strapi.model.ArticleFlat>>() {},
-                    null
-            );
+                    new org.springframework.core.ParameterizedTypeReference<com.backend.strapi.model.StrapiSingle<com.backend.strapi.model.ArticleFlat>>() {
+                    },
+                    null);
 
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(created);
+            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.CREATED)
+                    .body(created);
 
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
+            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode())
+                    .body(e.getResponseBodyAsString());
         } catch (Exception ex) {
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("ok", false, "message", "Failed to create article"));
         }
     }
@@ -95,28 +107,36 @@ public class ArticleController {
     public ResponseEntity<?> update(@PathVariable("documentId") String documentId, @RequestBody ArticleReq req) {
         try {
             var data = new java.util.HashMap<String, Object>();
-            if (req.title() != null) data.put("title", req.title());
-            if (req.content() != null) data.put("content", req.content());
-            if (req.external_url() != null) data.put("external_url", req.external_url());
-            if (req.summary() != null) data.put("summary", req.summary());
-            if (req.thumbnail() != null) data.put("thumbnail", req.thumbnail());
-            if (req.external_slug() != null) data.put("external_slug", req.external_slug());
+            if (req.title() != null)
+                data.put("title", req.title());
+            if (req.content() != null)
+                data.put("content", req.content());
+            if (req.external_url() != null)
+                data.put("external_url", req.external_url());
+            if (req.summary() != null)
+                data.put("summary", req.summary());
+            if (req.thumbnail() != null)
+                data.put("thumbnail", req.thumbnail());
+            if (req.external_slug() != null)
+                data.put("external_slug", req.external_slug());
 
             var body = java.util.Map.of("data", data);
 
             var updated = client.putJson(
                     "/articles/" + documentId,
                     body,
-                    new org.springframework.core.ParameterizedTypeReference<com.backend.strapi.model.StrapiSingle<com.backend.strapi.model.ArticleFlat>>() {},
-                    null
-            );
+                    new org.springframework.core.ParameterizedTypeReference<com.backend.strapi.model.StrapiSingle<com.backend.strapi.model.ArticleFlat>>() {
+                    },
+                    null);
 
             return org.springframework.http.ResponseEntity.ok(updated);
 
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
+            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode())
+                    .body(e.getResponseBodyAsString());
         } catch (Exception ex) {
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("ok", false, "message", "Failed to update article"));
         }
     }
@@ -127,9 +147,11 @@ public class ArticleController {
             client.delete("/articles/" + documentId, null);
             return org.springframework.http.ResponseEntity.ok(java.util.Map.of("ok", true));
         } catch (org.springframework.web.client.RestClientResponseException e) {
-            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode()).body(e.getResponseBodyAsString());
+            return org.springframework.http.ResponseEntity.status(e.getRawStatusCode())
+                    .body(e.getResponseBodyAsString());
         } catch (Exception ex) {
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+            return org.springframework.http.ResponseEntity
+                    .status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(java.util.Map.of("ok", false, "message", "Failed to delete article"));
         }
     }

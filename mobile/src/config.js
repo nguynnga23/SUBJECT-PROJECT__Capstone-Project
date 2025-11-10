@@ -7,5 +7,5 @@ export const domains = {
   PROD: PROD_DOMAIN,
 };
 
-export const BASE_URL = `http://192.168.110.200:8080/v1`;
+export const BASE_URL = `http://192.168.5.74:8080/v1`;
 console.log(BASE_URL);

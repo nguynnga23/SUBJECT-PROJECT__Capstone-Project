@@ -388,6 +388,7 @@ export interface ApiArticleArticle extends Struct.CollectionTypeSchema {
     bookmarks: Schema.Attribute.Relation<'oneToMany', 'api::bookmark.bookmark'>;
     category: Schema.Attribute.Relation<'manyToOne', 'api::category.category'>;
     content: Schema.Attribute.Text;
+    content_hash: Schema.Attribute.Text;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;

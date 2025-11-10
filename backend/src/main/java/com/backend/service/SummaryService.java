@@ -15,13 +15,21 @@ public class SummaryService {
         String cleanedContent = cleanAndNormalizeContent(articleContent);
 
         String promptTemplate = """
-           Tóm tắt toàn bộ nội dung sau thành MỘT (1) đoạn văn duy nhất, HOÀN CHỈNH, không sử dụng dấu liệt kê, tiêu đề hay các ký tự đặc biệt như *. 
-           Đoạn văn này không được dài quá 5 câu.
-           Nội dung gốc:
+           Tóm tắt toàn bộ nội dung BÊN DƯỚI.
+           
+           HƯỚNG DẪN ĐẦU RA:
+           1. Độ dài: Tối đa **5 câu** hoàn chỉnh.
+           2. Cấu trúc: Phải là **MỘT ĐOẠN VĂN DUY NHẤT** (không xuống dòng, không chia đoạn).
+           3. Định dạng: Tuyệt đối không sử dụng dấu liệt kê, tiêu đề, hoặc ký tự đặc biệt như *, #, -, v.v.
+           4. Nội dung: Phải truyền tải **đầy đủ và chính xác** các sự kiện cốt lõi.
+           5. Giọng văn: Sử dụng ngôn ngữ trôi chảy và chuyên nghiệp.
+        
+           Nội dung gốc cần tóm tắt:
            ---
            %s
            ---
-            """;
+           Đoạn tóm tắt:
+           """;
 
         String finalPrompt = String.format(promptTemplate, cleanedContent);
         System.out.println(finalPrompt);
@@ -30,7 +38,6 @@ public class SummaryService {
                 .user(finalPrompt)
                 .call()
                 .content();
-
         return summary;
     }
 
