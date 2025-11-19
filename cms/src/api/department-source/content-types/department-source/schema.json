@@ -12,7 +12,9 @@
   "pluginOptions": {},
   "attributes": {
     "url": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "categories": {
       "type": "relation",

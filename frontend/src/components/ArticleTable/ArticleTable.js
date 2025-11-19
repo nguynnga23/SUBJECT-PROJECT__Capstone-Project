@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
@@ -50,6 +50,7 @@ const allColumns = [
 
 const ArticleTable = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { request: fetchArticles, loading: loadingFetch } =
     useApi(getAllArticles);
@@ -99,7 +100,7 @@ const ArticleTable = () => {
   }, [currentPage, itemsPerPage, dispatch]);
 
   const normalizedData = data.map((a, idx) => ({
-    id: idx + 1,
+    id: a.documentId,
     title: a.title,
     externalUrl: a.externalUrl,
     externalPublishDate: a.externalPublishDate,
@@ -345,7 +346,11 @@ const ArticleTable = () => {
           </thead>
           <tbody>
             {normalizedData.map((row, index) => (
-              <tr key={row.id || index} className="cursor-pointer">
+              <tr
+                key={row.id || index}
+                className="cursor-pointer hover:bg-sub"
+                onClick={() => navigate(`/admin/article/${row.id}`)}
+              >
                 <td className="border p-2 text-center">
                   {startIndex + index + 1}
                 </td>

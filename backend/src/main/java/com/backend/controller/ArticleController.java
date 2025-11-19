@@ -72,7 +72,7 @@ public class ArticleController {
     @GetMapping("/{id}")
     public ArticleVM one(@PathVariable("id") String id) {
         var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate", "category");
+        p.add("populate[category][populate]", "department_source");
         var resp = client.get(
                 "/articles/" + id,
                 new ParameterizedTypeReference<StrapiSingle<ArticleFlat>>() {
