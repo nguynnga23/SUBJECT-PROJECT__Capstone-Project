@@ -1,12 +1,13 @@
 import { useRef, useState } from "react";
 import { LiaTimesCircle } from "react-icons/lia";
+import { user } from "../../../assets";
 
 function ProfileForm({
   setUserProfile,
   currentUser,
   setShowUpdatePasswordForm,
 }) {
-  const [avatarPreview, setAvatarPreview] = useState(currentUser.avatar.url);
+  const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatar?.url);
   const fileInputRef = useRef(null);
   const [editMode, setEditMode] = useState(false);
   const [preCurrentUser, setPreCurrentUser] = useState(currentUser || {});
@@ -51,7 +52,7 @@ function ProfileForm({
       <div className="flex items-center">
         <div>
           <img
-            src={avatarPreview}
+            src={avatarPreview || user}
             alt="avatar"
             className="w-28 h-28 rounded-full object-cover border-4 border-gray-200 shadow"
             disabled={!editMode}
@@ -69,10 +70,10 @@ function ProfileForm({
 
         <div className="p-4">
           <h2 className="text-2xl font-bold text-gray-800 text-center">
-            {currentUser ? currentUser.username : "N/A"}
+            {currentUser ? currentUser?.username : "N/A"}
           </h2>
           <i className="text-sm">
-            {currentUser ? currentUser.studentID : "N/A"}
+            {currentUser ? currentUser?.studentID : "N/A"}
           </i>
         </div>
       </div>
@@ -87,7 +88,7 @@ function ProfileForm({
             placeholder="Nhập email "
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
             disabled
-            value={currentUser && currentUser.email}
+            value={currentUser && currentUser?.email}
           />
         </div>
 
@@ -99,7 +100,7 @@ function ProfileForm({
             type="text"
             placeholder="Nhập số điện thoại"
             name="phone"
-            value={formData.phone || ""}
+            value={formData?.phone || ""}
             onChange={handleChange}
             disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"
@@ -129,7 +130,7 @@ function ProfileForm({
             type="text"
             placeholder="Tên lớp học"
             name="class"
-            value={formData.class || ""}
+            value={formData?.class || ""}
             onChange={handleChange}
             disabled={!editMode}
             className="w-full px-4 py-2 border rounded-md focus:outline-none"

@@ -20,8 +20,6 @@ function ArticleDetail() {
     const load = async () => {
       try {
         const fetched = await fetchArticle(id);
-        console.log(fetched);
-
         setData(fetched);
       } catch (err) {
         toast.error("Không thể tải dữ liệu");
