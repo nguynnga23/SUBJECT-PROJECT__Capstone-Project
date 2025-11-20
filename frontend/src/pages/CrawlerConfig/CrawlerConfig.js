@@ -3,10 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import { MdChevronRight } from "react-icons/md";
 import { toast } from "react-toastify";
 import { getDepartmentSourceById } from "../../apis/department_source";
+import {
+  postNewCrawlerConfig,
+  putCrawlerConfig,
+} from "../../apis/crawler_config";
+import { useApi } from "../../hooks/useApi";
+import Spinner from "../../components/Spinner";
 
 function CrawlerConfig() {
   const { id } = useParams();
   const [data, setData] = useState([]);
+
+  const { request: updateCrawlerConfig, loading: loadingUpdateCrawlerConfig } =
+    useApi(putCrawlerConfig);
+  const { request: postCrawlerConfig, loading: loadingPostCrawlerConfig } =
+    useApi(postNewCrawlerConfig);
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await getDepartmentSourceById(id);
@@ -22,11 +34,48 @@ function CrawlerConfig() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    setData((prev) => ({
+      ...prev,
+      crawlerConfig: {
+        ...prev.crawlerConfig,
+        [name]: value,
+      },
+    }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
-      toast.success(`Đã cập nhật thành công!`);
+      const crawler_config_id = data?.crawlerConfig?.documentId;
+      let response = null;
+      if (crawler_config_id) {
+        response = await updateCrawlerConfig({
+          id: crawler_config_id,
+          department_source_id: id,
+          relative_url_list: data?.crawlerConfig.relativeUrlList,
+          relative_url: data?.crawlerConfig.relativeUrl,
+          thumbnail: data?.crawlerConfig.thumbnail,
+          next_pages: data?.crawlerConfig.nextPages,
+          title: data?.crawlerConfig.title,
+          content: data?.crawlerConfig.content,
+          external_publish_date: data?.crawlerConfig.externalPublishDate,
+        });
+      } else {
+        response = await postCrawlerConfig({
+          id: crawler_config_id,
+          department_source_id: id,
+          relative_url_list: data?.crawlerConfig.relativeUrlList,
+          relative_url: data?.crawlerConfig.relativeUrl,
+          thumbnail: data?.crawlerConfig.thumbnail,
+          next_pages: data?.crawlerConfig.nextPages,
+          title: data?.crawlerConfig.title,
+          content: data?.crawlerConfig.content,
+          external_publish_date: data?.crawlerConfig.externalPublishDate,
+        });
+      }
+      if (response?.status === 200) {
+        toast.success(`Đã cập nhật thành công!`);
+      }
     } catch (error) {
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
     }
@@ -38,6 +87,14 @@ function CrawlerConfig() {
       <h2 className="text-xl font-bold mb-3 p-3 pt-0 pb-0 flex items-center">
         Không tìm thấy thông tin Khoa/Viện này!
       </h2>
+    );
+  }
+
+  if (loadingUpdateCrawlerConfig || loadingPostCrawlerConfig) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
     );
   }
 
@@ -71,7 +128,7 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="relative_url_list"
+                  name="relativeUrlList"
                   value={data?.crawlerConfig?.relativeUrlList || ""}
                   onChange={handleChange}
                   disabled={!editMode}
@@ -86,7 +143,7 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="relative_url"
+                  name="relativeUrl"
                   value={data?.crawlerConfig?.relativeUrl || ""}
                   onChange={handleChange}
                   disabled={!editMode}
@@ -101,7 +158,7 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="next_pages"
+                  name="nextPages"
                   value={data?.crawlerConfig?.nextPages || ""}
                   onChange={handleChange}
                   disabled={!editMode}
@@ -161,7 +218,7 @@ function CrawlerConfig() {
                 </label>
                 <input
                   type="text"
-                  name="external_publish_date"
+                  name="externalPublishDate"
                   value={data?.crawlerConfig?.externalPublishDate || ""}
                   onChange={handleChange}
                   disabled={!editMode}

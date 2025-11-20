@@ -49,23 +49,23 @@ function ArticleDetail() {
           <a
             onClick={() =>
               navigate(
-                `/admin/department/${data.category.departmentSource.documentId}`
+                `/admin/department/${data.category?.departmentSource.documentId}`
               )
             }
             className="cursor-pointer hover:border-b hover:text-blue-500"
           >
-            {data.category.departmentSource.label}
+            {data.category?.departmentSource.label}
           </a>
           <FaChevronRight size={12} className="m-1" />
           <a
             onClick={() =>
               navigate(
-                `/admin/department/${data.category.departmentSource.documentId}/category/${data.category.documentId}`
+                `/admin/department/${data.category?.departmentSource.documentId}/category/${data.category.documentId}`
               )
             }
             className="cursor-pointer hover:border-b hover:text-blue-500"
           >
-            {data.category.categoryName}
+            {data.category?.categoryName}
           </a>
           <FaChevronRight size={12} className="m-1" />
           <a className="max-w-[500px] truncate font-bold">{`${data?.title}`}</a>

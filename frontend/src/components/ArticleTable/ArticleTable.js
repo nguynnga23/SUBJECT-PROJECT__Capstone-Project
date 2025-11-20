@@ -98,14 +98,15 @@ const ArticleTable = () => {
     };
     loadPage();
   }, [currentPage, itemsPerPage, dispatch]);
+  console.log(data);
 
   const normalizedData = data.map((a, idx) => ({
     id: a.documentId,
     title: a.title,
     externalUrl: a.externalUrl,
     externalPublishDate: a.externalPublishDate,
-    departmentSource: a.category.departmentSource.label,
-    category: a.category.categoryName,
+    departmentSource: a.category?.departmentSource.label,
+    category: a.category?.categoryName,
     thumbnail: a.thumbnail,
     createdAt: a.createdAt,
     publishedAt: a.publishedAt,
