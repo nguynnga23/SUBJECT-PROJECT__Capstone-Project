@@ -4,10 +4,12 @@ import HoverDropdown from "../../../components/HoverDropdown";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword";
 import { logo, user } from "../../../assets";
+import { logoutOfSlice } from "../../../store/slices/authSlice";
 function Header() {
+  const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.auth.user);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
 
@@ -27,10 +29,12 @@ function Header() {
 
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
+      dispatch(logoutOfSlice());
       navigate("/login");
       return;
+    } else {
+      setUserProfile(up);
     }
-    setUserProfile(up);
   };
 
   return (

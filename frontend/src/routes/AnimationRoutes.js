@@ -18,6 +18,7 @@ import CategoryDetail from "../pages/CategoryDetail";
 import CrawlerConfig from "../pages/CrawlerConfig";
 import UserDetail from "../pages/UserDetail";
 import ArticleDetail from "../pages/ArticleDetail";
+import ProtectedRoute from "./ProtectedRoute";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -44,47 +45,100 @@ function AnimatedRoutes() {
         />
         <Route
           path="/admin/dashboard"
-          element={<AdminLayout children={<Dashboard />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<Dashboard />} />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/admin/department"
-          element={<AdminLayout children={<DepartmentManagement />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<DepartmentManagement />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/department/:id"
-          element={<AdminLayout children={<DepartmentDetail />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<DepartmentDetail />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/department/:id/category/:cat_id"
-          element={<AdminLayout children={<CategoryDetail />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<CategoryDetail />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/department/:id/crawler_config"
-          element={<AdminLayout children={<CrawlerConfig />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<CrawlerConfig />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/article"
-          element={<AdminLayout children={<ArticleManagement />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<ArticleManagement />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/article/:id"
-          element={<AdminLayout children={<ArticleDetail />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<ArticleDetail />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/user"
-          element={<AdminLayout children={<UserManagement />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<UserManagement />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/user/:studentID"
-          element={<AdminLayout children={<UserDetail />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<UserDetail />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/statistic"
-          element={<AdminLayout children={<Statistic />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<Statistic />} />
+            </ProtectedRoute>
+          }
         />
+
         <Route
           path="/admin/setting"
-          element={<AdminLayout children={<Setting />} />}
+          element={
+            <ProtectedRoute>
+              <AdminLayout children={<Setting />} />
+            </ProtectedRoute>
+          }
         />
         <Route
           path="/department"

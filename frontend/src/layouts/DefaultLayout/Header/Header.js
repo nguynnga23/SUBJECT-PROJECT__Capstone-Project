@@ -86,7 +86,6 @@ function Header() {
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
       dispatch(logoutOfSlice());
-      navigate("/");
       return;
     }
     setUserProfile(up);

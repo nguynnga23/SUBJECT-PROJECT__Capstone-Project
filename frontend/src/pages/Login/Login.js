@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../store/slices/authSlice";
+import { setToken, setUser } from "../../store/slices/authSlice";
 import { login } from "../../apis/auth";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
@@ -30,6 +30,7 @@ function Login() {
 
         toast.success(`Đăng nhập thành công`);
         dispatch(setUser(result.user));
+        dispatch(setToken(result.jwt));
         navigate(`/admin/dashboard`);
       } catch (err) {
         toast.error("Đăng nhập thất bại");
