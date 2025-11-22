@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import { users } from "../../assets/sampleData";
+import { toast } from "react-toastify";
 import { thumnailDefault } from "../../assets";
 import { FaLock, FaLockOpen } from "react-icons/fa";
+import { getAllUsers } from "../../apis/user";
+import { useApi } from "../../hooks/useApi";
+import Spinner from "../Spinner";
 // helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "Đang cập nhật ...";
@@ -28,7 +31,6 @@ const formatDateVN = (dateString) => {
   return `${dayOfWeek}, ngày ${day}/${month}/${year}`;
 };
 
-// định nghĩa cột
 const allColumns = [
   { key: "avatar", label: "Ảnh đại diện" },
   { key: "studentID", label: "Mã sinh viên" },
@@ -43,20 +45,40 @@ const allColumns = [
 
 const UserTable = () => {
   const navigate = useNavigate();
+  const [usersPermissionsRoles, setUsersPermissionsRoles] = useState([]);
+  const { request: fetchUsers, loading: loadingFetch } = useApi(getAllUsers);
 
-  // normalize data từ sampleData
-  const normalizedData = users.map((a, idx) => ({
-    id: idx + 1,
-    avatar: a.avatar.url,
-    studentID: a.studentID,
-    username: a.username,
-    email: a.email,
-    class: a.class,
-    phone: a.phone,
-    department: a.department.department_name,
-    createdAt: a.createdAt,
-    updatedAt: a.updatedAt,
-  }));
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const fetched = await fetchUsers();
+
+        if (fetched?.data.usersPermissionsRoles?.length) {
+          setUsersPermissionsRoles(fetched?.data.usersPermissionsRoles[1]);
+        }
+      } catch (err) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
+    load();
+  }, []);
+
+  const normalizedData = (usersPermissionsRoles.users || []).map(
+    (user, idx) => ({
+      id: idx + 1,
+      avatar: user.avatar?.url,
+      studentID: user.studentID,
+      username: user.username,
+      email: user.email,
+      class: user.class,
+      phone: user.phone,
+      department: user.department?.department_name,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    })
+  );
+
+  console.log(normalizedData);
 
   const [data, setData] = useState(normalizedData);
 
@@ -136,7 +158,6 @@ const UserTable = () => {
   const itemsPerPage = 6;
 
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  // Lấy dữ liệu trang hiện tại
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -146,6 +167,14 @@ const UserTable = () => {
   const handleUnLock = (row) => {
     alert(row.studentID);
   };
+
+  if (loadingFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="p-3 pb-0">

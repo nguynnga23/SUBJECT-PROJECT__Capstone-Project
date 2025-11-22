@@ -89,7 +89,6 @@ const ArticleTable = () => {
   useEffect(() => {
     const loadPage = async () => {
       try {
-        // luôn fetch nếu currentPage hoặc itemsPerPage thay đổi
         const fetched = await fetchArticles({ currentPage, itemsPerPage });
         dispatch(setPageData({ page: currentPage, items: fetched }));
       } catch {
@@ -98,7 +97,6 @@ const ArticleTable = () => {
     };
     loadPage();
   }, [currentPage, itemsPerPage, dispatch]);
-  console.log(data);
 
   const normalizedData = data.map((a, idx) => ({
     id: a.documentId,
@@ -131,7 +129,6 @@ const ArticleTable = () => {
   const [openCols, setOpenCols] = useState(false);
   const [openSort, setOpenSort] = useState(false);
 
-  // lọc
   let filtered = normalizedData.filter((d) =>
     String(d[filterField] || "")
       .toLowerCase()
@@ -179,7 +176,6 @@ const ArticleTable = () => {
     return value;
   };
 
-  // sắp xếp
   if (sortField) {
     filtered = [...filtered].sort((a, b) => {
       let valA = a[sortField] || "";
@@ -300,7 +296,6 @@ const ArticleTable = () => {
           </div>
         </div>
 
-        {/* chọn cột hiển thị */}
         <div className="relative inline-block mb-3">
           <div
             onClick={() => setOpenCols(!openCols)}

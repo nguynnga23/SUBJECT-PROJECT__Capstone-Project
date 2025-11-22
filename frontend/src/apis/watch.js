@@ -1,6 +1,5 @@
 export const getAllWatch = async () => {
   try {
-    // 1. Lấy danh sách tất cả watch (bản rút gọn)
     const response = await fetch(`${process.env.REACT_APP_API_URL}/watch`, {
       method: "GET",
       headers: {
@@ -19,7 +18,6 @@ export const getAllWatch = async () => {
 
     const list = await response.json();
 
-    // 2. Lấy chi tiết từng watch để lấy thêm paused
     const ids = Object.keys(list);
 
     const detailed = await Promise.all(
