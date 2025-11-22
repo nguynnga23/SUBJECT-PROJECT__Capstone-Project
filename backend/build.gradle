@@ -5,7 +5,6 @@ plugins {
 }
 
 ext {
-    // Đặt version Spring AI tại đây
     springAiVersion = "1.0.3"
 }
 
@@ -13,45 +12,45 @@ group = 'com'
 version = '0.0.1-SNAPSHOT'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
-    }
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-}
-
-dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.ai:spring-ai-pdf-document-reader"
-    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini"
-    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-embedding"
-    implementation "io.github.resilience4j:resilience4j-spring-boot3:2.2.0"
-    implementation "com.github.ben-manes.caffeine:caffeine:3.1.8"
-    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6"
-    implementation "org.springframework.ai:spring-ai-client-chat:1.0.3"
-    compileOnly "org.projectlombok:lombok"
-    annotationProcessor "org.projectlombok:lombok"
-    developmentOnly "org.springframework.boot:spring-boot-devtools"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
 }
 
 repositories {
     mavenCentral()
-    maven { url "https://repo.spring.io/milestone" }
+    // Only keep these if you truly need milestone/snapshot builds
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
-// *** ĐÂY LÀ NƠI CHUẨN ĐỂ QUẢN LÝ BOM ***
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+
+    // Spring AI – Vertex Gemini chat + embeddings
+    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-gemini"
+    implementation "org.springframework.ai:spring-ai-starter-model-vertex-ai-embedding"
+    implementation "org.elasticsearch.client:elasticsearch-rest-client:8.16.1"
+    implementation "co.elastic.clients:elasticsearch-java:8.16.1"
+    implementation "org.elasticsearch.client:elasticsearch-rest-client:8.16.1"
+    implementation "co.elastic.clients:elasticsearch-java:8.16.1"
+    // Optional helpers
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:2.2.0"
+    implementation "com.github.ben-manes.caffeine:caffeine:3.1.8"
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6"
+
+    compileOnly "org.projectlombok:lombok"
+    annotationProcessor "org.projectlombok:lombok"
+
+    developmentOnly "org.springframework.boot:spring-boot-devtools"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+}
+
 dependencyManagement {
     imports {
+        // Spring AI BOM keeps spring-ai + elasticsearch-java compatible
         mavenBom "org.springframework.ai:spring-ai-bom:$springAiVersion"
     }
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+tasks.named('test') { useJUnitPlatform() }
