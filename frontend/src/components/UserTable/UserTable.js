@@ -6,6 +6,7 @@ import { thumnailDefault } from "../../assets";
 import { FaLock, FaLockOpen } from "react-icons/fa";
 import { getAllUsers } from "../../apis/user";
 import { useApi } from "../../hooks/useApi";
+import { user } from "../../assets";
 import Spinner from "../Spinner";
 // helper format date
 const formatDateVN = (dateString) => {
@@ -63,24 +64,25 @@ const UserTable = () => {
     load();
   }, []);
 
-  const normalizedData = (usersPermissionsRoles.users || []).map(
-    (user, idx) => ({
-      id: idx + 1,
-      avatar: user.avatar?.url,
-      studentID: user.studentID,
-      username: user.username,
-      email: user.email,
-      class: user.class,
-      phone: user.phone,
-      department: user.department?.department_name,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    })
-  );
+  const [data, setData] = useState([]);
 
-  console.log(normalizedData);
-
-  const [data, setData] = useState(normalizedData);
+  useEffect(() => {
+    if (usersPermissionsRoles?.users) {
+      const normalizedData = usersPermissionsRoles.users.map((user, idx) => ({
+        id: idx + 1,
+        avatar: user.avatar,
+        studentID: user.studentID,
+        username: user.username,
+        email: user.email,
+        class: user.class,
+        phone: user.phone,
+        department: user.department?.department_name,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }));
+      setData(normalizedData);
+    }
+  }, [usersPermissionsRoles]);
 
   const hiddenDefaultCols = ["phone", "department", "createdAt", "updatedAt"];
   const [visibleCols, setVisibleCols] = useState(
@@ -114,7 +116,11 @@ const UserTable = () => {
       return (
         <div className="flex justify-center items-center">
           <img
-            src={value}
+            src={
+              data?.avatar?.url
+                ? `${process.env.REACT_APP_API_ENDPOINT_RESOURCE}+${data?.avatar?.url}`
+                : user
+            }
             alt="avatar"
             className="h-[30px] w-[30px] object-cover rounded-full"
             onError={(e) => {
