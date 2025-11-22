@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 @Service
 public class RagService {
-    private static final String EMBEDDING_INDEX = "spring-ai-document-index";
+    private static final String EMBEDDING_INDEX = "article_embeddings";
     private static final int TOP_K = 3;
     private final ElasticsearchClient elasticsearchClient;
     private final EmbeddingModel embeddingModel;
