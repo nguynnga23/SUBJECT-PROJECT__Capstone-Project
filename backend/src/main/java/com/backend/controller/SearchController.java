@@ -3,7 +3,8 @@ package com.backend.controller;
 import com.backend.dto.request.SearchRequest;
 import com.backend.dto.response.SearchResponse;
 import com.backend.service.RagService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.backend.service.ArticleService;
+import com.backend.strapi.vm.ArticleVM;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,16 +15,12 @@ import java.io.IOException;
 public class SearchController {
 
     private final RagService ragService;
+    private final ArticleService articleService;
 
-    // Giả sử ArticleController là service để gọi Strapi/CMS (Mock)
-    private final ArticleController articleController;
-
-    @Autowired
-    public SearchController(RagService ragService, ArticleController articleController) {
+    public SearchController(RagService ragService, ArticleService articleService) {
         this.ragService = ragService;
-        this.articleController = articleController;
+        this.articleService = articleService;
     }
-
 
     @PostMapping("/query")
     public ResponseEntity<SearchResponse> search(@RequestBody SearchRequest request) {
@@ -45,7 +42,8 @@ public class SearchController {
     }
 
     @GetMapping("/articles/{articleId}")
-    public ResponseEntity<?> getArticle(@PathVariable String articleId) {
-        return ResponseEntity.ok(articleController.one(articleId));
+    public ResponseEntity<ArticleVM> getArticle(@PathVariable String articleId) {
+        ArticleVM article = articleService.one(articleId);
+        return ResponseEntity.ok(article);
     }
 }
