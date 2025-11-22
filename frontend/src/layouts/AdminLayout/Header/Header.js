@@ -65,7 +65,10 @@ function Header() {
             />
             <div className="flex gap-4 cursor-pointer relative">
               <HoverDropdown
-                label={currentUser?.username}
+                label={
+                  currentUser?.username ||
+                  currentUser?.firstname + " " + currentUser?.lastname
+                }
                 items={user_profile}
                 onSelect={handleUserProfileSelect}
               />

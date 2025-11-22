@@ -70,7 +70,8 @@ function ProfileForm({
 
         <div className="p-4">
           <h2 className="text-2xl font-bold text-gray-800 text-center">
-            {currentUser ? currentUser?.username : "N/A"}
+            {currentUser?.username ||
+              currentUser?.firstname + " " + currentUser?.lastname}
           </h2>
           <i className="text-sm">
             {currentUser ? currentUser?.studentID : "N/A"}

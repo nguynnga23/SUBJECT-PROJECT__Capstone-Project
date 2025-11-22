@@ -3,7 +3,7 @@ import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setToken, setUser } from "../../store/slices/authSlice";
-import { login } from "../../apis/auth";
+import { login, loginAsAdmin } from "../../apis/auth";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
@@ -14,10 +14,13 @@ function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
 
-  const { request: fetchLogin, loading: loadingFetchLogin } = useApi(login);
+  const { request: fetchLogin, loading: loadingFetchLogin } = useApi(
+    isAdmin ? loginAsAdmin : login
+  );
 
   const handleLogin = async () => {
     try {
@@ -25,24 +28,26 @@ function Login() {
         alert("Vui lòng điền đầy đủ thông tin!");
         return;
       }
-      try {
-        const result = await fetchLogin({ email, password });
 
-        toast.success(`Đăng nhập thành công`);
-        dispatch(setUser(result.user));
-        dispatch(setToken(result.jwt));
-        navigate(`/admin/dashboard`);
-      } catch (err) {
-        toast.error("Đăng nhập thất bại");
-      }
+      const result = await fetchLogin({ email, password });
+
+      toast.success("Đăng nhập thành công");
+
+      const userData = isAdmin ? result.data.user : result.user;
+      const tokenData = isAdmin ? result.data.token : result.jwt;
+
+      dispatch(setUser(userData));
+      dispatch(setToken(tokenData));
+
+      navigate(isAdmin ? "/admin/dashboard" : "/");
     } catch (err) {
       console.error(err);
-      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error("Đăng nhập thất bại");
     }
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault(); // Ngăn reload trang
+    e.preventDefault();
     handleLogin();
   };
 
@@ -66,7 +71,7 @@ function Login() {
             <h2 className="text-gray-600">
               <span className="text-primary font-bold">UNIFEED.news</span>
             </h2>
-            <h1 className="text-4xl font-bold mt-2">Đăng ký</h1>
+            <h1 className="text-4xl font-bold mt-2">Đăng nhập</h1>
           </div>
 
           <div className="mb-4">
@@ -98,7 +103,18 @@ function Login() {
               </span>
             </div>
           </div>
-
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              id="adminLogin"
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="adminLogin" className="text-sm">
+              Login với account admin
+            </label>
+          </div>
           <div className="text-right mb-6">
             <span className="text-sm text-primary cursor-pointer hover:underline">
               Quên mật khẩu

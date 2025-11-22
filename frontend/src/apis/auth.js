@@ -1,3 +1,25 @@
+export const loginAsAdmin = async ({ email, password }) => {
+  try {
+    const response = await fetch("http://localhost:1337/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      const msg = data?.error?.message || "Đăng nhập thất bại";
+      throw new Error(msg);
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Lỗi khi đăng nhập:", err);
+    throw err;
+  }
+};
+
 export const register = async ({ email, username, password }) => {
   console.log({ email, username, password });
 

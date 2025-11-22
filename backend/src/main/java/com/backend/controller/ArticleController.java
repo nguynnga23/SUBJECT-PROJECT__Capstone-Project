@@ -44,12 +44,9 @@ public class ArticleController {
 
     @GetMapping
     public List<ArticleVM> list(@RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize) {
+                                @RequestParam(defaultValue = "10") int pageSize) {
         var p = new LinkedMultiValueMap<String, String>();
-
         p.add("populate[category][populate]", "department_source");
-        p.add("pagination[page]", String.valueOf(page));
-        p.add("pagination[pageSize]", String.valueOf(pageSize));
 
         p.add("sort[0]", "external_publish_date:desc");
         p.add("sort[1]", "createdAt:desc");
@@ -61,7 +58,8 @@ public class ArticleController {
                 new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {
                 },
                 p,
-                null);
+                null
+        );
 
         var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
         return data.stream()

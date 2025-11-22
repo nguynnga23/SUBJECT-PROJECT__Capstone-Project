@@ -3,7 +3,6 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { thumnailDefault } from "../../assets";
-import { FaLock, FaLockOpen } from "react-icons/fa";
 import { getAllUsers } from "../../apis/user";
 import { useApi } from "../../hooks/useApi";
 import { user } from "../../assets";
@@ -117,8 +116,8 @@ const UserTable = () => {
         <div className="flex justify-center items-center">
           <img
             src={
-              data?.avatar?.url
-                ? `${process.env.REACT_APP_API_ENDPOINT_RESOURCE}+${data?.avatar?.url}`
+              value?.url
+                ? `${process.env.REACT_APP_API_ENDPOINT_RESOURCE}${value?.url}`
                 : user
             }
             alt="avatar"
@@ -166,13 +165,6 @@ const UserTable = () => {
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleLock = (row) => {
-    alert(row.studentID);
-  };
-  const handleUnLock = (row) => {
-    alert(row.studentID);
-  };
 
   if (loadingFetch) {
     return (
@@ -267,7 +259,6 @@ const UserTable = () => {
           </div>
         </div>
 
-        {/* chọn cột hiển thị */}
         <div className="relative inline-block mb-3">
           <div
             onClick={() => setOpenCols(!openCols)}
@@ -296,7 +287,6 @@ const UserTable = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="flex flex-col">
         <div className="flex-1 overflow-y-hidden">
           <table className="border w-full text-sm table-auto">
@@ -310,7 +300,6 @@ const UserTable = () => {
                       {col.label}
                     </th>
                   ))}
-                <th className="border p-2 w-[100px]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -335,28 +324,6 @@ const UserTable = () => {
                         </div>
                       </td>
                     ))}
-                  <td className="border text-center text-[10px]">
-                    <div
-                      className="flex justify-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {!row.blocked ? (
-                        <FaLock
-                          title="Khóa tài khoản"
-                          size={25}
-                          className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
-                          onClick={() => handleLock(row)}
-                        />
-                      ) : (
-                        <FaLockOpen
-                          title="Mở khóa tài khoản"
-                          size={25}
-                          className="text-primary rounded-full border m-2 cursor-pointer p-1"
-                          onClick={() => handleUnLock(row)}
-                        />
-                      )}
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>
