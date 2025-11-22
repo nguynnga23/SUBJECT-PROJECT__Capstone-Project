@@ -44,6 +44,9 @@
       "relation": "oneToMany",
       "target": "api::bookmark.bookmark",
       "mappedBy": "article"
+    },
+    "content_hash": {
+      "type": "text"
     }
   }
 }
