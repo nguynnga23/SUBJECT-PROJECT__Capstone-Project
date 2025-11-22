@@ -9,7 +9,7 @@ import MarkedForm from "../../../components/Form/MarkedForm";
 import { useDispatch, useSelector } from "react-redux";
 import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePassword.js";
 import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
-import { logo } from "../../../assets/index.js";
+import { logo, user } from "../../../assets/index.js";
 import { logoutOfSlice } from "../../../store/slices/authSlice.js";
 import { getAllDepartmentSource } from "../../../apis/department_source.js";
 import { useApi } from "../../../hooks/useApi.js";
@@ -86,7 +86,6 @@ function Header() {
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
       dispatch(logoutOfSlice());
-      navigate("/");
       return;
     }
     setUserProfile(up);
@@ -139,7 +138,7 @@ function Header() {
           <div className="flex w-[200px]">
             <div className="flex items-center gap-2">
               <img
-                src={currentUser?.avatar.url}
+                src={currentUser?.avatar?.url || user}
                 alt="avatar"
                 className="w-8 h-8 rounded-full"
               />

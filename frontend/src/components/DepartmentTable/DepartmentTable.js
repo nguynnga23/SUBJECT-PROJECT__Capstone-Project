@@ -11,6 +11,12 @@ import {
 import PopupDelete from "../PopupDelete";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
+import Pagination from "../Pagination";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteDepartmentSource,
+  setDepartmentSources,
+} from "../../store/slices/departmentSourceSlice";
 
 const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
@@ -23,7 +29,7 @@ const allColumns = [
 
 // helper format date
 const formatDateVN = (dateString) => {
-  if (!dateString) return "Đang cập nhật ...";
+  if (!dateString) return "N/A";
   const date = new Date(dateString);
   if (isNaN(date)) return "Không hợp lệ";
 
@@ -48,15 +54,21 @@ const formatDateVN = (dateString) => {
 
 const DepartmentTable = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { request: fetchDepartments, loading: loadingFetch } = useApi(
     getAllDepartmentSource
   );
-  const [data, setData] = useState([]);
+  const { request: fetchDeleteDepartmentSource, loading: loadingFetchDelete } =
+    useApi(deleteDepartmentById);
+  const data = useSelector((state) => state.departmentSource.list);
+
   useEffect(() => {
     const load = async () => {
       try {
         const fetched = await fetchDepartments();
-        setData(fetched);
+        if (fetched?.length) {
+          dispatch(setDepartmentSources(fetched));
+        }
       } catch (err) {
         toast.error("Không thể tải dữ liệu");
       }
@@ -120,7 +132,9 @@ const DepartmentTable = () => {
     if (colKey === "createdAt" || colKey === "updatedAt") {
       return formatDateVN(value);
     }
-
+    if (!value || value?.length === 0) {
+      return "N/A";
+    }
     if (Array.isArray(value)) {
       return (
         <button
@@ -148,11 +162,6 @@ const DepartmentTable = () => {
     if (typeof value === "object" && value !== null) {
       return `Đã cập nhật`;
     }
-
-    if (!value || value?.length === 0) {
-      return "Đang cập nhật ...";
-    }
-
     return value;
   };
 
@@ -194,6 +203,13 @@ const DepartmentTable = () => {
     );
   };
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Tính toán dữ liệu hiển thị theo phân trang
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
+
   const handleShowDepartmentDetail = (department) => {
     navigate(`${department.documentId}`, { state: department });
   };
@@ -201,15 +217,23 @@ const DepartmentTable = () => {
   const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
   const [selectedDept, setSelectedDept] = useState(null);
 
-  const handleDelete = (row) => {
+  const handleDelete = async (row) => {
     try {
-      deleteDepartmentById(row.documentId);
-      toast.success(`Đã xóa thành công!`);
+      const success = await fetchDeleteDepartmentSource(row.documentId);
+      if (success) {
+        dispatch(deleteDepartmentSource(row.documentId));
+        toast.success(`Đã xóa ${row.label} thành công`);
+      } else {
+        toast.error("Xóa không thành công. Vui lòng thử lại!");
+      }
+    } catch (err) {
+      toast.error("Có lỗi trong quá trình xóa. Vui lòng thử lại!");
+    } finally {
       setPopupDeleteOpen(false);
-    } catch (err) {}
+    }
   };
 
-  if (loadingFetch) {
+  if (loadingFetch || loadingFetchDelete) {
     return (
       <div className="flex justify-center items-center h-[80vh]">
         <Spinner />
@@ -219,7 +243,7 @@ const DepartmentTable = () => {
 
   return (
     <div className="p-3">
-      <div className="flex w-full pb-2 justify-between  text-sm">
+      <div className="flex w-full pb-2 justify-between text-sm">
         <div className="flex gap-2 mb-3 items-center">
           {/* chọn cột để lọc */}
           <div className="relative">
@@ -348,52 +372,63 @@ const DepartmentTable = () => {
       </div>
 
       {/* Table */}
-      <table className="border w-full text-sm table-auto">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2 w-[50px]">STT</th>
-            {allColumns
-              .filter((c) => visibleCols.includes(c.key))
-              .map((col) => (
-                <th key={col.key} className="border p-2">
-                  {col.label}
-                </th>
-              ))}
-            <th className="border p-2 w-[100px]">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((dept, index) => (
-            <tr key={dept.id} className="cursor-pointer hover:bg-sub">
-              <td className="border p-2 text-center">{index + 1}</td>
+      <div className="flex-1 overflow-auto max-h-[65vh] min-h-[300px]">
+        <table className="border w-full text-sm table-auto">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 w-[50px]">STT</th>
               {allColumns
                 .filter((c) => visibleCols.includes(c.key))
                 .map((col) => (
-                  <td
-                    key={col.key}
-                    className="border p-2"
-                    onClick={() => handleShowDepartmentDetail(dept)}
-                  >
-                    {renderValue(dept[col.key], col.key, dept.documentId)}
-                  </td>
+                  <th key={col.key} className="border p-2">
+                    {col.label}
+                  </th>
                 ))}
-              <td className="border text-center text-[10px]">
-                <div className="flex justify-center">
-                  <RiDeleteBin6Fill
-                    title="Xóa khoa viện"
-                    size={25}
-                    className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
-                    onClick={() => {
-                      setSelectedDept(dept);
-                      setPopupDeleteOpen(true);
-                    }}
-                  />
-                </div>
-              </td>
+              <th className="border p-2 w-[100px]">Thao tác</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentData.map((dept, index) => (
+              <tr key={dept.id} className="cursor-pointer hover:bg-sub">
+                <td className="border p-2 text-center">{index + 1}</td>
+                {allColumns
+                  .filter((c) => visibleCols.includes(c.key))
+                  .map((col) => (
+                    <td
+                      key={col.key}
+                      className="border p-2"
+                      onClick={() => handleShowDepartmentDetail(dept)}
+                    >
+                      {renderValue(dept[col.key], col.key, dept.documentId)}
+                    </td>
+                  ))}
+                <td className="border text-center text-[10px]">
+                  <div className="flex justify-center">
+                    <RiDeleteBin6Fill
+                      title="Xóa khoa viện"
+                      size={25}
+                      className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
+                      onClick={() => {
+                        setSelectedDept(dept);
+                        setPopupDeleteOpen(true);
+                      }}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={Math.ceil(data.length / itemsPerPage)}
+          itemsPerPage={itemsPerPage}
+          setItemsPerPage={setItemsPerPage}
+        />
+      </div>
       <PopupDelete
         isOpen={popupDeleteOpen}
         message={`Bạn có muốn xóa ${selectedDept?.label} ?`}
@@ -413,10 +448,10 @@ const DepartmentTable = () => {
             className="max-h-[300px] text-[12px] overflow-y-auto"
             ref={popupRef}
           >
-            {arrayPopup.data.map((item) => (
+            {arrayPopup.data.map((item, index) => (
               <li
                 className="p-2.5 hover:bg-gray-200 cursor-pointer"
-                key={item.id}
+                key={index}
                 onClick={() =>
                   navigate(
                     `/admin/department/${arrayPopup.departmentId}/category/${item.documentId}`

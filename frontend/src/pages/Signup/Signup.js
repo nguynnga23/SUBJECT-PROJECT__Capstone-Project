@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { register } from "../../apis/auth";
+import { useApi } from "../../hooks/useApi";
+import { toast } from "react-toastify";
+import Spinner from "../../components/Spinner";
 
 function Signup() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleRegister = (e) => {
+  const [data, setData] = useState(null);
+  const { request: fetchRegister, loading: loadingFetchRegister } =
+    useApi(register);
+
+  const handleRegister = async (e) => {
     e.preventDefault();
 
     if (!email || !username || !password) {
@@ -15,9 +23,24 @@ function Signup() {
       return;
     }
 
-    console.log("User Register Info:", { email, username, phone, password });
-    alert("Đăng ký thành công (demo)");
+    try {
+      const result = await fetchRegister({ email, username, password });
+
+      toast.success(`Đăng ký thành công. Vui lòng đăng nhập lại`);
+      setData(result);
+      navigate("/login");
+    } catch (err) {
+      toast.error("Đăng ký thất bại");
+    }
   };
+
+  if (loadingFetchRegister) {
+    return (
+      <div className="absolute inset-0 bg-white bg-opacity-70 flex justify-center items-center z-50">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-sub">
@@ -52,18 +75,6 @@ function Signup() {
                 className="w-full px-4 text-[11px] py-2 border rounded focus:outline-none"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-              />
-            </div>
-            <div className="flex-1">
-              <label className="block text-sm font-medium mb-1">
-                Số điện thoại
-              </label>
-              <input
-                type="text"
-                placeholder="Nhập số điện thoại"
-                className="w-full px-4 text-[11px] py-2 border rounded focus:outline-none"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
           </div>

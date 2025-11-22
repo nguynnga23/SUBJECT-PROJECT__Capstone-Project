@@ -5,10 +5,11 @@ const categorySlice = createSlice({
   name: "category",
   initialState: {
     currentCategory: {},
+    listCategory: [],
   },
   reducers: {
     addCategory: (state, action) => {
-      state.push(action.payload);
+      state.listCategory.push(action.payload);
     },
     setCurrentCategory: (state, action) => {
       state.currentCategory = action.payload;

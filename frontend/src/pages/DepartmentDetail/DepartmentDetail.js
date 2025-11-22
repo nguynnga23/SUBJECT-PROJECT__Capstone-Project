@@ -11,17 +11,28 @@ import {
 import PopupDelete from "../../components/PopupDelete";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
+import {
+  deleteDepartmentSource,
+  setCurrentDepartmentSource,
+  updateDepartmentSource,
+} from "../../store/slices/departmentSourceSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 function DepartmentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { request: fetchDepartment, loading: loadingFetch } = useApi(
     getDepartmentSourceById
   );
   const { request: updateDepartment, loading: loadingUpdate } =
     useApi(putDepartmentById);
+  const { request: fetchDeleteDepartmentSource, loading: loadingFetchDelete } =
+    useApi(deleteDepartmentById);
 
-  const [data, setData] = useState({});
+  const [data, setData] = useState(
+    useSelector((state) => state.departmentSource.currentDepartmentSource)
+  );
   const [originalData, setOriginalData] = useState({});
   const [popupDeleteOpen, setPopupDeleteOpen] = useState(false);
 
@@ -29,6 +40,7 @@ function DepartmentDetail() {
     const load = async () => {
       try {
         const fetched = await fetchDepartment(id);
+        if (fetched) dispatch(setCurrentDepartmentSource(fetched));
         setData(fetched);
         setOriginalData(fetched);
       } catch (err) {
@@ -42,13 +54,14 @@ function DepartmentDetail() {
   const [showFormCategory, setShowFormCategory] = useState(false);
   const [preDataCategory, setPreDataCategory] = useState(null);
 
-  const isValid = data.label?.trim() !== "" && data.url?.trim() !== "";
+  const isValid = data?.label?.trim() !== "" && data?.url?.trim() !== "";
   const isChanged = JSON.stringify(data) !== JSON.stringify(originalData);
 
   const handleSave = async () => {
     try {
       const response = await updateDepartment({ id, newDepartment: data });
       if (response.status === 200) {
+        dispatch(updateDepartmentSource({ id, data }));
         toast.success("Cập nhật thành công!");
         setOriginalData(data);
       }
@@ -71,14 +84,22 @@ function DepartmentDetail() {
     );
   }
 
-  const handleDelete = (dept_id) => {
+  const handleDelete = async (dept_id) => {
     try {
-      deleteDepartmentById(dept_id);
-      toast.success(`Đã xóa thành công!`);
       setPopupDeleteOpen(false);
-      navigate(`/admin/department`);
-    } catch (error) {
-      toast.error(`Xóa không thành công. Vui lòng thử lại sau!`);
+      const success = await fetchDeleteDepartmentSource(dept_id);
+      if (success) {
+        dispatch(deleteDepartmentSource(dept_id));
+        dispatch(setCurrentDepartmentSource({}));
+        toast.success(`Đã xóa thành công`);
+      } else {
+        toast.error("Xóa không thành công. Vui lòng thử lại!");
+      }
+    } catch (err) {
+      toast.error("Có lỗi trong quá trình xóa. Vui lòng thử lại!");
+    } finally {
+      setPopupDeleteOpen(false);
+      navigate("/admin/department");
     }
   };
 
@@ -91,7 +112,7 @@ function DepartmentDetail() {
   }
   return (
     <div className="flex-1 relative">
-      {loadingUpdate && (
+      {(loadingUpdate || loadingFetchDelete) && (
         <div className="absolute inset-0 bg-white bg-opacity-70 flex justify-center items-center z-50">
           <Spinner />
         </div>
@@ -106,7 +127,7 @@ function DepartmentDetail() {
               Danh sách Khoa/Viện
             </span>
             <MdChevronRight />
-            <span className="font-medium">{data.label}</span>
+            <span className="font-medium">{data?.label}</span>
           </h2>
 
           <div className="p-6 grid grid-cols-2 gap-6">
@@ -133,7 +154,7 @@ function DepartmentDetail() {
                 <input
                   type="text"
                   name="label"
-                  value={data.label || ""}
+                  value={data?.label || ""}
                   onChange={handleChange}
                   disabled={!editMode}
                   className={`w-full border rounded px-3 py-2 ${
@@ -239,7 +260,7 @@ function DepartmentDetail() {
                 </button>
                 <PopupDelete
                   isOpen={popupDeleteOpen}
-                  message={`Bạn có muốn xóa ${data.label} ?`}
+                  message={`Bạn có muốn xóa ${data?.label} ?`}
                   onConfirm={() => handleDelete(id)}
                   onCancel={() => setPopupDeleteOpen(false)}
                 />

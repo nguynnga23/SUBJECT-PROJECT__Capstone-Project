@@ -22,10 +22,29 @@ public class ArticleController {
         this.client = client;
     }
 
-    @GetMapping
-    public List<ArticleVM> list(@RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "15") Integer pageSize) {
+    @GetMapping("/count")
+    public int countItems() {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("pagination[page]", "1");
+        p.add("pagination[pageSize]", "1");
 
+        var raw = client.get(
+                "/articles",
+                new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {
+                },
+                p,
+                null);
+
+        if (raw != null && raw.meta() != null && raw.meta().pagination() != null) {
+            return (int) raw.meta().pagination().total();
+        }
+
+        return 0;
+    }
+
+    @GetMapping
+    public List<ArticleVM> list(@RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
         var p = new LinkedMultiValueMap<String, String>();
 
         p.add("populate[category][populate]", "department_source");
@@ -34,6 +53,8 @@ public class ArticleController {
 
         p.add("sort[0]", "external_publish_date:desc");
         p.add("sort[1]", "createdAt:desc");
+        p.add("pagination[page]", String.valueOf(page));
+        p.add("pagination[pageSize]", String.valueOf(pageSize));
 
         var raw = client.get(
                 "/articles",
@@ -52,7 +73,7 @@ public class ArticleController {
     @GetMapping("/{id}")
     public ArticleVM one(@PathVariable("id") String id) {
         var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate", "category");
+        p.add("populate[category][populate]", "department_source");
         var resp = client.get(
                 "/articles/" + id,
                 new ParameterizedTypeReference<StrapiSingle<ArticleFlat>>() {

@@ -32,6 +32,13 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginReq req) {
+        if (req == null || req.email() == null || req.password() == null) {
+            return ResponseEntity.badRequest().body(Map.of(
+                    "ok", false,
+                    "code", "MISSING_FIELDS",
+                    "message", "Email and password is not null"
+            ));
+        }
         Map<String, Object> body = Map.of(
                 "identifier", req.email(),
                 "password", req.password());

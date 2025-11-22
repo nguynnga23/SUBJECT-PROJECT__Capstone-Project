@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
-import { users } from "../../assets/sampleData";
 import { useDispatch } from "react-redux";
-import { setUser } from "../../store/slices/authSlice";
+import { setToken, setUser } from "../../store/slices/authSlice";
+import { login } from "../../apis/auth";
+import Spinner from "../../components/Spinner";
+import { useApi } from "../../hooks/useApi";
+import { toast } from "react-toastify";
 
 function Login() {
   const dispatch = useDispatch();
@@ -14,20 +17,23 @@ function Login() {
 
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const { request: fetchLogin, loading: loadingFetchLogin } = useApi(login);
+
+  const handleLogin = async () => {
     try {
-      const currentUser = users.find((u) => u.email === email);
-      if (!currentUser) {
-        alert("Sai tài khoản hoặc mật khẩu.");
+      if (!email || !password) {
+        alert("Vui lòng điền đầy đủ thông tin!");
         return;
       }
+      try {
+        const result = await fetchLogin({ email, password });
 
-      dispatch(setUser({ user: currentUser }));
-
-      if (currentUser.role.name === "Authenticated") {
+        toast.success(`Đăng nhập thành công`);
+        dispatch(setUser(result.user));
+        dispatch(setToken(result.jwt));
         navigate(`/admin/dashboard`);
-      } else {
-        navigate(`/department`);
+      } catch (err) {
+        toast.error("Đăng nhập thất bại");
       }
     } catch (err) {
       console.error(err);
@@ -43,6 +49,14 @@ function Login() {
   const handleSignup = () => {
     navigate(`/signup`);
   };
+
+  if (loadingFetchLogin) {
+    return (
+      <div className="absolute inset-0 bg-white bg-opacity-70 flex justify-center items-center z-50">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-sub">

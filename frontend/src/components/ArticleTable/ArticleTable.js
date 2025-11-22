@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import { FaLock, FaUnlock } from "react-icons/fa";
-import { getAllArticles } from "../../apis/article";
+import { getAllArticles, getArticleCount } from "../../apis/article";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
+import Pagination from "../Pagination";
+import { setPageData, setTotal } from "../../store/slices/articleSlice";
+import { selectCurrentPageData } from "../../store/selector/articleSelectors";
+import { useDispatch, useSelector } from "react-redux";
 
 // helper format date
 const formatDateVN = (dateString) => {
@@ -44,35 +49,66 @@ const allColumns = [
 ];
 
 const ArticleTable = () => {
-  // const navigate = useNavigate();
-
-  // // normalize data từ sampleData
-  // const normalizedData = articles.map((a, idx) => ({
-  //   id: idx + 1,
-  //   title: a.title,
-  //   external_url: a.external_url,
-  //   external_publish_date: a.external_publish_date,
-  //   department_source: a.category.department_source.label,
-  //   category: a.category.category_name,
-  //   thumbnail: a.thumbnail,
-  //   createdAt: a.createdAt,
-  //   publishedAt: a.publishedAt,
-  // }));
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { request: fetchArticles, loading: loadingFetch } =
     useApi(getAllArticles);
-  const [data, setData] = useState([]);
+  const { request: fetchArticlesCount, loading: loadingFetchCount } =
+    useApi(getArticleCount);
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialPageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [itemsPerPage, setItemsPerPage] = useState(initialPageSize);
+  const totalItems = useSelector((state) => state.article.total);
+  const data = useSelector((state) =>
+    selectCurrentPageData(state, currentPage)
+  );
 
   useEffect(() => {
-    const load = async () => {
+    setSearchParams({
+      page: currentPage,
+      pageSize: itemsPerPage,
+    });
+  }, [currentPage, itemsPerPage, setSearchParams]);
+
+  useEffect(() => {
+    const loadTotal = async () => {
       try {
-        const fetched = await fetchArticles();
-        setData(fetched);
-      } catch (err) {
-        toast.error("Không thể tải dữ liệu");
+        const count = await fetchArticlesCount();
+        dispatch(setTotal(count));
+      } catch {
+        toast.error("Không thể lấy tổng số bài viết");
       }
     };
-    load();
-  }, []);
+    loadTotal();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const loadPage = async () => {
+      try {
+        const fetched = await fetchArticles({ currentPage, itemsPerPage });
+        dispatch(setPageData({ page: currentPage, items: fetched }));
+      } catch {
+        toast.error("Không thể tải dữ liệu trang này");
+      }
+    };
+    loadPage();
+  }, [currentPage, itemsPerPage, dispatch]);
+
+  const normalizedData = data.map((a, idx) => ({
+    id: a.documentId,
+    title: a.title,
+    externalUrl: a.externalUrl,
+    externalPublishDate: a.externalPublishDate,
+    departmentSource: a.category?.departmentSource.label,
+    category: a.category?.categoryName,
+    thumbnail: a.thumbnail,
+    createdAt: a.createdAt,
+    publishedAt: a.publishedAt,
+  }));
 
   const hiddenDefaultCols = ["category", "createdAt"];
   const [visibleCols, setVisibleCols] = useState(
@@ -93,8 +129,7 @@ const ArticleTable = () => {
   const [openCols, setOpenCols] = useState(false);
   const [openSort, setOpenSort] = useState(false);
 
-  // lọc
-  let filtered = data.filter((d) =>
+  let filtered = normalizedData.filter((d) =>
     String(d[filterField] || "")
       .toLowerCase()
       .includes(filterValue.toLowerCase())
@@ -108,7 +143,7 @@ const ArticleTable = () => {
           <img
             src={value}
             alt="thumbnail"
-            className="h-[50px] object-cover rounded items-center"
+            className="h-[30px] object-cover rounded items-center"
             onError={(e) => {
               e.target.onerror = null; // tránh loop
               e.target.src = thumnailDefault;
@@ -141,7 +176,6 @@ const ArticleTable = () => {
     return value;
   };
 
-  // sắp xếp
   if (sortField) {
     filtered = [...filtered].sort((a, b) => {
       let valA = a[sortField] || "";
@@ -157,14 +191,6 @@ const ArticleTable = () => {
       prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
     );
   };
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
-
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  // Lấy dữ liệu trang hiện tại
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
   const handleDelete = (row) => {
     alert(row.title);
@@ -183,9 +209,10 @@ const ArticleTable = () => {
       </div>
     );
   }
+  const startIndex = (currentPage - 1) * itemsPerPage;
 
   return (
-    <div className="p-3 pb-0">
+    <div className="p-3 pb-0 flex flex-col ">
       {/* Filter + Sort + Column Picker */}
       <div className="flex w-full pb-2 justify-between text-sm">
         {/* filter */}
@@ -269,7 +296,6 @@ const ArticleTable = () => {
           </div>
         </div>
 
-        {/* chọn cột hiển thị */}
         <div className="relative inline-block mb-3">
           <div
             onClick={() => setOpenCols(!openCols)}
@@ -299,108 +325,80 @@ const ArticleTable = () => {
       </div>
 
       {/* Table */}
-      <div className="flex flex-col">
-        <div className="flex-1 overflow-y-hidden">
-          <table className="border w-full text-sm table-auto">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border p-2 w-[50px]">STT</th>
+      <div className="flex-1 overflow-auto max-h-[67vh] min-h-[300px]">
+        <table className="border w-full text-[10px] table-auto">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border p-2 w-[50px]">STT</th>
+              {allColumns
+                .filter((c) => visibleCols.includes(c.key))
+                .map((col) => (
+                  <th key={col.key} className="border p-2">
+                    {col.label}
+                  </th>
+                ))}
+              <th className="border p-2 w-[100px]">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {normalizedData.map((row, index) => (
+              <tr
+                key={row.id || index}
+                className="cursor-pointer hover:bg-sub"
+                onClick={() => navigate(`/admin/article/${row.id}`)}
+              >
+                <td className="border p-2 text-center">
+                  {startIndex + index + 1}
+                </td>
                 {allColumns
                   .filter((c) => visibleCols.includes(c.key))
                   .map((col) => (
-                    <th key={col.key} className="border p-2">
-                      {col.label}
-                    </th>
+                    <td
+                      key={col.key}
+                      className="border p-1.5 min-w-[20px] max-w-[200px]"
+                    >
+                      <div className="line-clamp-2">
+                        {renderValue(row[col.key], col.key)}
+                      </div>
+                    </td>
                   ))}
-                <th className="border p-2 w-[100px]">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentData.map((row, index) => (
-                <tr key={row.id || index} className="cursor-pointer">
-                  <td className="border p-2 text-center">
-                    {startIndex + index + 1}
-                  </td>
-                  {allColumns
-                    .filter((c) => visibleCols.includes(c.key))
-                    .map((col) => (
-                      <td
-                        key={col.key}
-                        className="border p-2 min-w-[20px] max-w-[200px]"
-                      >
-                        <div className="line-clamp-2">
-                          {renderValue(row[col.key], col.key)}
-                        </div>
-                      </td>
-                    ))}
-                  <td className="border text-center text-[10px]">
-                    <div className="flex justify-center">
-                      {row.publishedAt !== null ? (
-                        <FaLock
-                          title="Khóa bài viết"
-                          size={25}
-                          className="text-yellow-400 rounded-full border m-1 cursor-pointer p-1"
-                          onClick={() => handleLock(row)}
-                        />
-                      ) : (
-                        <FaUnlock
-                          title="Mở khóa bài viết"
-                          size={25}
-                          className="text-primary rounded-full border m-1 cursor-pointer p-1"
-                          onClick={() => handleUnlock(row)}
-                        />
-                      )}
-                      <RiDeleteBin6Fill
-                        title="Xóa bài viết"
+                <td className="border text-center text-[10px]">
+                  <div className="flex justify-center">
+                    {row.publishedAt !== null ? (
+                      <FaLock
+                        title="Khóa bài viết"
                         size={25}
-                        className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
-                        onClick={() => handleDelete(row)}
+                        className="text-yellow-400 rounded-full border m-1 cursor-pointer p-1"
+                        onClick={() => handleLock(row)}
                       />
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="absolute bottom-[10px] right-[30px]">
-          {
-            <div className="flex justify-center items-center mt-2 space-x-1">
-              {/* Prev */}
-              <button
-                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                &lt;
-              </button>
-
-              {/* Page Numbers */}
-              {[...Array(totalPages)].map((_, index) => {
-                const page = index + 1;
-                return (
-                  <button
-                    key={page}
-                    className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                      page === currentPage ? "bg-primary text-white" : ""
-                    }`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-
-              {/* Next */}
-              <button
-                className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                &gt;
-              </button>
-            </div>
-          }
+                    ) : (
+                      <FaUnlock
+                        title="Mở khóa bài viết"
+                        size={25}
+                        className="text-primary rounded-full border m-1 cursor-pointer p-1"
+                        onClick={() => handleUnlock(row)}
+                      />
+                    )}
+                    <RiDeleteBin6Fill
+                      title="Xóa bài viết"
+                      size={25}
+                      className="text-red-400 rounded-full border m-1 cursor-pointer p-1"
+                      onClick={() => handleDelete(row)}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div>
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={Math.ceil(totalItems / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+          />
         </div>
       </div>
     </div>

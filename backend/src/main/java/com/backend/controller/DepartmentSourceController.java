@@ -30,13 +30,38 @@ public class DepartmentSourceController {
     public DepartmentSourceController(StrapiClient client) {
         this.client = client;
     }
+    @GetMapping("/count")
+    public int countItems() {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("pagination[page]", "1");
+        p.add("pagination[pageSize]", "1");
+
+        var raw = client.get(
+                "/department-sources",
+                new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {},
+                p,
+                null
+        );
+
+        if (raw != null && raw.meta() != null && raw.meta().pagination() != null) {
+            return (int)raw.meta().pagination().total();
+        }
+        return 0;
+    }
+
 
     @GetMapping
-    public List<DepartmentSourceVM> list(){
+    public List<DepartmentSourceVM> list(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize){
         var p = new LinkedMultiValueMap<String, String>();
         p.add("populate", "department");
         p.add("populate", "crawler_config");
         p.add("populate", "categories");
+
+        p.add("pagination[page]", String.valueOf(page));
+        p.add("pagination[pageSize]", String.valueOf(pageSize));
+
         var raw = client.get("/department-sources", new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {
         },
         p,

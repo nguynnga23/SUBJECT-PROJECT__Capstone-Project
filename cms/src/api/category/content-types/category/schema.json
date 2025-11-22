@@ -22,7 +22,9 @@
       "mappedBy": "category"
     },
     "category_url": {
-      "type": "string"
+      "type": "string",
+      "required": true,
+      "unique": true
     },
     "key_category": {
       "type": "string"

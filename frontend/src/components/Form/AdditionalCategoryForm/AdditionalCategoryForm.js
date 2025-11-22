@@ -24,28 +24,32 @@ function AdditionalCategoryForm({
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     try {
-      try {
-        postNewCategory({
-          category_name: formData.category_name.trim(),
-          category_url: formData?.category_url.trim(),
-          department_source_id: department_source.documentId,
-        });
-      } catch (error) {}
-      try {
-        const watchData = {
-          url: formData?.category_url.trim(),
-          title:
-            department_source?.label + " - " + formData.category_name.trim(),
-        };
-        postNewWatch(watchData);
-      } catch (error) {}
+      const categoryData = {
+        category_name: formData.category_name.trim(),
+        category_url: formData?.category_url.trim(),
+        department_source_id: department_source.documentId,
+        last_external_publish_date:
+          formData.last_external_publish_date ||
+          new Date().toISOString().split("T")[0],
+      };
+
+      const watchData = {
+        url: formData?.category_url.trim(),
+        title: `${department_source?.label} - ${formData.category_name.trim()}`,
+      };
+
+      await postNewCategory(categoryData);
+      await postNewWatch(watchData);
+
       toast.success(`Đã cập nhật thành công!`);
     } catch (error) {
+      console.error("Lỗi khi lưu:", error);
       toast.error(`Đã cập nhật không thành công. Vui lòng thử lại sau!`);
+    } finally {
+      setShowFormCategory(false);
     }
-    setShowFormCategory(false);
   };
 
   return (

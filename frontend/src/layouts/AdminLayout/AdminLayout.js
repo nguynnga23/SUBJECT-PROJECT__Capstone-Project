@@ -4,23 +4,19 @@ import Sidebar from "./Sidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { BiListUl } from "react-icons/bi";
-import { useDispatch } from "react-redux";
-import { setCurrentDepartment } from "../../store/slices/departmentSlice";
-import { getAllDepartment } from "../../apis/department";
 
 function AdminLayout({ children }) {
   const location = useLocation();
-  const dispatch = useDispatch();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
   const closeSidebar = () => {
-    setIsAnimating(true); // Bắt đầu animation đóng
+    setIsAnimating(true);
     setTimeout(() => {
       setIsAnimating(false);
-      setIsSidebarOpen(false); // Đóng sau khi animation xong
-    }, 300); // Thời gian trùng với animation
+      setIsSidebarOpen(false);
+    }, 300);
   };
 
   useEffect(() => {
@@ -32,21 +28,6 @@ function AdminLayout({ children }) {
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const [department, setDepartment] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await getAllDepartment();
-        if (data) {
-          setDepartment(data);
-          dispatch(setCurrentDepartment(data[0]));
-        }
-      } catch (error) {}
-    };
-    fetchData();
   }, []);
 
   return (
@@ -65,16 +46,12 @@ function AdminLayout({ children }) {
           >
             <Sidebar />
           </div>
-          {/* Click vào vùng ngoài để đóng */}
           <div className="flex-1" onClick={closeSidebar}></div>
         </div>
       )}
 
-      {/* Main content */}
       <div className="w-full xl:w-[80%]">
-        {/* Header cố định */}
         <div className="sticky top-0 z-50 bg-white shadow-md h-[70px] w-full px-4 flex items-center">
-          {/* Nút mở sidebar khi ở mobile */}
           <BiListUl
             size={30}
             className="xl:hidden mr-4 p-1 border rounded cursor-pointer hover:bg-primary hover:text-white"
@@ -84,7 +61,6 @@ function AdminLayout({ children }) {
           <Header />
         </div>
 
-        {/* Transition chỉ áp dụng cho phần content */}
         <div className="p-2">
           <AnimatePresence mode="wait">
             <motion.div
@@ -92,7 +68,7 @@ function AdminLayout({ children }) {
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.3 }} // chỉnh tốc độ transition ở đây
+              transition={{ duration: 0.3 }}
             >
               {children}
             </motion.div>
