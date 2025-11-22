@@ -1,13 +1,10 @@
 package com.backend.service;
 
-import com.backend.controller.ArticleController;
 import com.backend.strapi.vm.ArticleVM;
-
+import com.backend.dto.response.SearchResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.embedding.EmbeddingModel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -22,26 +19,31 @@ import java.util.stream.IntStream;
 
 @Service
 public class RagService {
+
     private static final String EMBEDDING_INDEX = "article_embeddings";
     private static final int TOP_K = 3;
+
     private final ElasticsearchClient elasticsearchClient;
     private final EmbeddingModel embeddingModel;
     private final ChatClient chatClient;
-    private final ArticleController articleService;
+    private final ArticleService articleService;   // <-- dùng service, không dùng controller
 
-    @Autowired
-    public RagService(ElasticsearchClient elasticsearchClient, EmbeddingModel embeddingModel, ChatClient chatClient, ArticleController articleService) {
+    public RagService(ElasticsearchClient elasticsearchClient,
+                      EmbeddingModel embeddingModel,
+                      ChatClient chatClient,
+                      ArticleService articleService) {
         this.elasticsearchClient = elasticsearchClient;
         this.embeddingModel = embeddingModel;
         this.chatClient = chatClient;
         this.articleService = articleService;
     }
 
-    public com.backend.dto.response.SearchResponse answerQuery(String query) throws IOException {
-        float[] embeddingArray = this.embeddingModel.embed(Collections.singletonList(query)).get(0);
+    public SearchResponse answerQuery(String query) throws IOException {
+        float[] embeddingArray =
+                this.embeddingModel.embed(Collections.singletonList(query)).get(0);
 
         List<Float> queryEmbedding = IntStream.range(0, embeddingArray.length)
-                .mapToObj(i -> Float.valueOf(embeddingArray[i])) // Lấy giá trị float và đóng gói (box) thành Float
+                .mapToObj(i -> embeddingArray[i])
                 .collect(Collectors.toList());
 
         Query knnQuery = Query.of(q -> q
@@ -59,16 +61,18 @@ public class RagService {
                 .source(sc -> sc.filter(f -> f.excludes("embedding")))
         );
 
-        co.elastic.clients.elasticsearch.core.SearchResponse<JsonData> searchResponse = elasticsearchClient.search(searchRequest, JsonData.class);
+        co.elastic.clients.elasticsearch.core.SearchResponse<JsonData> searchResponse =
+                elasticsearchClient.search(searchRequest, JsonData.class);
 
         List<ArticleVM> sources = searchResponse.hits().hits().stream()
                 .map(Hit::source)
                 .map(source -> source.toJson().asJsonObject().getString("article_id"))
-                .map(articleService::one)
+                .map(articleService::one)      // <-- gọi qua ArticleService
                 .collect(Collectors.toList());
 
         String context = sources.stream()
-                .map(s -> String.format("Nguồn [%s]: %s\n", s.getDocumentId(), s.getContent()))
+                .map(s -> String.format("Nguồn [%s]: %s%n",
+                        s.getDocumentId(), s.getContent()))
                 .collect(Collectors.joining("\n---\n"));
 
         String prompt = String.format("""
@@ -85,8 +89,12 @@ public class RagService {
             [Câu hỏi của người dùng]: %s
             """, context, query);
 
-        String aiResponse = chatClient.prompt().user(prompt).call().content();
+        String aiResponse = chatClient
+                .prompt()
+                .user(prompt)
+                .call()
+                .content();
 
-        return new com.backend.dto.response.SearchResponse(aiResponse, sources);
+        return new SearchResponse(aiResponse, sources);
     }
 }

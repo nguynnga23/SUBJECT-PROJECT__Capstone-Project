@@ -1,22 +1,14 @@
 package com.backend.controller;
 
-import com.backend.client.StrapiClient;
 import com.backend.dto.request.DepartmentSourceReq;
-import com.backend.strapi.mapper.StrapiMapper;
-import com.backend.strapi.model.CategoryFlat;
-import com.backend.strapi.model.DepartmentSourceFlat;
-import com.backend.strapi.model.StrapiPageFlat;
-import com.backend.strapi.model.StrapiSingle;
+import com.backend.service.DepartmentSourceService;
 import com.backend.strapi.vm.DepartmentSourceVM;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,98 +17,41 @@ import java.util.Map;
 @Slf4j
 @CrossOrigin(origins = "*")
 public class DepartmentSourceController {
-    private final StrapiClient client;
 
-    public DepartmentSourceController(StrapiClient client) {
-        this.client = client;
+    private final DepartmentSourceService departmentSourceService;
+
+    public DepartmentSourceController(DepartmentSourceService departmentSourceService) {
+        this.departmentSourceService = departmentSourceService;
     }
+
     @GetMapping("/count")
     public int countItems() {
-        var p = new LinkedMultiValueMap<String, String>();
-        p.add("pagination[page]", "1");
-        p.add("pagination[pageSize]", "1");
-
-        var raw = client.get(
-                "/department-sources",
-                new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {},
-                p,
-                null
-        );
-
-        if (raw != null && raw.meta() != null && raw.meta().pagination() != null) {
-            return (int)raw.meta().pagination().total();
-        }
-        return 0;
+        return departmentSourceService.countItems();
     }
-
 
     @GetMapping
     public List<DepartmentSourceVM> list(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize){
-        var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate", "department");
-        p.add("populate", "crawler_config");
-        p.add("populate", "categories");
-
-        p.add("pagination[page]", String.valueOf(page));
-        p.add("pagination[pageSize]", String.valueOf(pageSize));
-
-        var raw = client.get("/department-sources", new ParameterizedTypeReference<StrapiPageFlat<DepartmentSourceFlat>>() {
-        },
-        p,
-null);
-        var data = (raw != null && raw.data() != null) ? raw.data() : List.<DepartmentSourceFlat>of();
-        return data.stream()
-                .map(StrapiMapper::toVM)
-                .filter(java.util.Objects::nonNull)
-                .toList();
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return departmentSourceService.list(page, pageSize);
     }
 
     @GetMapping("/{documentId}")
-    public DepartmentSourceVM get(@PathVariable("documentId") String documentId){
-        var p = new LinkedMultiValueMap<String, String>();
-        p.add("populate", "department");
-        p.add("populate", "crawler_config");
-        p.add("populate", "categories");
-        var resp = client.get(
-                "/department-sources/" + documentId,
-                new ParameterizedTypeReference<StrapiSingle<DepartmentSourceFlat>>() {
-                },
-                p,
-                null);
-        StrapiMapper strapiMapper = new StrapiMapper();
-        return strapiMapper.toVM(resp.data());
+    public DepartmentSourceVM get(@PathVariable("documentId") String documentId) {
+        return departmentSourceService.one(documentId);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(
-            @RequestBody DepartmentSourceReq req
-    ) {
+    public ResponseEntity<?> create(@RequestBody DepartmentSourceReq req) {
         try {
-//            String token = authHeader.replace("Bearer ", "");
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("url", req.url());
-            data.put("label", req.label());
-            data.put("key_departmentSource", req.key_departmentSource());
-            data.put("department", Map.of("connect", List.of(req.department_id())));
-
-            Map<String, Object> body = Map.of("data", data);
-
-            var created = client.postJson(
-                    "/department-sources",
-                    body,
-                    new ParameterizedTypeReference<StrapiSingle<DepartmentSourceFlat>>() {},
-                    null
-            );
-
+            Object created = departmentSourceService.create(req);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
-
         } catch (RestClientResponseException e) {
             return ResponseEntity.status(e.getRawStatusCode())
                     .body(Map.of("ok", false, "message", e.getResponseBodyAsString()));
         } catch (Exception ex) {
+            log.error("Failed to create department-source", ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("ok", false, "message", "Failed to create department-source"));
         }
@@ -128,43 +63,22 @@ null);
             @RequestBody DepartmentSourceReq req
     ) {
         try {
-            Map<String, Object> data = new HashMap<>();
-            data.put("url", req.url());
-            data.put("label", req.label());
-            data.put("key_departmentSource", req.key_departmentSource());
-
-            if (req.department_id() != null && !req.department_id().isBlank()) {
-                data.put("department", Map.of("connect", List.of(req.department_id())));
-            }
-
-            Map<String, Object> body = Map.of("data", data);
-
-            var updated = client.putJson(
-                    "/department-sources/" + documentId,
-                    body,
-                    new ParameterizedTypeReference<StrapiSingle<DepartmentSourceFlat>>() {},
-                    null
-            );
-
+            Object updated = departmentSourceService.update(documentId, req);
             return ResponseEntity.ok(updated);
-
         } catch (RestClientResponseException e) {
             return ResponseEntity.status(e.getRawStatusCode())
                     .body(Map.of("ok", false, "message", e.getResponseBodyAsString()));
         } catch (Exception ex) {
+            log.error("Failed to update department-source", ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("ok", false, "message", "Failed to update department-source"));
         }
     }
 
     @DeleteMapping("/{documentId}")
-    public ResponseEntity<?> delete(
-            @PathVariable String documentId ){
+    public ResponseEntity<?> delete(@PathVariable String documentId) {
         try {
-            client.delete(
-                    "/department-sources/" + documentId,
-                    null
-            );
+            departmentSourceService.delete(documentId);
             return ResponseEntity.ok(Map.of(
                     "ok", true,
                     "message", "Department Source deleted successfully"
@@ -173,9 +87,9 @@ null);
             return ResponseEntity.status(e.getRawStatusCode())
                     .body(Map.of("ok", false, "message", e.getResponseBodyAsString()));
         } catch (Exception ex) {
+            log.error("Failed to delete department-source", ex);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("ok", false, "message", "Failed to delete bookmark"));
+                    .body(Map.of("ok", false, "message", "Failed to delete department-source"));
         }
     }
 }
-
