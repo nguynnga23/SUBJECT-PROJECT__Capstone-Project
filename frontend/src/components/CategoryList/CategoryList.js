@@ -33,7 +33,7 @@ const CategoryList = ({
             </div>
           ))
         ) : (
-          <i className="flex w-full items-center justify-center">
+          <i className="flex w-full h-[50vh] items-center justify-center">
             Hiện tại chưa có tin tức nào mới
           </i>
         )}

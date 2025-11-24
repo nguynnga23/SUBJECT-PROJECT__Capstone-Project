@@ -8,7 +8,7 @@ function DefaultLayout({ children }) {
           <Header />
         </div>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center ">
         <div className="w-[1200px]">{children}</div>
       </div>
     </div>

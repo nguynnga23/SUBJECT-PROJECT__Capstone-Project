@@ -1,10 +1,7 @@
 import CategoryList from "../../components/CategoryList";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
-import {
-  getAllDepartmentSource,
-  getDepartmentSourceById,
-} from "../../apis/department_source";
+import { getAllDepartmentSource } from "../../apis/department_source";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,16 +17,18 @@ import { setPageData, setTotal } from "../../store/slices/articleSlice";
 import { selectCurrentPageData } from "../../store/selector/articleSelectors";
 import { IoList } from "react-icons/io5";
 import { getCategoryById } from "../../apis/category";
+import { setCurrentCategory } from "../../store/slices/categorySlice";
+import HoverDropdownForCategory from "../../components/HoverDropdownForCategory";
 
 function Department() {
   const dispatch = useDispatch();
-  const { id, cat_id } = useParams();
+  const navigate = useNavigate();
+  const { cat_id } = useParams();
   const { request: fetchDepartments, loading: loadingFetchDepartments } =
     useApi(getAllDepartmentSource);
   const { request: fetchCategory, loading: loadingFetchCategory } =
     useApi(getCategoryById);
   const [departments, setDepartments] = useState([]);
-  const [department, setDepartment] = useState({});
   const [category, setCategory] = useState(
     useSelector((state) => state.category.currentCategory) || null
   );
@@ -47,9 +46,6 @@ function Department() {
     };
     load();
   }, [departments]);
-  const { request: fetchDepartment, loading: loadingFetch } = useApi(
-    getDepartmentSourceById
-  );
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { request: fetchArticles, loading: loadingFetchArticles } =
@@ -73,18 +69,6 @@ function Department() {
   const data = useSelector((state) =>
     selectCurrentPageData(state, currentPage)
   );
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const fetched = await fetchDepartment(id);
-        setDepartment(fetched);
-      } catch (err) {
-        // toast.error("Không thể tải dữ liệu");
-      }
-    };
-    load();
-  }, [id]);
 
   useEffect(() => {
     const load = async () => {
@@ -127,36 +111,37 @@ function Department() {
   useEffect(() => {
     const loadPage = async () => {
       try {
-        const fetched = await fetchArticles({ currentPage, itemsPerPage });
+        let fetched;
+
+        if (cat_id) {
+          fetched = await fetchArticlesByCategory({
+            cat_id,
+            currentPage,
+            itemsPerPage,
+          });
+        } else {
+          fetched = await fetchArticles({
+            currentPage,
+            itemsPerPage,
+          });
+        }
+
         dispatch(setPageData({ page: currentPage, items: fetched }));
       } catch {
         toast.error("Không thể tải dữ liệu trang này");
       }
     };
-    loadPage();
-  }, [currentPage, itemsPerPage, dispatch]);
 
-  useEffect(() => {
-    const loadPage = async () => {
-      try {
-        if (cat_id) {
-          const fetched = await fetchArticlesByCategory({
-            cat_id,
-            currentPage,
-            itemsPerPage,
-          });
-          dispatch(setPageData({ page: currentPage, items: fetched }));
-        }
-      } catch {
-        toast.error("Không thể tải dữ liệu trang này");
-      }
-    };
     loadPage();
   }, [cat_id, currentPage, itemsPerPage, dispatch]);
 
+  const handleCategorySelect = (cat) => {
+    navigate(`/category/${cat.documentId}`);
+  };
+
   return (
     <div className="flex w-full">
-      <div className="w-[25%] hidden 3xl:block h-full pt-2 pr-2">
+      <div className="w-[25%] h-[100vh] pt-2 pr-2">
         <h2 className="flex items-center text-base font-semibold text-gray-800 mt-4">
           <IoList size={20} className="m-2" />
           DANH SÁCH CÁC KHOA/VIỆN
@@ -166,7 +151,7 @@ function Department() {
             <Spinner />
           </div>
         ) : (
-          <div className="whitespace-nowrap truncate transition duration-300 z-50">
+          <div className=" whitespace-nowrap truncate h-[100vh] transition duration-300 z-50">
             <ul className="text-[12px]">
               {departments.length > 0 ? (
                 departments.map((item, index) => (
@@ -174,11 +159,15 @@ function Department() {
                     key={index}
                     className="flex items-center bg-[#153898] text-white border rounded-lg px-4 py-2 mt-2 font-normal hover:text-[#F9B200] cursor-pointer"
                   >
-                    {item?.name || item?.label}
+                    <HoverDropdownForCategory
+                      label={(item?.name || item?.label)?.toUpperCase()}
+                      items={item.categories}
+                      onSelect={handleCategorySelect}
+                    />
                   </li>
                 ))
               ) : (
-                <li className="px-4 py-2 text-gray-400 italic">
+                <li className="px-4 py-4 text-gray-400 italic">
                   Không có mục nào
                 </li>
               )}
@@ -186,53 +175,33 @@ function Department() {
           </div>
         )}
       </div>
-      <div className="3xl:w-full w-[75%] pt-4 mf-2 ">
-        {department ? (
-          <div className="relative pb-10">
-            <div>
-              {!category ? (
-                department?.categories?.map((category, idx) => (
-                  <div key={idx}>
-                    <CategoryList
-                      isCategoryFilter={false}
-                      categoryName={category.categoryName}
-                      articles={data}
-                      loadingFetch={loadingFetch}
-                    />
-                  </div>
-                ))
-              ) : (
-                <div>
-                  <div className="mb-2">
-                    {loadingFetchArticles || loadingFetchArticlesByCategory ? (
-                      <div className="flex justify-center items-center h-[80vh]">
-                        <Spinner />
-                      </div>
-                    ) : (
-                      <CategoryList
-                        isCategoryFilter={true}
-                        categoryName={category.categoryName}
-                        articles={data}
-                        loadingFetch={loadingFetch}
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            <Pagination
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-              totalPages={Math.ceil(totalItems / itemsPerPage)}
-              itemsPerPage={itemsPerPage}
-              setItemsPerPage={setItemsPerPage}
-            />
+      <div className=" w-[75%] pt-3 mf-2 ">
+        <div className=" relative pb-4">
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={Math.ceil(totalItems / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+          />
+          <div className="mb-2">
+            {loadingFetchArticles || loadingFetchArticlesByCategory ? (
+              <div className="flex justify-center items-center h-[80vh]">
+                <Spinner />
+              </div>
+            ) : (
+              <CategoryList
+                isCategoryFilter={true}
+                categoryName={
+                  cat_id && category
+                    ? `${category.departmentSource?.label} - ${category.categoryName}`.toUpperCase()
+                    : null
+                }
+                articles={data}
+              />
+            )}
           </div>
-        ) : (
-          <div className="flex justify-center p-5">
-            Xin lỗi. Chúng tôi không tìm được thông tin khoa/viện này!
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );

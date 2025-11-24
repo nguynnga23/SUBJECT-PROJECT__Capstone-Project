@@ -69,20 +69,6 @@ function Header() {
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
   const [showNotifyForm, setShowNotifyForm] = useState(false);
 
-  const handleDepartmentSelect = (dept) => {
-    setDepartment(dept);
-    dispatch(setCurrentDepartment(dept));
-    dispatch(clearCurrentCategory());
-    navigate(`/department/${dept.documentId}`);
-    setCategory(null);
-  };
-
-  const handleCategorySelect = (cat) => {
-    setCategory(cat);
-    dispatch(setCurrentCategory(cat));
-    navigate(`/department/${department.documentId}/category/${cat.documentId}`);
-  };
-
   const handleUserProfileSelect = (up) => {
     if (up?.name === "Exit") {
       dispatch(logoutOfSlice());
@@ -100,30 +86,6 @@ function Header() {
             onClick={() => navigate(`/`)}
             src={new_logo}
           />
-
-          <div className="flex items-center gap-6 text-sm text-gray-700]">
-            <div className="flex gap-4">
-              {!loadingFetch ? (
-                <HoverDropdown
-                  label={department?.label || "Khoa/Viện"}
-                  items={departments || {}}
-                  onSelect={handleDepartmentSelect}
-                />
-              ) : (
-                <div className="flex justify-center items-center">
-                  <Spinner size={"h-[20px] w-[20px]"} />
-                </div>
-              )}
-            </div>
-            <div className="flex gap-4 ">
-              <HoverDropdown
-                label={category?.categoryName || "Loại tin tức"}
-                disable={!department}
-                items={department.categories}
-                onSelect={handleCategorySelect}
-              />
-            </div>
-          </div>
         </div>
 
         <div className="flex items-center gap-4">

@@ -149,7 +149,7 @@ function AnimatedRoutes() {
           element={<DefaultLayout children={<Department />} />}
         />
         <Route
-          path="/department/:id/category/:cat_id"
+          path="category/:cat_id"
           element={<DefaultLayout children={<Department />} />}
         />
         <Route
