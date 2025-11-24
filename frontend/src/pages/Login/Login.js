@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setToken, setUser } from "../../store/slices/authSlice";
+import { setAdmin, setToken, setUser } from "../../store/slices/authSlice";
 import { login, loginAsAdmin } from "../../apis/auth";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
@@ -30,19 +30,31 @@ function Login() {
       }
 
       const result = await fetchLogin({ email, password });
-
-      toast.success("Đăng nhập thành công");
-
       const userData = isAdmin ? result.data.user : result.user;
       const tokenData = isAdmin ? result.data.token : result.jwt;
 
       dispatch(setUser(userData));
       dispatch(setToken(tokenData));
+      dispatch(setAdmin(isAdmin));
+
+      toast.success("Đăng nhập thành công");
 
       navigate(isAdmin ? "/admin/dashboard" : "/");
     } catch (err) {
-      console.error(err);
-      toast.error("Đăng nhập thất bại");
+      if (err.message.includes("Too many requests") || err.status === 429) {
+        toast.warning(
+          "Số lần đăng nhập quá nhiều. Vui lòng thử lại sau 3 phút."
+        );
+      } else if (
+        err.message.includes("Invalid credentials") ||
+        err.status === 400 ||
+        err.message.includes("400")
+      ) {
+        toast.error("Sai email hoặc mật khẩu.");
+      } else {
+        console.log(err);
+        toast.error("Đăng nhập thất bại: " + err.message);
+      }
     }
   };
 
@@ -112,7 +124,7 @@ function Login() {
               className="mr-2"
             />
             <label htmlFor="adminLogin" className="text-sm">
-              Login với account admin
+              Login với quyền quản trị
             </label>
           </div>
           <div className="text-right mb-6">

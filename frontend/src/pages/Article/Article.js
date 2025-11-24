@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { articles } from "../../assets/sampleData";
 import { marked } from "marked";
-import { BsSend } from "react-icons/bs";
 import { FaRegBookmark, FaChevronRight } from "react-icons/fa";
 import { RxResume } from "react-icons/rx";
 import ArticleItem from "../../components/ArtileItem/ArticleItem";
@@ -10,6 +9,9 @@ import { useEffect, useState } from "react";
 import { getArticleById } from "../../apis/article";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
+import { LuCalendarClock } from "react-icons/lu";
+import Spinner from "../../components/Spinner";
+import { PiNewspaperLight } from "react-icons/pi";
 
 function Article() {
   const { id } = useParams();
@@ -38,25 +40,57 @@ function Article() {
     setShowSummary(!showSummary);
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  if (loadingArticleFetch) {
+    return (
+      <div className="flex justify-center items-center h-[80vh]">
+        <Spinner />
+      </div>
+    );
+  }
+
   return data ? (
     <div className="h-full flex justify-between mt-3 text-[12px] ">
-      <div className="w-[73%]">
+      <div className="w-[70%]">
         <h2 className="w-[100%] items-center flex truncate text-[14px] p-4 pb-0 h-[45px]">
           <a
-            onClick={() => navigate("/department/1")}
+            onClick={() =>
+              navigate(
+                `/department/${data.category?.departmentSource.documentId}`
+              )
+            }
             className="cursor-pointer hover:border-b hover:text-blue-500"
-          >{`Khoa Công Nghệ Thông Tin`}</a>
+          >
+            {data.category?.departmentSource.label}
+          </a>
           <FaChevronRight size={12} className="m-1" />
           <a
-            onClick={() => navigate("/department/1/category/1")}
+            onClick={() =>
+              navigate(
+                `/department/${data.category?.departmentSource.documentId}/category/${data.category.documentId}`
+              )
+            }
             className="cursor-pointer hover:border-b hover:text-blue-500"
-          >{`Thông Tin Sinh Viên`}</a>
+          >
+            {data.category?.categoryName}
+          </a>
           <FaChevronRight size={12} className="m-1" />
-          <a className="max-w-[500px] truncate font-bold">{`${data.title}`}</a>
+          <a className="max-w-[500px] truncate font-bold">{`${data?.title}`}</a>
         </h2>
         <h1 className="font-bold text-[26px] p-4">{data.title}</h1>
         <div className="pl-4 pr-4 pb-4 flex justify-between items-center">
-          <i className="text-[13px]">{data.publishDate}</i>
+          <div className="flex gap-2">
+            <span className="flex items-center gap-2 px-3 py-1 border rounded-full bg-white shadow-sm">
+              <LuCalendarClock size={18} className="text-[#F9B200]" />
+              <i className="text-[11px]">
+                {formatDate(data.externalPublishDate)}
+              </i>
+            </span>
+          </div>
           <i>
             <a
               href={data?.externalUrl}
@@ -87,25 +121,21 @@ function Article() {
           className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0"
         ></div>
       </div>
-      <div className="sticky top-[85px] w-[26%] h-[500px] border-b p-1 ">
+      <div className="sticky top-[85px] w-[30%] h-[500px] border-b p-1 ">
         <div className="flex border-b">
-          <div className="flex items-center justify-center p-2 bg-gray-200 rounded m-2 mr-0 text-gray-500 hover:text-red-500 cursor-pointer">
-            <BsSend className="mr-2" />
-            <span>Share</span>
-          </div>
           <div className="flex items-center justify-center p-2 bg-gray-200 rounded m-2 text-gray-500 hover:text-red-500 cursor-pointer">
             <FaRegBookmark className="mr-2" />
-            <span>Mark</span>
+            <span>Đánh dấu</span>
           </div>
         </div>
         <div className=" max-h-[550px] overflow-auto mt-2">
           <div className="flex items-center p-2 ">
-            <span className="text-red-500 font-bold mr-2">■</span>
+            <PiNewspaperLight color="#153898" size={20} className="mr-2" />
             <p className="font-medium">Tin tức tương tự</p>
           </div>
 
           {articles.map((l, idx) => (
-            <div key={idx} className="p-1 ">
+            <div key={idx} className=" ">
               <ArticleItem article={l} />
             </div>
           ))}

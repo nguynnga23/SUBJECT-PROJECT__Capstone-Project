@@ -25,10 +25,24 @@ public class ArticleController {
         return articleService.countItems();
     }
 
+    @GetMapping("/count/{cat_id}")
+    public int countItemsByCategoryId(@PathVariable("cat_id") String cat_id) {
+        return articleService.countItemsByCategory(cat_id);
+    }
+
     @GetMapping
     public List<ArticleVM> list(@RequestParam(defaultValue = "1") int page,
                                 @RequestParam(defaultValue = "10") int pageSize) {
         return articleService.list(page, pageSize);
+    }
+
+    @GetMapping("/category/{cat_id}")
+    public List<ArticleVM> listByCategoryId(
+            @PathVariable("cat_id") String cat_id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return articleService.listByCategory(cat_id, page, pageSize);
     }
 
     @GetMapping("/{id}")
