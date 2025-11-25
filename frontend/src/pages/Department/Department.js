@@ -17,7 +17,6 @@ import { setPageData, setTotal } from "../../store/slices/articleSlice";
 import { selectCurrentPageData } from "../../store/selector/articleSelectors";
 import { IoList } from "react-icons/io5";
 import { getCategoryById } from "../../apis/category";
-import { setCurrentCategory } from "../../store/slices/categorySlice";
 import HoverDropdownForCategory from "../../components/HoverDropdownForCategory";
 
 function Department() {

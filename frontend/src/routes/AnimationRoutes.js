@@ -19,6 +19,7 @@ import CrawlerConfig from "../pages/CrawlerConfig";
 import UserDetail from "../pages/UserDetail";
 import ArticleDetail from "../pages/ArticleDetail";
 import ProtectedRoute from "./ProtectedRoute";
+import SearchResult from "../pages/SearchResult";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -155,6 +156,10 @@ function AnimatedRoutes() {
         <Route
           path="/article/:id"
           element={<DefaultLayout children={<Article />} />}
+        />
+        <Route
+          path="/search"
+          element={<DefaultLayout children={<SearchResult />} />}
         />
       </Routes>
     </AnimatePresence>

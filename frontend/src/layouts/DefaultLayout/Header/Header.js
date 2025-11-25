@@ -1,8 +1,7 @@
 import { FaSearch, FaRegUser, FaRegBell, FaRegBookmark } from "react-icons/fa";
 import { IoExitOutline } from "react-icons/io5";
 import HoverDropdown from "../../../components/HoverDropdown";
-import { useEffect, useState } from "react";
-import { current_data } from "../../../assets/sampleData.js";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ProfileForm from "../../../components/Form/ProfileForm";
 import MarkedForm from "../../../components/Form/MarkedForm";
@@ -11,18 +10,7 @@ import UpdatePassword from "../../../components/Form/UpdatePassword/UpdatePasswo
 import NotifyForm from "../../../components/Form/NotifyForm/NotifyForm.js";
 import { new_logo, user } from "../../../assets/index.js";
 import { logoutOfSlice } from "../../../store/slices/authSlice.js";
-import { getAllDepartmentSource } from "../../../apis/department_source.js";
-import { useApi } from "../../../hooks/useApi.js";
-import { toast } from "react-toastify";
-import Spinner from "../../../components/Spinner/Spinner.js";
-import {
-  setCurrentDepartment,
-  setListDepartments,
-} from "../../../store/slices/departmentSlice.js";
-import {
-  clearCurrentCategory,
-  setCurrentCategory,
-} from "../../../store/slices/categorySlice.js";
+
 function Header() {
   const currentUser = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
@@ -30,47 +18,24 @@ function Header() {
   const user_profile = [
     {
       icon: <FaRegUser />,
-      name: "Profile",
+      name: "Thông tin cá nhân",
     },
     {
       icon: <FaRegBookmark />,
-      name: "Marked",
+      name: "Danh sách đánh dấu",
     },
     {
       icon: <IoExitOutline />,
-      name: "Exit",
+      name: "Đăng xuất",
     },
   ];
 
-  const { request: fetchDepartments, loading: loadingFetch } = useApi(
-    getAllDepartmentSource
-  );
-  const departments = useSelector((state) => state.department.departments);
-  const [department, setDepartment] = useState(
-    useSelector((state) => state.department.currentDepartment) || {}
-  );
-  useEffect(() => {
-    const load = async () => {
-      if (departments.length === 0) {
-        try {
-          const fetched = await fetchDepartments();
-          dispatch(setListDepartments(fetched));
-        } catch (err) {
-          toast.error("Không thể tải dữ liệu");
-        }
-      }
-    };
-    load();
-  }, [departments, dispatch]);
-  const [category, setCategory] = useState(
-    useSelector((state) => state.category.currentCategory) || {}
-  );
   const [userProfile, setUserProfile] = useState(false);
   const [showUpdatePasswordForm, setShowUpdatePasswordForm] = useState(false);
   const [showNotifyForm, setShowNotifyForm] = useState(false);
 
   const handleUserProfileSelect = (up) => {
-    if (up?.name === "Exit") {
+    if (up?.name === "Đăng xuất") {
       dispatch(logoutOfSlice());
       return;
     }
@@ -114,14 +79,15 @@ function Header() {
                     items={user_profile}
                     onSelect={handleUserProfileSelect}
                   />
-                  {userProfile?.name === "Marked" ? (
+                  {userProfile?.name === "Danh sách đánh dấu" ? (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                       <div className="opacity-0 animate-fadeIn">
                         <MarkedForm setUserProfile={setUserProfile} />
                       </div>
                     </div>
                   ) : (
-                    (userProfile?.name === "Profile" || userProfile) && (
+                    (userProfile?.name === "Thông tin cá nhân" ||
+                      userProfile) && (
                       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
                         <div className="opacity-0 animate-fadeIn">
                           <ProfileForm

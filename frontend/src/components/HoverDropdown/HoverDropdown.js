@@ -51,7 +51,7 @@ function HoverDropdown({
               items.map((item, index) => (
                 <li
                   key={index}
-                  className="flex items-center px-4 py-2 font-normal cursor-pointer"
+                  className="flex items-center px-4 py-2 font-normal cursor-pointer hover:text-red-500 hover:bg-gray-200"
                   onClick={() => onSelect(item)}
                 >
                   {item?.icon && <span className="mr-2">{item.icon}</span>}

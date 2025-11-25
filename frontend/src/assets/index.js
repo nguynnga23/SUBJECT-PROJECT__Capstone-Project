@@ -1,6 +1,8 @@
 // Hình ảnh, font, icon, ...
 import logo from "./logo_iuh_png.jpg";
 import new_logo from "./logo.svg";
+import new_logo_white from "./logo-white.svg";
+import bg_footer from "./bg-footer.jpg";
 import user from "./user.jpg";
 import picture1 from "./fit/picture1.jpg";
 import picture2 from "./fit/picture2.jpg";
@@ -21,6 +23,8 @@ export {
   user,
   logo,
   new_logo,
+  new_logo_white,
+  bg_footer,
   picture1,
   picture2,
   picture3,

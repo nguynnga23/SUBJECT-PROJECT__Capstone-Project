@@ -1,3 +1,4 @@
+import Footer from "./Footer";
 import Header from "./Header";
 
 function DefaultLayout({ children }) {
@@ -10,6 +11,9 @@ function DefaultLayout({ children }) {
       </div>
       <div className="flex justify-center ">
         <div className="w-[1200px]">{children}</div>
+      </div>
+      <div>
+        <Footer />
       </div>
     </div>
   );

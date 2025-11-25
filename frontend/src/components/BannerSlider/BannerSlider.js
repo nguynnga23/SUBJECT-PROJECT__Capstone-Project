@@ -1,11 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { MdOutlineChevronLeft, MdOutlineChevronRight } from "react-icons/md";
+import { thumnailDefault } from "../../assets";
+import { useNavigate } from "react-router-dom";
+import { LuCalendarClock } from "react-icons/lu";
 
 const BannerSlider = ({ list }) => {
   const ITEMS_PER_SLIDE = 2;
   const totalSlides = Math.ceil(list?.length / ITEMS_PER_SLIDE);
   const [currentSlide, setCurrentSlide] = useState(0);
   const intervalRef = useRef(null);
+
+  const navigate = useNavigate();
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN");
+  };
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -35,7 +45,11 @@ const BannerSlider = ({ list }) => {
 
   const handleManualNav = (direction) => {
     direction === "next" ? nextSlide() : prevSlide();
-    resetInterval(); // reset timer sau khi bấm
+    resetInterval();
+  };
+
+  const handleClick = (id) => {
+    navigate(`/article/${id}`);
   };
 
   if (list.length === 0) return null;
@@ -56,16 +70,35 @@ const BannerSlider = ({ list }) => {
           return (
             <div
               key={slideIndex}
-              className="flex gap-4 "
+              className="flex gap-4"
               style={{ width: `${100 / totalSlides}%` }}
             >
-              {items.map((img, idx) => (
-                <img
+              {items.map((item, idx) => (
+                <div
                   key={idx}
-                  src={img}
-                  alt={`Slide ${start + idx}`}
-                  className="w-1/2 h-[250px] object-cover rounded-lg shadow"
-                />
+                  className="relative w-1/2 h-[250px] cursor-pointer group"
+                  onClick={() => handleClick(item.documentId)}
+                >
+                  <img
+                    className="w-full h-full object-cover rounded-lg shadow"
+                    src={item?.thumbnail}
+                    alt={item?.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = thumnailDefault;
+                    }}
+                  />
+                  <span className="absolute right-2 top-2 flex items-center gap-2 px-3 py-1 border rounded-full bg-white shadow-sm">
+                    <LuCalendarClock size={18} className="text-[#F9B200]" />
+                    <i className="text-[11px]">
+                      {formatDate(item.externalPublishDate)}
+                    </i>
+                  </span>
+
+                  <div className="absolute min-h-[50px] bottom-0 left-0 w-full p-1 bg-blue-300/50 text-gray-100 text-[12px] rounded-b-lg  transition">
+                    {item?.title}
+                  </div>
+                </div>
               ))}
             </div>
           );

@@ -27,7 +27,7 @@ function HoverDropdownForCategory({ label, items = [], onSelect }) {
     const rect = ref.current.getBoundingClientRect();
     setPos({
       top: rect.top - 10,
-      left: rect.right + 15,
+      left: rect.right + 20,
     });
     setIsOpen(true);
   };
@@ -45,17 +45,17 @@ function HoverDropdownForCategory({ label, items = [], onSelect }) {
       {isOpen &&
         createPortal(
           <div
-            className="fixed z-[99999] bg-white shadow-lg border rounded-lg min-w-[220px]"
+            className="fixed z-[99999] bg-white shadow-lg border min-w-[220px]"
             style={{ top: pos.top, left: pos.left }}
-            onMouseEnter={clearCloseTimeout} // Hover popup → không tắt
-            onMouseLeave={startCloseTimeout} // Rời popup → bắt đầu timeout
+            onMouseEnter={clearCloseTimeout}
+            onMouseLeave={startCloseTimeout}
           >
             <ul className="text-[12px] text-gray-700 max-h-[250px] overflow-y-auto">
               {items.length > 0 ? (
                 items.map((item, index) => (
                   <li
                     key={index}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                    className="px-4 py-2 cursor-pointer hover:bg-gray-100 hover:text-[#F9B200] hover:bg-[#153898]"
                     onClick={() => onSelect(item)}
                   >
                     {item?.name || item?.label || item?.categoryName}
