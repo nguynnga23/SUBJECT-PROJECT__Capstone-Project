@@ -13,6 +13,7 @@ import { PiNewspaperLight } from "react-icons/pi";
 import { useSelector } from "react-redux";
 import { selectCurrentPageData } from "../../store/selector/articleSelectors";
 import { IoArrowBackOutline } from "react-icons/io5";
+import ScrollToTopButton from "../../components/ScrollToTopButton";
 
 function Article() {
   const { id } = useParams();
@@ -27,8 +28,6 @@ function Article() {
     const load = async () => {
       try {
         const fetched = await fetchArticle(id);
-        console.log(fetched);
-
         setData(fetched);
       } catch (err) {
         toast.error("Không thể tải dữ liệu");
@@ -37,15 +36,17 @@ function Article() {
     load();
   }, [id]);
 
-  const [showSummary, setShowSummary] = useState(false);
-
-  const ShowSummary = () => {
-    setShowSummary(!showSummary);
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
+  };
+
+  const handleSwitchPage = () => {
+    try {
+      navigate(`/category/${data.category.documentId}`);
+    } catch (error) {
+      navigate(`/`);
+    }
   };
 
   if (loadingArticleFetch) {
@@ -61,11 +62,11 @@ function Article() {
       <div className="w-[70%]">
         <h2 className="w-[100%] items-center flex truncate text-[16px] p-4 pb-0 h-[45px] font-bold">
           <a
-            onClick={() => navigate(`/category/${data.category.documentId}`)}
+            onClick={handleSwitchPage}
             className="flex items-center cursor-pointer border-b hover:text-blue-500"
           >
             <IoArrowBackOutline size={20} className="mr-2" />
-            {`${data.category.departmentSource?.label} - ${data.category.categoryName}`.toUpperCase()}
+            {`${data.category?.departmentSource?.label} - ${data.category?.categoryName}`.toUpperCase()}
           </a>
         </h2>
         <h1 className="font-bold text-[26px] p-4">{data.title}</h1>
@@ -111,8 +112,8 @@ function Article() {
             </a>
           </div>
         </div>
-        <div className=" max-h-[80vh] overflow-auto mt-2">
-          <div className="flex items-center p-2 ">
+        <div className="max-h-[80vh] overflow-auto mt-2 mb-6">
+          <div className="flex items-center p-2 pb-0">
             <PiNewspaperLight color="#153898" size={20} className="mr-2" />
             <p className="font-medium text-[14px]">TIN TỨC KHÁC</p>
           </div>
@@ -124,6 +125,7 @@ function Article() {
           ))}
         </div>
       </div>
+      <ScrollToTopButton />
     </div>
   ) : (
     <div className="flex justify-center p-5">

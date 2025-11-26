@@ -9,10 +9,10 @@ function DefaultLayout({ children }) {
           <Header />
         </div>
       </div>
-      <div className="flex justify-center ">
+      <div className="flex justify-center relative z-20 min-h-[800px]">
         <div className="w-[1200px]">{children}</div>
       </div>
-      <div>
+      <div className="relative z-50">
         <Footer />
       </div>
     </div>

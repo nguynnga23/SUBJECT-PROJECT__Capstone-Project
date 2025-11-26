@@ -3,9 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { thumnailDefault } from "../../assets";
 import { LuCalendarClock } from "react-icons/lu";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { useSelector } from "react-redux";
+import { postBookMark } from "../../apis/marked";
+import { useApi } from "../../hooks/useApi";
+import Spinner from "../Spinner";
 
-function ArticleItem({ article, size }) {
+function ArticleItem({ article, size, isMarked }) {
   const navigate = useNavigate();
+
+  const currentUser = useSelector((state) => state.auth.user);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -25,6 +31,12 @@ function ArticleItem({ article, size }) {
 
   const handleClick = (articleId) => {
     navigate(`/article/${articleId}`);
+  };
+  const { request: fetchPostBookMark, loading: loadingfetchPostBookMark } =
+    useApi(postBookMark);
+
+  const handleMark = async ({ userId, articleId }) => {
+    await fetchPostBookMark({ userId, articleId });
   };
 
   return (
@@ -65,11 +77,37 @@ function ArticleItem({ article, size }) {
               >
                 <FaExternalLinkAlt size={15} title="Dẫn đến bài viết gốc" />
               </a>
-              <FaRegBookmark
-                size={15}
-                className="text-gray-500 hover:text-red-500 cursor-pointer"
-                title="Đánh dấu bài viết"
-              />
+              {loadingfetchPostBookMark ? (
+                <div className="w-[10px]">
+                  <Spinner size={"w-[15px] h-[15px]"} />
+                </div>
+              ) : (
+                <>
+                  {isMarked ? (
+                    <FaRegBookmark
+                      size={15}
+                      className="text-yellow-500 hover:text-red-500 cursor-pointer"
+                      title="Bỏ đánh dấu bài viết"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    />
+                  ) : (
+                    <FaRegBookmark
+                      size={15}
+                      className="text-gray-500 hover:text-red-500 cursor-pointer"
+                      title="Đánh dấu bài viết"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMark({
+                          userId: currentUser.documentId,
+                          articleId: article.documentId,
+                        });
+                      }}
+                    />
+                  )}
+                </>
+              )}
             </div>
 
             {isNewArticle(article.externalPublishDate) && (

@@ -42,6 +42,19 @@ function Header() {
     setUserProfile(up);
   };
 
+  const [keyword, setKeyword] = useState("");
+
+  const handleSearch = () => {
+    if (!keyword.trim()) return;
+    navigate(`/search?query=${encodeURIComponent(keyword.trim())}`);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   return (
     <div className="w-full flex justify-center">
       <div className="p-2 w-[1200px] flex items-center justify-between py-4">
@@ -58,8 +71,15 @@ function Header() {
             <input
               className="bg-transparent focus:outline-none w-[260px] h-[30px] pr-2"
               placeholder="Tìm kiếm tin tức"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
-            <FaSearch size={16} className="mr-1 text-gray-600" />
+            <FaSearch
+              size={16}
+              className="mr-1 text-gray-600 cursor-pointer"
+              onClick={handleSearch}
+            />
           </div>
 
           {currentUser ? (

@@ -2,6 +2,10 @@ import { PiNewspaperLight } from "react-icons/pi";
 import ArticleItem from "../ArtileItem";
 import Spinner from "../Spinner";
 import BannerSlider from "../BannerSlider";
+import { useSelector } from "react-redux";
+import { useApi } from "../../hooks/useApi";
+import { getBookMarkByUserId } from "../../apis/marked";
+import { useEffect, useState } from "react";
 
 const CategoryList = ({
   categoryName,
@@ -9,6 +13,26 @@ const CategoryList = ({
   loadingFetch,
   isCategoryFilter,
 }) => {
+  const currentUser = useSelector((state) => state.auth.user);
+  const [markedList, setMarkedList] = useState([]);
+
+  const { request: fetchGetListBookMark, loading: loadingGetListBookMark } =
+    useApi(getBookMarkByUserId);
+
+  useEffect(() => {
+    const fetchMarked = async () => {
+      if (!currentUser) return;
+
+      const res = await fetchGetListBookMark({
+        userId: currentUser?.documentId,
+      });
+
+      setMarkedList(res.map((item) => item.article?.documentId));
+    };
+
+    fetchMarked();
+  }, [currentUser]);
+
   return (
     <div className="p-2 overflow-hidden w-full">
       <div className="pb-2 border-b">
@@ -40,7 +64,10 @@ const CategoryList = ({
         ) : articles.length > 0 ? (
           articles.map((article, idx) => (
             <div key={idx}>
-              <ArticleItem article={article} />
+              <ArticleItem
+                article={article}
+                isMarked={markedList.includes(article.documentId)}
+              />
             </div>
           ))
         ) : (

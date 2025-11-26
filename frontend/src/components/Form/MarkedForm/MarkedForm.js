@@ -4,31 +4,46 @@ import { useState, useEffect } from "react";
 import { RiDraggable } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { LiaTimesCircle } from "react-icons/lia";
+import { useApi } from "../../../hooks/useApi";
+import { getBookMarkByUserId } from "../../../apis/marked";
+import { MdDelete } from "react-icons/md";
 
 function MarkedForm({ setUserProfile }) {
   const navigate = useNavigate();
-  const markedListId = useSelector((state) => state.article.listMarked);
-  const articles = useSelector((state) => state.article.allArticles);
+  const [markedList, setMarkedList] = useState([]);
+  const currentUser = useSelector((state) => state.auth.user);
 
-  const markedListArticle = articles.filter((item) =>
-    markedListId.includes(item.id)
-  );
+  const { request: fetchGetListBookMark, loading: loadingGetListBookMark } =
+    useApi(getBookMarkByUserId);
 
-  const [list, setList] = useState(markedListArticle);
-
-  // Đồng bộ với Redux mỗi khi danh sách thay đổi
   useEffect(() => {
-    setList(markedListArticle);
-  }, []);
+    const fetchMarked = async () => {
+      if (!currentUser) return;
+
+      const res = await fetchGetListBookMark({
+        userId: currentUser?.documentId,
+      });
+
+      setMarkedList(res.map((item) => item.article));
+    };
+
+    fetchMarked();
+  }, [currentUser]);
+
+  // const [list, setList] = useState(markedListArticle);
+
+  // useEffect(() => {
+  //   setList(markedListArticle);
+  // }, []);
 
   const handleOnDragEnd = (result) => {
     if (!result.destination) return;
 
-    const reordered = Array.from(list);
+    const reordered = Array.from(markedList);
     const [removed] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, removed);
 
-    setList(reordered);
+    setMarkedList(reordered);
   };
 
   const handleClickArticle = (articleId) => {
@@ -45,7 +60,7 @@ function MarkedForm({ setUserProfile }) {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         Bài viết đã đánh dấu
       </h2>
-      {list.length === 0 ? (
+      {markedList.length === 0 ? (
         <p className="text-gray-500">Bạn chưa đánh dấu bài viết nào.</p>
       ) : (
         <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -56,10 +71,10 @@ function MarkedForm({ setUserProfile }) {
                 ref={provided.innerRef}
                 className="space-y-3 max-h-[400px] overflow-auto border-b pb-4"
               >
-                {list.map((article, index) => (
+                {markedList.map((article, index) => (
                   <Draggable
-                    key={article.id}
-                    draggableId={article.id.toString()}
+                    key={article.documentId}
+                    draggableId={article.documentId.toString()}
                     index={index}
                   >
                     {(provided, snapshot) => (
@@ -72,23 +87,23 @@ function MarkedForm({ setUserProfile }) {
                             ? "bg-blue-50 shadow-lg"
                             : "hover:bg-gray-50"
                         }`}
-                        onClick={() => handleClickArticle(article.id)}
+                        onClick={() => handleClickArticle(article.documentId)}
                       >
                         <div className="flex items-center">
                           <span className="cursor-grab pr-2">
                             <RiDraggable size={20} />
                           </span>
                           <div>
-                            <h3 className="text-[12px] font-medium truncate max-w-[430px]">
+                            <h3 className="text-[12px] font-medium  max-w-[430px]">
                               {article.title}
                             </h3>
                             <i className="text-[10px] text-gray-500">
-                              {article.publishDate}
+                              {article.externalPublishDate}
                             </i>
                           </div>
                         </div>
                         <button className="text-red-500 text-[12px] hover:underline">
-                          Bỏ đánh dấu
+                          <MdDelete size={20} color="red" />
                         </button>
                       </li>
                     )}

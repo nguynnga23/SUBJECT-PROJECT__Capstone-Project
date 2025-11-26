@@ -18,6 +18,7 @@ import { selectCurrentPageData } from "../../store/selector/articleSelectors";
 import { IoList } from "react-icons/io5";
 import { getCategoryById } from "../../apis/category";
 import HoverDropdownForCategory from "../../components/HoverDropdownForCategory";
+import ScrollToTopButton from "../../components/ScrollToTopButton";
 
 function Department() {
   const dispatch = useDispatch();
@@ -202,6 +203,7 @@ function Department() {
           </div>
         </div>
       </div>
+      <ScrollToTopButton />
     </div>
   );
 }
