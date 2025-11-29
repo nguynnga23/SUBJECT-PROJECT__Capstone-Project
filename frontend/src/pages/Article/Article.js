@@ -14,13 +14,17 @@ import { useSelector } from "react-redux";
 import { selectCurrentPageData } from "../../store/selector/articleSelectors";
 import { IoArrowBackOutline } from "react-icons/io5";
 import ScrollToTopButton from "../../components/ScrollToTopButton";
+import { checkBookMark, postBookMark } from "../../apis/marked";
 
 function Article() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [isMarked, setIsMarked] = useState(false);
   const { request: fetchArticle, loading: loadingArticleFetch } =
     useApi(getArticleById);
+  const { request: fetchCheckBookMark, loading: loadingfetchCheckBookMark } =
+    useApi(checkBookMark);
 
   const listArticle = useSelector((state) => selectCurrentPageData(state, "1"));
 
@@ -36,6 +40,21 @@ function Article() {
     load();
   }, [id]);
 
+  useEffect(() => {
+    const load = async () => {
+      if (data) {
+        try {
+          const fetched = await fetchCheckBookMark({
+            userId: currentUser.documentId,
+            articleId: data.documentId,
+          });
+          setIsMarked(fetched.isBookmarked);
+        } catch (err) {}
+      }
+    };
+    load();
+  }, [data]);
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN");
@@ -46,6 +65,21 @@ function Article() {
       navigate(`/category/${data.category.documentId}`);
     } catch (error) {
       navigate(`/`);
+    }
+  };
+  const { request: fetchPostBookMark, loading: loadingfetchPostBookMark } =
+    useApi(postBookMark);
+  const currentUser = useSelector((state) => state.auth.user);
+  const handleMark = async ({ userId, articleId }) => {
+    if (!isMarked) {
+      try {
+        await fetchPostBookMark({ userId, articleId });
+        setIsMarked(true);
+      } catch (error) {
+        toast.error("Không thể đánh dấu bài viết này. Vui lòng thử lại sau");
+      }
+    } else {
+      toast.warning("Bài viết này đã được đánh dấu trước đó");
     }
   };
 
@@ -87,18 +121,37 @@ function Article() {
         </div>
         <div
           dangerouslySetInnerHTML={{ __html: marked(data?.content) }}
-          className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0"
+          className="prose prose-sm max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0 text-justify-custom"
         ></div>
       </div>
-      <div className="sticky top-[85px] w-[30%] h-[500px] border-b p-1 ">
-        <div className="flex border-b w-full">
-          <div className="flex mr-2 items-center justify-center p-2 bg-gray-200 rounded m-2 text-gray-500 hover:text-red-500 cursor-pointer">
-            <FaRegBookmark className="mr-2" />
-            <span>Đánh dấu</span>
-          </div>
-          <div className="flex items-center bg-gray-200 rounded text-[12px] m-2 p-2">
+      <div className="sticky top-[85px] w-[30%] p-1 ">
+        <div className="flex items-center w-full">
+          {loadingfetchPostBookMark || loadingfetchCheckBookMark ? (
+            <div>
+              <Spinner size="h-[20px] w-[20px]" />
+            </div>
+          ) : (
+            currentUser && (
+              <div
+                className={`flex mr-2 items-center justify-center p-2 bg-white rounded border m-2 ${
+                  isMarked ? "text-gray-500" : "text-yellow-500"
+                } hover:text-red-500 cursor-pointer`}
+                onClick={() =>
+                  handleMark({
+                    userId: currentUser.documentId,
+                    articleId: data.documentId,
+                  })
+                }
+              >
+                <FaRegBookmark className="mr-2" />
+                <span>{isMarked ? "Đã đánh dấu" : "Đánh dấu"}</span>
+              </div>
+            )
+          )}
+
+          <div className="flex items-center bg-white rounded text-[12px] p-2 border">
             <a
-              href={data?.external_url}
+              href={data?.externalUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center text-blue-500 pl-2 cursor-pointer"
@@ -112,7 +165,7 @@ function Article() {
             </a>
           </div>
         </div>
-        <div className="max-h-[80vh] overflow-auto mt-2 mb-6">
+        <div className="max-h-[80vh] overflow-auto mt-2 mb-6 border rounded-lg">
           <div className="flex items-center p-2 pb-0">
             <PiNewspaperLight color="#153898" size={20} className="mr-2" />
             <p className="font-medium text-[14px]">TIN TỨC KHÁC</p>

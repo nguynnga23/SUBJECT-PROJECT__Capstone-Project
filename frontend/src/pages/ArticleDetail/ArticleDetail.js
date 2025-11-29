@@ -1,13 +1,20 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { marked } from "marked";
-import { FaChevronRight } from "react-icons/fa";
-import { RxResume } from "react-icons/rx";
 import ArticleSummary from "../../components/ArticleSummary";
-import { useEffect, useRef, useState } from "react";
-import { getArticleById } from "../../apis/article";
+import { useEffect, useState } from "react";
+import {
+  getArticleById,
+  postNewSummary,
+  putNewSummary,
+} from "../../apis/article";
 import { useApi } from "../../hooks/useApi";
 import { toast } from "react-toastify";
+import { LuCalendarClock } from "react-icons/lu";
 import Spinner from "../../components/Spinner";
+import { IoArrowBackOutline } from "react-icons/io5";
+import ScrollToTopButton from "../../components/ScrollToTopButton";
+import { IoRefresh } from "react-icons/io5";
+import { TbCancel } from "react-icons/tb";
 
 function ArticleDetail() {
   const { id } = useParams();
@@ -15,23 +22,68 @@ function ArticleDetail() {
   const [data, setData] = useState(null);
   const { request: fetchArticle, loading: loadingArticleFetch } =
     useApi(getArticleById);
+  const { request: fetchPutNewSummary, loading: loadingPutNewSummaryFetch } =
+    useApi(putNewSummary);
+  const [preSummary, setPreSummary] = useState("");
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+
+  const { request: fetchPostNewSummary, loading: loadingPostNewSummary } =
+    useApi(postNewSummary);
 
   useEffect(() => {
     const load = async () => {
       try {
         const fetched = await fetchArticle(id);
         setData(fetched);
-      } catch (err) {
+        setPreSummary(fetched.summary);
+      } catch {
         toast.error("Không thể tải dữ liệu");
       }
     };
     load();
   }, [id]);
 
-  const [showSummary, setShowSummary] = useState(false);
+  const handleSwitchPage = () => {
+    try {
+      navigate(`/admin/article`);
+    } catch (error) {
+      navigate(`/`);
+    }
+  };
 
-  const ShowSummary = () => {
-    setShowSummary(!showSummary);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN");
+  };
+
+  const handleChangeSummary = async () => {
+    try {
+      const res = await fetchPostNewSummary(data.summary);
+
+      if (res?.summary) {
+        setPreSummary(res.summary);
+        setIsEditingSummary(true);
+      }
+    } catch {
+      toast.error("Không thể tải dữ liệu. Vui lòng thử lại sau");
+    }
+  };
+
+  const handlePutNewSummary = async () => {
+    try {
+      const res = await fetchPutNewSummary({
+        articleId: data.documentId,
+        summary: preSummary,
+      });
+
+      if (res) {
+        setData((prev) => ({ ...prev, summary: preSummary }));
+        setIsEditingSummary(false);
+        toast.success("Cập nhật tóm tắt thành công");
+      }
+    } catch {
+      toast.error("Không thể cập nhật dữ liệu. Vui lòng thử lại sau");
+    }
   };
 
   if (loadingArticleFetch) {
@@ -43,71 +95,80 @@ function ArticleDetail() {
   }
 
   return data ? (
-    <div className="max-h-[650px] scroll-container overflow-auto flex justify-between mt-3 text-[12px] ">
+    <div className="relative max-h-[85vh] overflow-auto flex justify-between mt-3 text-[12px] ">
       <div className="w-[98%]">
-        <h2 className="w-[100%] items-center flex truncate text-[14px] p-4 pb-0 h-[45px]">
+        <h2 className="w-[100%] flex justify-between items-center flex truncate text-[16px] p-4 pb-0 h-[45px] font-bold">
           <a
-            onClick={() =>
-              navigate(
-                `/admin/department/${data.category?.departmentSource.documentId}`
-              )
-            }
-            className="cursor-pointer hover:border-b hover:text-blue-500"
+            onClick={handleSwitchPage}
+            className="flex items-center cursor-pointer border-b hover:text-blue-500"
           >
-            {data.category?.departmentSource.label}
+            <IoArrowBackOutline size={20} className="mr-2" />
+
+            {"DANH SÁCH BÀI VIẾT"}
           </a>
-          <FaChevronRight size={12} className="m-1" />
-          <a
-            onClick={() =>
-              navigate(
-                `/admin/department/${data.category?.departmentSource.documentId}/category/${data.category.documentId}`
-              )
-            }
-            className="cursor-pointer hover:border-b hover:text-blue-500"
-          >
-            {data.category?.categoryName}
-          </a>
-          <FaChevronRight size={12} className="m-1" />
-          <a className="max-w-[500px] truncate font-bold">{`${data?.title}`}</a>
-        </h2>
-        <h1 className="font-bold text-[26px] p-4">{`${data?.title}`}</h1>
-        <div className="pl-4 pr-4 pb-4 flex justify-between items-center">
-          <i className="text-[13px]">{data.externalPublishDate}</i>
           <i>
-            <a
-              href={data?.externalUrl}
-              className="text-[13px] text-blue-500 hover:border-b"
-            >
-              Link đến bài viết gốc
-            </a>
+            {`${data.category?.departmentSource?.label} - ${data.category?.categoryName}`.toUpperCase()}
           </i>
+        </h2>
+
+        <h1 className="font-bold text-[26px] p-4">{data.title}</h1>
+        <div className="pl-4 pr-4 pb-4 flex justify-between items-center">
+          <div className="w-full flex justify-between items-center gap-2">
+            <span className="flex items-center gap-2 px-3 py-1 border rounded-full bg-white shadow-sm">
+              <LuCalendarClock size={18} className="text-[#F9B200]" />
+              <i className="text-[11px]">
+                {formatDate(data.externalPublishDate)}
+              </i>
+            </span>
+            {isEditingSummary ? (
+              <div className="flex items-center">
+                <button
+                  className="flex items-center border rounded-lg px-2 py-1 bg-green-500 text-white mr-2"
+                  onClick={handlePutNewSummary}
+                >
+                  <IoRefresh className="mr-2" size={20} />
+                  Lưu tóm tắt mới
+                </button>
+
+                <button
+                  className="flex items-center border rounded-lg px-2 py-1 bg-red-500 text-white"
+                  onClick={() => {
+                    setPreSummary(data.summary);
+                    setIsEditingSummary(false);
+                  }}
+                >
+                  <TbCancel className="mr-2" size={20} />
+                  Hủy
+                </button>
+              </div>
+            ) : (
+              <button
+                className="flex items-center border rounded-lg px-2 py-1 bg-blue-500 text-white"
+                onClick={handleChangeSummary}
+              >
+                <IoRefresh className="mr-2" size={20} />
+                Đổi tóm tắt mới
+              </button>
+            )}
+          </div>
         </div>
         <div className="p-4 pt-0">
-          <button
-            className={`border p-2 rounded bg-gray-300 hover:bg-blue-400 hover:text-white flex items-center ${
-              !showSummary ? "bg-gray-300" : "bg-blue-400 text-white"
-            }`}
-            onClick={ShowSummary}
-          >
-            <RxResume className="mr-1" />
-            Xem tóm tắt
-          </button>
-          {showSummary && (
+          {loadingPostNewSummary || loadingPutNewSummaryFetch ? (
+            <div className="flex justify-center items-center h-[30vh]">
+              <Spinner />
+            </div>
+          ) : (
             <div>
-              <ArticleSummary summary={data.summary} />
+              <ArticleSummary summary={preSummary || data.summary} />
             </div>
           )}
         </div>
         <div
-          contentEditable
-          suppressContentEditableWarning
           dangerouslySetInnerHTML={{ __html: marked(data?.content) }}
-          onInput={(e) =>
-            setData({ ...data, content: e.currentTarget.innerHTML })
-          }
-          className="prose prose-sm lg:prose-lg max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0 border rounded"
+          className="prose prose-sm max-w-none indent-8 leading-relaxed space-y-1 p-4 pt-0 text-justify-custom"
         ></div>
       </div>
+      <ScrollToTopButton />
     </div>
   ) : (
     <div className="flex justify-center p-5">

@@ -151,7 +151,7 @@ function Department() {
             <Spinner />
           </div>
         ) : (
-          <div className=" whitespace-nowrap truncate h-[100vh] transition duration-300 z-50">
+          <div className="whitespace-nowrap truncate h-[100vh] transition duration-300 z-50">
             <ul className="text-[12px]">
               {departments.length > 0 ? (
                 departments.map((item, index) => (

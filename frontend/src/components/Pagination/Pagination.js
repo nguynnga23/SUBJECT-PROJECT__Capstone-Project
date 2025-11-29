@@ -43,10 +43,9 @@ export default function Pagination({
   };
 
   return (
-    <div className="absolute right-4 bottom-1">
-      <div className=" flex items-center mt-2 space-x-3 relative">
-        {/* ----------------- Select items per page ----------------- */}
-        <div className="relative">
+    <div className="absolute flex items-center border right-7 bottom-1 bg-white rounded-lg px-2">
+      <div className=" flex items-center py-2 space-x-4 relative">
+        <div className="relative flex items-center">
           <button
             className="border rounded px-3 py-1 text-[12px] bg-white shadow-sm hover:bg-gray-100"
             onClick={() => setShowLimitPopup((prev) => !prev)}

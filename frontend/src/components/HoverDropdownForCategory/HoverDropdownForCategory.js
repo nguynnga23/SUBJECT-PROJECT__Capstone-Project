@@ -1,4 +1,4 @@
-import { FaChevronDown } from "react-icons/fa";
+import { FaChevronRight } from "react-icons/fa";
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
 
@@ -40,7 +40,7 @@ function HoverDropdownForCategory({ label, items = [], onSelect }) {
       onMouseLeave={startCloseTimeout}
     >
       <p className="font-medium truncate">{label}</p>
-      <FaChevronDown size={10} className="absolute right-[-10px] ml-1" />
+      <FaChevronRight size={10} className="absolute right-[-10px] ml-1" />
 
       {isOpen &&
         createPortal(

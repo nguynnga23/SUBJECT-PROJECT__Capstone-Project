@@ -27,13 +27,11 @@ const allColumns = [
   { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
-// helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "N/A";
   const date = new Date(dateString);
   if (isNaN(date)) return "Không hợp lệ";
 
-  // Map thứ trong tuần
   const weekdays = [
     "Chủ nhật",
     "Thứ 2",
@@ -106,7 +104,6 @@ const DepartmentTable = () => {
     departmentId: null,
   });
 
-  // lọc
   let filtered = data.filter((d) =>
     String(d[filterField] || "")
       .toLowerCase()
@@ -128,7 +125,6 @@ const DepartmentTable = () => {
       );
     }
 
-    // format ngày
     if (colKey === "createdAt" || colKey === "updatedAt") {
       return formatDateVN(value);
     }
@@ -206,7 +202,6 @@ const DepartmentTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Tính toán dữ liệu hiển thị theo phân trang
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 

@@ -7,6 +7,7 @@ import { getAllUsers } from "../../apis/user";
 import { useApi } from "../../hooks/useApi";
 import { user } from "../../assets";
 import Spinner from "../Spinner";
+import Pagination from "../Pagination";
 // helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "Đang cập nhật ...";
@@ -160,9 +161,8 @@ const UserTable = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -329,43 +329,15 @@ const UserTable = () => {
             </tbody>
           </table>
         </div>
-        {currentPage > 1 && (
-          <div className="flex justify-center items-center mt-2 space-x-1">
-            {/* Prev */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              &lt;
-            </button>
-
-            {/* Page Numbers */}
-            {[...Array(totalPages)].map((_, index) => {
-              const page = index + 1;
-              return (
-                <button
-                  key={page}
-                  className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                    page === currentPage ? "bg-primary text-white" : ""
-                  }`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              );
-            })}
-
-            {/* Next */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-            >
-              &gt;
-            </button>
-          </div>
-        )}
+        <div>
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={Math.ceil(data.length / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+          />
+        </div>
       </div>
     </div>
   );

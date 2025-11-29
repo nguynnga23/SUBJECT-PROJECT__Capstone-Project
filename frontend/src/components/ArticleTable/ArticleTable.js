@@ -326,7 +326,7 @@ const ArticleTable = () => {
 
       {/* Table */}
       <div className="flex-1 overflow-auto max-h-[67vh] min-h-[300px]">
-        <table className="border w-full text-[10px] table-auto">
+        <table className="border w-full text-[11px] table-auto">
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-2 w-[50px]">STT</th>

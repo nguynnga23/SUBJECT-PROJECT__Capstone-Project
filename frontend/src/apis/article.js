@@ -118,3 +118,54 @@ export const getArticleById = async (id) => {
     throw err;
   }
 };
+
+export const postNewSummary = async (content) => {
+  try {
+    const response = await fetch(`http://localhost:8080/v1/summary/article`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ articleContent: content }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error("Lỗi từ server:", errorData || response.statusText);
+      throw new Error(
+        errorData?.message || `Lỗi ${response.status}: ${response.statusText}`
+      );
+    }
+    return response.json();
+  } catch (err) {
+    console.error("Lỗi khi lấy tóm tắt bài viết", err);
+    throw err;
+  }
+};
+
+export const putNewSummary = async ({ articleId, summary }) => {
+  try {
+    const response = await fetch(
+      `http://localhost:8080/v1/articles/${articleId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ summary: summary }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      console.error("Lỗi từ server:", errorData || response.statusText);
+      throw new Error(
+        errorData?.message || `Lỗi ${response.status}: ${response.statusText}`
+      );
+    }
+    return response.json();
+  } catch (err) {
+    console.error("Lỗi khi update tóm tắt bài viết", err);
+    throw err;
+  }
+};

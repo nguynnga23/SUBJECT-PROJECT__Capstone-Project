@@ -43,8 +43,8 @@ export default function SearchResult() {
       {data?.aiAnswer && (
         <div>
           <div className="mb-4 p-2 bg-blue-50 border-l-4 border-blue-400 rounded">
-            <h2 className="text-[16px] font-semibold">Thông tin tổng hợp:</h2>
-            <p className="text-gray-700">{data.aiAnswer}</p>
+            <h2 className="text-[14px] font-semibold">Thông tin tổng hợp:</h2>
+            <p className="text-gray-700 text-[12px]">{data.aiAnswer}</p>
           </div>
           <div>
             <i className="text-red-500 flex justify-end">
