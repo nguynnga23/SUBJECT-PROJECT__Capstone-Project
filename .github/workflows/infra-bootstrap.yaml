@@ -31,7 +31,7 @@ jobs:
           GOOGLE_CLOUD_REGION: ${{ inputs.region }}
         shell: bash
         run: |
-          BUCKET_NAME="infra-tf-state-${GOOGLE_CLOUD_PROJECT}" 
+          BUCKET_NAME="unifeed-infra-tf-state" 
 
           echo "Using Project ID: $GOOGLE_CLOUD_PROJECT"
           echo "Target Bucket: gs://$BUCKET_NAME"
