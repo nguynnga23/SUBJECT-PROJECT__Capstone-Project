@@ -57,8 +57,7 @@ jobs:
           # --- Enable Versioning ---
           echo "⚙️  Enabling Object Versioning..."
           gcloud storage buckets update "gs://${BUCKET_NAME}" \
-              --versioning-enabled \
-              --public-access-prevention=enforced
+              --versioning-enabled
 
           echo ""
           echo "==================================================="
