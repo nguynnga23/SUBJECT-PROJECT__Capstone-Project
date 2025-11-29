@@ -44,8 +44,7 @@ jobs:
               gcloud storage buckets create "gs://${BUCKET_NAME}" \
                   --project="$GOOGLE_CLOUD_PROJECT" \
                   --location="$GOOGLE_CLOUD_REGION" \
-                  --uniform-bucket-level-access \
-                  --public-access-prevention=enforced
+                  --uniform-bucket-level-access
 
               if [ $? -eq 0 ]; then
                   echo "✅ Bucket created securely."
@@ -57,7 +56,9 @@ jobs:
 
           # --- Enable Versioning ---
           echo "⚙️  Enabling Object Versioning..."
-          gcloud storage buckets update "gs://${BUCKET_NAME}" --versioning-enabled
+          gcloud storage buckets update "gs://${BUCKET_NAME}" \
+              --versioning-enabled \
+              --public-access-prevention=enforced
 
           echo ""
           echo "==================================================="
