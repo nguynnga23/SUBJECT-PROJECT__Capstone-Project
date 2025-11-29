@@ -1,0 +1,65 @@
+name: Manual Create Terraform State GCS Bucket
+
+on:
+  workflow_dispatch:
+    inputs:
+      project_id:
+        description: 'Google Cloud Project ID'
+        required: true
+        type: string
+      region:
+        description: 'GCP Region (default: asia-southeast1)'
+        required: true
+        default: 'asia-southeast1'
+        type: string
+
+jobs:
+  bootstrap-terraform-state-gcs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_ADMIN_CREDENTIALS }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v3'
+
+      - name: 'Run Bootstrap Script'
+        env:
+          GOOGLE_CLOUD_PROJECT: ${{ inputs.project_id }}
+          GOOGLE_CLOUD_REGION: ${{ inputs.region }}
+        shell: bash
+        run: |
+          BUCKET_NAME="infra-tf-state-${GOOGLE_CLOUD_PROJECT}" 
+
+          echo "Using Project ID: $GOOGLE_CLOUD_PROJECT"
+          echo "Target Bucket: gs://$BUCKET_NAME"
+
+          # --- Create Bucket ---
+          if gcloud storage buckets describe "gs://${BUCKET_NAME}" --project="$GOOGLE_CLOUD_PROJECT" &> /dev/null; then
+              echo "✅ Bucket gs://${BUCKET_NAME} already exists."
+          else
+              echo "🚀 Creating bucket gs://${BUCKET_NAME}..."
+              gcloud storage buckets create "gs://${BUCKET_NAME}" \
+                  --project="$GOOGLE_CLOUD_PROJECT" \
+                  --location="$GOOGLE_CLOUD_REGION" \
+                  --uniform-bucket-level-access \
+                  --public-access-prevention=enforced
+
+              if [ $? -eq 0 ]; then
+                  echo "✅ Bucket created securely."
+              else
+                  echo "❌ Failed to create bucket."
+                  exit 1
+              fi
+          fi
+
+          # --- Enable Versioning ---
+          echo "⚙️  Enabling Object Versioning..."
+          gcloud storage buckets update "gs://${BUCKET_NAME}" --versioning-enabled
+
+          echo ""
+          echo "==================================================="
+          echo "🎉 Bootstrap Complete!"
+          echo "==================================================="
