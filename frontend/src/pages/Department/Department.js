@@ -176,14 +176,17 @@ function Department() {
         )}
       </div>
       <div className=" w-[75%] pt-3 mf-2 ">
-        <div className=" relative pb-4">
-          <Pagination
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            totalPages={Math.ceil(totalItems / itemsPerPage)}
-            itemsPerPage={itemsPerPage}
-            setItemsPerPage={setItemsPerPage}
-          />
+        <div className="mt-2 relative pb-4">
+          {data.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={Math.ceil(totalItems / itemsPerPage)}
+              itemsPerPage={itemsPerPage}
+              setItemsPerPage={setItemsPerPage}
+            />
+          )}
+
           <div className="mb-2">
             {loadingFetchArticles || loadingFetchArticlesByCategory ? (
               <div className="flex justify-center items-center h-[80vh]">

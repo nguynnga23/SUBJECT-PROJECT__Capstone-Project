@@ -22,13 +22,13 @@ const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
   { key: "url", label: "Website" },
   { key: "categories", label: "Loại tin tức" },
-  { key: "crawler_config", label: "Cấu hình thu thập" },
+  { key: "crawlerConfig", label: "Cấu hình thu thập" },
   { key: "createdAt", label: "Ngày tạo" },
   { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
 const formatDateVN = (dateString) => {
-  if (!dateString) return "N/A";
+  if (!dateString) return "Đang cập nhật";
   const date = new Date(dateString);
   if (isNaN(date)) return "Không hợp lệ";
 
@@ -74,7 +74,7 @@ const DepartmentTable = () => {
     load();
   }, []);
 
-  const hiddenDefaultCols = ["createdAt", "crawler_config"];
+  const hiddenDefaultCols = ["createdAt", "crawlerConfig"];
 
   const [visibleCols, setVisibleCols] = useState(
     allColumns
@@ -129,7 +129,7 @@ const DepartmentTable = () => {
       return formatDateVN(value);
     }
     if (!value || value?.length === 0) {
-      return "N/A";
+      return "Đang cập nhật";
     }
     if (Array.isArray(value)) {
       return (
@@ -271,7 +271,6 @@ const DepartmentTable = () => {
               </div>
             )}
           </div>
-          {/* input nhập giá trị lọc */}
           <input
             type="text"
             placeholder="Nhập giá trị tìm kiếm"
@@ -282,7 +281,6 @@ const DepartmentTable = () => {
         </div>
 
         <div className="flex gap-2 mb-3 items-center">
-          {/* chọn cột sắp xếp */}
           <div className="relative">
             <div
               onClick={() => setOpenSort(!openSort)}
@@ -312,7 +310,6 @@ const DepartmentTable = () => {
               </div>
             )}
           </div>
-          {/* chọn hướng sắp xếp */}
           <div className="relative">
             <div
               onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}
