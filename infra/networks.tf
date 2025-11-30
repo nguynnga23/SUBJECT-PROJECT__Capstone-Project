@@ -27,7 +27,7 @@ module "unifeed_vpc_network" {
     name              = "egress-internet-route"
     dest_range        = "0.0.0.0/0"
     next_hop_internet = true
-    tags              = ["allow-internet-egress"]
+    tags              = "allow-internet-egress"
   }]
 }
 
@@ -51,5 +51,6 @@ module "nat" {
   subnetworks = [{
     name                    = module.unifeed_vpc_network.subnets[0].self_link
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+    secondary_ip_range_names = []
   }]
 }
