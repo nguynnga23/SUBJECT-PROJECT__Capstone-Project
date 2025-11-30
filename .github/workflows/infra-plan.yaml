@@ -15,11 +15,12 @@ env:
 
 jobs:
   opentofu-plan:
+    name: OpenTofu Plan
+    runs-on: ubuntu-latest
+    environment: Production
     defaults:
       run:
         working-directory: ./infra
-    name: OpenTofu Plan
-    runs-on: ubuntu-latest
     permissions:
       contents: read
 
