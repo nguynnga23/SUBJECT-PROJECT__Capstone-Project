@@ -31,13 +31,13 @@ module "unifeed_vpc_network" {
     next_hop_internet      = "true"
   }]
 }
-#
-# resource "google_compute_router" "nat_router" {
-#   name    = "unifeed-nat-router"
-#   region  = var.unifeed_gcp_project_region
-#   network = module.unifeed_vpc_network.network_name
-# }
-#
+
+resource "google_compute_router" "nat_router" {
+  name    = "unifeed-nat-router"
+  region  = var.unifeed_gcp_project_region
+  network = module.unifeed_vpc_network.network_name
+}
+
 # module "nat" {
 #   source  = "terraform-google-modules/cloud-nat/google"
 #   version = "5.4.0"
