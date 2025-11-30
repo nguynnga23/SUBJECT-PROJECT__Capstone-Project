@@ -1,9 +1,3 @@
-output "unifeed_strapi_cms_postgresql_db_generated_password" {
-  description = "The password for the database user"
-  value       = random_password.unifeed_strapi_cms_postgresql_production_db_generated_password.result
-  sensitive   = true
-}
-
 output "unifeed_vpc_network_name" {
   description = "The name of the VPC network for unifeed services"
   value       = module.unifeed_vpc_network.network_name
@@ -18,6 +12,12 @@ output "unifeed_vpc_public_subnet_self_link" {
   description = "The self link of the public subnet in the unifeed VPC network"
   value       = module.unifeed_vpc_network.subnets[1].self_link
 }
+
+# output "unifeed_strapi_cms_postgresql_db_generated_password" {
+#   description = "The password for the database user"
+#   value       = random_password.unifeed_strapi_cms_postgresql_production_db_generated_password.result
+#   sensitive   = true
+# }
 
 # output "unifeed_strapi_cms_postgresql_db_instance_connection_name" {
 #   description = "The instance connection name for the Strapi CMS PostgreSQL database"
