@@ -10,7 +10,7 @@ resource "google_cloud_run_v2_service" "changedetection_io_service" {
     }
 
     containers {
-      image = "ghcr.io/dgtlmoon/changedetection.io:latest"
+      image = "${var.unifeed_gcp_project_region}-docker.pkg.dev/${var.unifeed_gcp_project_id}/ghcr-proxy/dgtlmoon/changedetection.io:latest"
       resources {
         limits = {
           cpu    = "2"
