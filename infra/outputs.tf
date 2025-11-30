@@ -3,14 +3,9 @@ output "unifeed_vpc_network_name" {
   value       = module.unifeed_vpc_network.network_name
 }
 
-output "unifeed_vpc_private_subnet_self_link" {
-  description = "The self link of the private subnet in the unifeed VPC network"
-  value       = module.unifeed_vpc_network.subnets[0].self_link
-}
-
-output "unifeed_vpc_public_subnet_self_link" {
-  description = "The self link of the public subnet in the unifeed VPC network"
-  value       = module.unifeed_vpc_network.subnets[1].self_link
+output "unifeed_vpc_subnets" {
+  description = "The list of subnets in the unifeed VPC network"
+  value       = module.unifeed_vpc_network.subnets
 }
 
 # output "unifeed_strapi_cms_postgresql_db_generated_password" {
