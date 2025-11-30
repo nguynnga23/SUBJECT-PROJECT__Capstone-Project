@@ -44,8 +44,15 @@ jobs:
 
       - name: OpenTofu Plan
         id: plan
-        run: tofu plan -no-color
+        run: tofu plan -out=${{ github.run_id }}.tfplan -no-color
         continue-on-error: false
+
+      - name: Upload Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: infra/${{ github.run_id }}.tfplan
+          retention-days: 1
 
   opentofu-apply:
     name: OpenTofu Apply
@@ -74,5 +81,11 @@ jobs:
         run: |
           tofu init
 
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: infra
+
       - name: OpenTofu Apply
-        run: tofu apply -auto-approve
+        run: tofu apply ${{ github.run_id }}.tfplan
