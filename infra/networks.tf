@@ -6,7 +6,7 @@ module "unifeed_vpc_network" {
   network_name = "unifeed-vpc-network"
   routing_mode = "GLOBAL"
 
-  delete_default_routes_on_create = true
+  delete_default_internet_gateway_routes = true
 
   subnets = [
     {
