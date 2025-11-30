@@ -24,10 +24,11 @@ module "unifeed_vpc_network" {
   ]
 
   routes = [{
-    name              = "egress-internet-route"
-    dest_range        = "0.0.0.0/0"
-    next_hop_internet = true
-    tags              = "allow-internet-egress"
+    name                   = "egress-internet"
+    description            = "route through IGW to access internet"
+    destination_range      = "0.0.0.0/0"
+    tags                   = "egress-inet"
+    next_hop_internet      = "true"
   }]
 }
 
@@ -49,7 +50,7 @@ module "nat" {
   name                               = "unifeed-nat-config"
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
   subnetworks = [{
-    name                    = module.unifeed_vpc_network.subnets[0].self_link
+    name                    = "unifeed-private-subnet"
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
     secondary_ip_range_names = []
   }]
