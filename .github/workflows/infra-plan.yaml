@@ -1,0 +1,47 @@
+name: Infra OpenTofu Plan Action
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+      - master
+
+env:
+  TF_VAR_unifeed_gcp_project_id: ${{ vars.GCP_PROJECT_ID }}
+  TF_VAR_unifeed_gcp_project_region: ${{ vars.GCP_REGION }}
+  TF_STATE_BUCKET: "unifeed-infra-tf-state"
+
+jobs:
+  plan:
+    name: OpenTofu Plan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.GCP_ADMIN_CREDENTIALS }}'
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: 1.6.0
+
+      - name: OpenTofu Init
+        run: |
+          tofu init
+
+      - name: OpenTofu Validate
+        run: tofu validate
+
+      - name: OpenTofu Plan
+        id: plan
+        run: tofu plan -no-color
+        continue-on-error: false
