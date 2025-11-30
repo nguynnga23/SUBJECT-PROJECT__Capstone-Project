@@ -22,15 +22,23 @@ module "unifeed_vpc_network" {
       subnet_region         = var.unifeed_gcp_project_region
       subnet_private_access = false
       description           = "Public subnet for unifeed services"
+    },
+    {
+      # Subnet B: Dedicated for Cloud Run Egress
+      subnet_name           = "cr-egress-subnet"
+      subnet_ip             = "10.0.3.0/24"
+      subnet_region         = var.unifeed_gcp_project_region
+      subnet_private_access = true
+      description           = "Subnet dedicated for Cloud Run egress traffic"
     }
   ]
 
   routes = [{
-    name                   = "egress-internet"
-    description            = "route through IGW to access internet"
-    destination_range      = "0.0.0.0/0"
-    tags                   = "egress-inet"
-    next_hop_internet      = "true"
+    name              = "egress-internet"
+    description       = "route through IGW to access internet"
+    destination_range = "0.0.0.0/0"
+    tags              = "egress-inet"
+    next_hop_internet = "true"
   }]
 }
 
