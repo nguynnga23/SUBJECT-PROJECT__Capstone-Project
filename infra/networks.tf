@@ -31,27 +31,27 @@ module "unifeed_vpc_network" {
     next_hop_internet      = "true"
   }]
 }
-
-resource "google_compute_router" "nat_router" {
-  name    = "unifeed-nat-router"
-  region  = var.unifeed_gcp_project_region
-  network = module.unifeed_vpc_network.network_name
-}
-
-module "nat" {
-  source  = "terraform-google-modules/cloud-nat/google"
-  version = "5.4.0"
-
-  project_id = var.unifeed_gcp_project_id
-  region     = var.unifeed_gcp_project_region
-
-  router = google_compute_router.nat_router.name
-
-  name                               = "unifeed-nat-config"
-  source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
-  subnetworks = [{
-    name                    = "unifeed-private-subnet"
-    source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
-    secondary_ip_range_names = []
-  }]
-}
+#
+# resource "google_compute_router" "nat_router" {
+#   name    = "unifeed-nat-router"
+#   region  = var.unifeed_gcp_project_region
+#   network = module.unifeed_vpc_network.network_name
+# }
+#
+# module "nat" {
+#   source  = "terraform-google-modules/cloud-nat/google"
+#   version = "5.4.0"
+#
+#   project_id = var.unifeed_gcp_project_id
+#   region     = var.unifeed_gcp_project_region
+#
+#   router = google_compute_router.nat_router.name
+#
+#   name                               = "unifeed-nat-config"
+#   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
+#   subnetworks = [{
+#     name                    = "unifeed-private-subnet"
+#     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
+#     secondary_ip_range_names = []
+#   }]
+# }
