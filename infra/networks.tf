@@ -6,6 +6,8 @@ module "unifeed_vpc_network" {
   network_name = "unifeed-vpc-network"
   routing_mode = "GLOBAL"
 
+  delete_default_internet_gateway_routes = true
+
   subnets = [
     {
       subnet_name           = "unifeed-private-subnet"
