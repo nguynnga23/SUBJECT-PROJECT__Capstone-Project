@@ -59,6 +59,7 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authz) {
         if (authz == null || !authz.startsWith("Bearer ")) {
+
             return ResponseEntity.status(401)
                     .body(Map.of("ok", false, "message", "Missing token"));
         }

@@ -99,6 +99,9 @@ public class StrapiMapper {
         vm.setKeyDepartmentSource(ds.key_departmentSource());
         vm.setUrl(ds.url());
         vm.setLabel(ds.label());
+        vm.setCreatedAt(ds.createdAt());
+        vm.setUpdatedAt(ds.updatedAt());
+        vm.setPublishedAt(ds.publishedAt());
         vm.setDepartment(toVM(ds.department()));
         vm.setCategories(
                 ds.categories() == null

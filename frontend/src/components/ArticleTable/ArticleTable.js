@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { thumnailDefault } from "../../assets";
 import { RiDeleteBin6Fill } from "react-icons/ri";
-import { FaLock, FaUnlock } from "react-icons/fa";
 import { getAllArticles, getArticleCount } from "../../apis/article";
 import Spinner from "../../components/Spinner";
 import { useApi } from "../../hooks/useApi";
@@ -46,6 +45,7 @@ const allColumns = [
   { key: "departmentSource", label: "Khoa/Viện" },
   { key: "category", label: "Loại tin tức" },
   { key: "createdAt", label: "Ngày thu thập" },
+  { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
 const ArticleTable = () => {
@@ -98,7 +98,7 @@ const ArticleTable = () => {
     loadPage();
   }, [currentPage, itemsPerPage, dispatch]);
 
-  const normalizedData = data.map((a, idx) => ({
+  const normalizedData = data.map((a) => ({
     id: a.documentId,
     title: a.title,
     externalUrl: a.externalUrl,
@@ -108,6 +108,7 @@ const ArticleTable = () => {
     thumbnail: a.thumbnail,
     createdAt: a.createdAt,
     publishedAt: a.publishedAt,
+    updatedAt: a.updatedAt,
   }));
 
   const hiddenDefaultCols = ["category", "createdAt"];
@@ -135,8 +136,20 @@ const ArticleTable = () => {
       .includes(filterValue.toLowerCase())
   );
 
-  // render value theo col
   const renderValue = (value, colKey) => {
+    if (colKey === "externalUrl" && typeof value === "string") {
+      return (
+        <a
+          href={value}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:underline"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {value}
+        </a>
+      );
+    }
     if (colKey === "thumbnail") {
       return (
         <div className="flex justify-center items-center">
@@ -165,7 +178,11 @@ const ArticleTable = () => {
       );
     }
 
-    if (colKey === "external_publish_date" || colKey === "createdAt") {
+    if (
+      colKey === "externalPublishDate" ||
+      colKey === "createdAt" ||
+      colKey === "updatedAt"
+    ) {
       return formatDateVN(value);
     }
 
@@ -326,7 +343,7 @@ const ArticleTable = () => {
 
       {/* Table */}
       <div className="flex-1 overflow-auto max-h-[67vh] min-h-[300px]">
-        <table className="border w-full text-[10px] table-auto">
+        <table className="border w-full text-[11px] table-auto">
           <thead>
             <tr className="bg-gray-100">
               <th className="border p-2 w-[50px]">STT</th>
@@ -364,21 +381,6 @@ const ArticleTable = () => {
                   ))}
                 <td className="border text-center text-[10px]">
                   <div className="flex justify-center">
-                    {row.publishedAt !== null ? (
-                      <FaLock
-                        title="Khóa bài viết"
-                        size={25}
-                        className="text-yellow-400 rounded-full border m-1 cursor-pointer p-1"
-                        onClick={() => handleLock(row)}
-                      />
-                    ) : (
-                      <FaUnlock
-                        title="Mở khóa bài viết"
-                        size={25}
-                        className="text-primary rounded-full border m-1 cursor-pointer p-1"
-                        onClick={() => handleUnlock(row)}
-                      />
-                    )}
                     <RiDeleteBin6Fill
                       title="Xóa bài viết"
                       size={25}

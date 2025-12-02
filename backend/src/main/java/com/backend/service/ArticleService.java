@@ -11,6 +11,10 @@ public interface ArticleService {
 
     List<ArticleVM> list(int page, int pageSize);
 
+    List<ArticleVM> listByCategory(String categoryId, int page, int pageSize);
+
+    int countItemsByCategory(String categoryId);
+
     ArticleVM one(String id);
 
     Object create(ArticleReq req);

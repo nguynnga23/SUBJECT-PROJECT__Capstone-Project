@@ -22,18 +22,16 @@ const allColumns = [
   { key: "label", label: "Tên Khoa/Viện" },
   { key: "url", label: "Website" },
   { key: "categories", label: "Loại tin tức" },
-  { key: "crawler_config", label: "Cấu hình thu thập" },
+  { key: "crawlerConfig", label: "Cấu hình thu thập" },
   { key: "createdAt", label: "Ngày tạo" },
   { key: "updatedAt", label: "Ngày cập nhật" },
 ];
 
-// helper format date
 const formatDateVN = (dateString) => {
-  if (!dateString) return "N/A";
+  if (!dateString) return "Đang cập nhật";
   const date = new Date(dateString);
   if (isNaN(date)) return "Không hợp lệ";
 
-  // Map thứ trong tuần
   const weekdays = [
     "Chủ nhật",
     "Thứ 2",
@@ -76,7 +74,7 @@ const DepartmentTable = () => {
     load();
   }, []);
 
-  const hiddenDefaultCols = ["createdAt", "crawler_config"];
+  const hiddenDefaultCols = ["createdAt", "crawlerConfig"];
 
   const [visibleCols, setVisibleCols] = useState(
     allColumns
@@ -106,7 +104,6 @@ const DepartmentTable = () => {
     departmentId: null,
   });
 
-  // lọc
   let filtered = data.filter((d) =>
     String(d[filterField] || "")
       .toLowerCase()
@@ -128,12 +125,11 @@ const DepartmentTable = () => {
       );
     }
 
-    // format ngày
     if (colKey === "createdAt" || colKey === "updatedAt") {
       return formatDateVN(value);
     }
     if (!value || value?.length === 0) {
-      return "N/A";
+      return "Đang cập nhật";
     }
     if (Array.isArray(value)) {
       return (
@@ -206,7 +202,6 @@ const DepartmentTable = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Tính toán dữ liệu hiển thị theo phân trang
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -276,7 +271,6 @@ const DepartmentTable = () => {
               </div>
             )}
           </div>
-          {/* input nhập giá trị lọc */}
           <input
             type="text"
             placeholder="Nhập giá trị tìm kiếm"
@@ -287,7 +281,6 @@ const DepartmentTable = () => {
         </div>
 
         <div className="flex gap-2 mb-3 items-center">
-          {/* chọn cột sắp xếp */}
           <div className="relative">
             <div
               onClick={() => setOpenSort(!openSort)}
@@ -317,7 +310,6 @@ const DepartmentTable = () => {
               </div>
             )}
           </div>
-          {/* chọn hướng sắp xếp */}
           <div className="relative">
             <div
               onClick={() => setSortDir(sortDir === "asc" ? "desc" : "asc")}

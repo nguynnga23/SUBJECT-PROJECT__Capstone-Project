@@ -12,6 +12,9 @@ public class DepartmentSourceVM {
     private String url;
     private String label;
     private String keyDepartmentSource;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private OffsetDateTime publishedAt;
     private CrawlerConfigVM crawlerConfig;
     private DepartmentVM department;
     private List<CategoryVM> categories;

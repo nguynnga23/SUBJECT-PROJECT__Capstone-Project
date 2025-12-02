@@ -13,6 +13,9 @@ public record DepartmentSourceFlat(
         CrawlerConfigFlat crawler_config,
         String label,
         String key_departmentSource,
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
+        OffsetDateTime publishedAt,
         @JsonProperty("department") DepartmentFlat department,
         List<CategoryFlat> categories) {
 }

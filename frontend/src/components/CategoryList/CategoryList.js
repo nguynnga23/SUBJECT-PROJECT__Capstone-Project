@@ -1,9 +1,11 @@
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { PiNewspaperLight } from "react-icons/pi";
 import ArticleItem from "../ArtileItem";
-import { useState, useEffect } from "react";
 import Spinner from "../Spinner";
-
-const itemsPerPage = 10;
+import BannerSlider from "../BannerSlider";
+import { useSelector } from "react-redux";
+import { useApi } from "../../hooks/useApi";
+import { getBookMarkByUserId } from "../../apis/marked";
+import { useEffect, useState } from "react";
 
 const CategoryList = ({
   categoryName,
@@ -11,119 +13,69 @@ const CategoryList = ({
   loadingFetch,
   isCategoryFilter,
 }) => {
-  const [displayedArticles, setDisplayedArticles] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const currentUser = useSelector((state) => state.auth.user);
+  const [markedList, setMarkedList] = useState([]);
 
-  const fetchArticlesByPage = (page) => {
-    setLoading(true);
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const total = articles.length;
-        const totalPages = Math.ceil(total / itemsPerPage);
-
-        const startIdx = page * itemsPerPage;
-        const endIdx = startIdx + itemsPerPage;
-        const paginated = articles.slice(startIdx, endIdx);
-
-        resolve({ articles: paginated, totalPages });
-      }, 500);
-    });
-  };
+  const { request: fetchGetListBookMark, loading: loadingGetListBookMark } =
+    useApi(getBookMarkByUserId);
 
   useEffect(() => {
-    const loadData = async () => {
-      const result = await fetchArticlesByPage(currentPage);
-      setDisplayedArticles(result.articles);
-      setTotalPages(result.totalPages);
-      setLoading(false);
+    const fetchMarked = async () => {
+      if (!currentUser) return;
+
+      const res = await fetchGetListBookMark({
+        userId: currentUser?.documentId,
+      });
+
+      setMarkedList(res.map((item) => item.article?.documentId));
     };
-    loadData();
-  }, [currentPage, articles]);
 
-  const nextSlide = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 0));
-  };
+    fetchMarked();
+  }, [currentUser]);
 
   return (
     <div className="p-2 overflow-hidden w-full">
-      {/* Header */}
-      <div className="flex justify-between items-center p-3">
-        <h2 className="text-base font-semibold text-gray-800">
-          <span className="text-red-500 font-bold">■</span>{" "}
-          {categoryName || "Danh sách bài viết"}
-        </h2>
-        <div className="flex text-gray-500">
-          <button
-            onClick={prevSlide}
-            disabled={currentPage === 0}
-            className={`p-2 rounded transition ${
-              currentPage === 0
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-gray-200"
-            }`}
-          >
-            <FaChevronLeft size={14} />
-          </button>
-          <button
-            onClick={nextSlide}
-            disabled={currentPage >= totalPages - 1}
-            className={`p-2 rounded transition ${
-              currentPage >= totalPages - 1
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:bg-gray-200"
-            }`}
-          >
-            <FaChevronRight size={14} />
-          </button>
+      <div className="pb-2 border-b">
+        <div className="flex justify-between items-center p-2 pb-1">
+          <h2 className="flex items-center text-base font-semibold text-gray-800">
+            <PiNewspaperLight color="#153898" size={20} className="mr-2" />
+            {"TIN TỨC MỚI"}
+          </h2>
+        </div>
+        <div className="p-2">
+          <BannerSlider list={articles.slice(0, 6)} />
         </div>
       </div>
-
+      <div className="flex justify-between items-center p-2 pb-1 mt-1">
+        <h2 className="flex items-center text-base font-semibold text-gray-800">
+          <PiNewspaperLight color="#153898" size={20} className="mr-2" />
+          {categoryName || "TIN TỨC TỔNG HỢP"}
+        </h2>
+      </div>
       <div
         className={`transition-transform duration-700 ease-in-out w-full ${
           !isCategoryFilter && "max-h-[400px]"
         }  overflow-auto scroll-container`}
       >
-        {loading || loadingFetch ? (
+        {loadingFetch ? (
           <div className="flex justify-center items-center h-[80vh]">
             <Spinner />
           </div>
-        ) : displayedArticles.length > 0 ? (
-          displayedArticles.map((article, idx) => (
+        ) : articles.length > 0 ? (
+          articles.map((article, idx) => (
             <div key={idx}>
-              <ArticleItem article={article} />
+              <ArticleItem
+                article={article}
+                isMarked={markedList.includes(article.documentId)}
+              />
             </div>
           ))
         ) : (
-          <i className="flex w-full items-center justify-center">
+          <i className="flex w-full h-[50vh] items-center justify-center">
             Hiện tại chưa có tin tức nào mới
           </i>
         )}
       </div>
-
-      {totalPages > 1 && (
-        <div className="flex justify-center m-3 mb-0 space-x-1">
-          {Array.from({ length: totalPages }).map((_, pageIdx) => (
-            <button
-              key={pageIdx}
-              onClick={() => setCurrentPage(pageIdx)}
-              className={`flex items-center justify-center text-[9px] p-2 w-[20px] h-[20px] rounded-full ${
-                currentPage === pageIdx
-                  ? "bg-blue-400 text-white"
-                  : "bg-gray-200 hover:bg-gray-300"
-              }`}
-            >
-              {pageIdx + 1}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };

@@ -49,18 +49,6 @@ export const putCrawlerConfig = async ({
   content,
   external_publish_date,
 }) => {
-  console.log({
-    id,
-    department_source_id,
-    relative_url_list,
-    relative_url,
-    thumbnail,
-    next_pages,
-    title,
-    content,
-    external_publish_date,
-  });
-
   try {
     const response = await fetch(
       `http://localhost:8080/v1/crawler-configs/${id}`,

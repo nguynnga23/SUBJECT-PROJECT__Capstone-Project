@@ -1,6 +1,11 @@
 // Hình ảnh, font, icon, ...
 import logo from "./logo_iuh_png.jpg";
+import new_logo from "./logo.svg";
+import new_logo_white from "./logo-white.svg";
+import bg_footer from "./bg-footer.jpg";
 import user from "./user.jpg";
+import fit_logo from "./fit_iuh_logo.jpg";
+
 import picture1 from "./fit/picture1.jpg";
 import picture2 from "./fit/picture2.jpg";
 import picture3 from "./fit/picture3.jpg";
@@ -19,6 +24,10 @@ import thumnailDefault from "./thumbail_default.png";
 export {
   user,
   logo,
+  new_logo,
+  new_logo_white,
+  fit_logo,
+  bg_footer,
   picture1,
   picture2,
   picture3,

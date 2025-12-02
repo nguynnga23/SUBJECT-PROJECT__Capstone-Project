@@ -19,6 +19,7 @@ import CrawlerConfig from "../pages/CrawlerConfig";
 import UserDetail from "../pages/UserDetail";
 import ArticleDetail from "../pages/ArticleDetail";
 import ProtectedRoute from "./ProtectedRoute";
+import SearchResult from "../pages/SearchResult";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -149,12 +150,16 @@ function AnimatedRoutes() {
           element={<DefaultLayout children={<Department />} />}
         />
         <Route
-          path="/department/:id/category/:cat_id"
+          path="category/:cat_id"
           element={<DefaultLayout children={<Department />} />}
         />
         <Route
           path="/article/:id"
           element={<DefaultLayout children={<Article />} />}
+        />
+        <Route
+          path="/search"
+          element={<DefaultLayout children={<SearchResult />} />}
         />
       </Routes>
     </AnimatePresence>

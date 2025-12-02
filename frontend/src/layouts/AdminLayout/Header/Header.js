@@ -39,15 +39,7 @@ function Header() {
 
   return (
     <div className="w-full">
-      <div className="p-2 w-full flex items-center justify-between py-4">
-        <div className="flex items-center gap-8">
-          <img
-            className="h-[50px] cursor-pointer"
-            onClick={() => navigate(`/`)}
-            src={logo}
-          />
-        </div>
-
+      <div className="p-2 w-full flex items-center justify-end py-4">
         <div className="flex items-center gap-4">
           <div className="flex items-center border rounded-[10px] px-3 py-1 text-sm bg-gray-100">
             <input
@@ -65,7 +57,10 @@ function Header() {
             />
             <div className="flex gap-4 cursor-pointer relative">
               <HoverDropdown
-                label={currentUser?.username}
+                label={
+                  currentUser?.username ||
+                  currentUser?.firstname + " " + currentUser?.lastname
+                }
                 items={user_profile}
                 onSelect={handleUserProfileSelect}
               />

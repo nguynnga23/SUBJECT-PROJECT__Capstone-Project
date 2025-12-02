@@ -3,10 +3,11 @@ import { IoIosArrowDown } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { thumnailDefault } from "../../assets";
-import { FaLock, FaLockOpen } from "react-icons/fa";
 import { getAllUsers } from "../../apis/user";
 import { useApi } from "../../hooks/useApi";
+import { user } from "../../assets";
 import Spinner from "../Spinner";
+import Pagination from "../Pagination";
 // helper format date
 const formatDateVN = (dateString) => {
   if (!dateString) return "Đang cập nhật ...";
@@ -63,24 +64,25 @@ const UserTable = () => {
     load();
   }, []);
 
-  const normalizedData = (usersPermissionsRoles.users || []).map(
-    (user, idx) => ({
-      id: idx + 1,
-      avatar: user.avatar?.url,
-      studentID: user.studentID,
-      username: user.username,
-      email: user.email,
-      class: user.class,
-      phone: user.phone,
-      department: user.department?.department_name,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    })
-  );
+  const [data, setData] = useState([]);
 
-  console.log(normalizedData);
-
-  const [data, setData] = useState(normalizedData);
+  useEffect(() => {
+    if (usersPermissionsRoles?.users) {
+      const normalizedData = usersPermissionsRoles.users.map((user, idx) => ({
+        id: idx + 1,
+        avatar: user.avatar,
+        studentID: user.studentID,
+        username: user.username,
+        email: user.email,
+        class: user.class,
+        phone: user.phone,
+        department: user.department?.department_name,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      }));
+      setData(normalizedData);
+    }
+  }, [usersPermissionsRoles]);
 
   const hiddenDefaultCols = ["phone", "department", "createdAt", "updatedAt"];
   const [visibleCols, setVisibleCols] = useState(
@@ -114,7 +116,11 @@ const UserTable = () => {
       return (
         <div className="flex justify-center items-center">
           <img
-            src={value}
+            src={
+              value?.url
+                ? `${process.env.REACT_APP_API_ENDPOINT_RESOURCE}${value?.url}`
+                : user
+            }
             alt="avatar"
             className="h-[30px] w-[30px] object-cover rounded-full"
             onError={(e) => {
@@ -155,18 +161,10 @@ const UserTable = () => {
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentData = filtered.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleLock = (row) => {
-    alert(row.studentID);
-  };
-  const handleUnLock = (row) => {
-    alert(row.studentID);
-  };
 
   if (loadingFetch) {
     return (
@@ -261,7 +259,6 @@ const UserTable = () => {
           </div>
         </div>
 
-        {/* chọn cột hiển thị */}
         <div className="relative inline-block mb-3">
           <div
             onClick={() => setOpenCols(!openCols)}
@@ -290,7 +287,6 @@ const UserTable = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="flex flex-col">
         <div className="flex-1 overflow-y-hidden">
           <table className="border w-full text-sm table-auto">
@@ -304,7 +300,6 @@ const UserTable = () => {
                       {col.label}
                     </th>
                   ))}
-                <th className="border p-2 w-[100px]">Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -329,70 +324,20 @@ const UserTable = () => {
                         </div>
                       </td>
                     ))}
-                  <td className="border text-center text-[10px]">
-                    <div
-                      className="flex justify-center"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {!row.blocked ? (
-                        <FaLock
-                          title="Khóa tài khoản"
-                          size={25}
-                          className="text-yellow-400 rounded-full border m-2 cursor-pointer p-1"
-                          onClick={() => handleLock(row)}
-                        />
-                      ) : (
-                        <FaLockOpen
-                          title="Mở khóa tài khoản"
-                          size={25}
-                          className="text-primary rounded-full border m-2 cursor-pointer p-1"
-                          onClick={() => handleUnLock(row)}
-                        />
-                      )}
-                    </div>
-                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        {currentPage > 1 && (
-          <div className="flex justify-center items-center mt-2 space-x-1">
-            {/* Prev */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(currentPage - 1)}
-            >
-              &lt;
-            </button>
-
-            {/* Page Numbers */}
-            {[...Array(totalPages)].map((_, index) => {
-              const page = index + 1;
-              return (
-                <button
-                  key={page}
-                  className={`p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full ${
-                    page === currentPage ? "bg-primary text-white" : ""
-                  }`}
-                  onClick={() => setCurrentPage(page)}
-                >
-                  {page}
-                </button>
-              );
-            })}
-
-            {/* Next */}
-            <button
-              className="p-[2px] text-[10px] w-[20px] h-[20px] border rounded-full disabled:opacity-50"
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(currentPage + 1)}
-            >
-              &gt;
-            </button>
-          </div>
-        )}
+        <div>
+          <Pagination
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={Math.ceil(data.length / itemsPerPage)}
+            itemsPerPage={itemsPerPage}
+            setItemsPerPage={setItemsPerPage}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,13 @@
 import { FaChevronDown } from "react-icons/fa";
 import { useState, useRef } from "react";
 
-function HoverDropdown({ label, items = [], onSelect, disable = false }) {
+function HoverDropdown({
+  label,
+  items = [],
+  onSelect,
+  disable = false,
+  position,
+}) {
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -20,7 +26,7 @@ function HoverDropdown({ label, items = [], onSelect, disable = false }) {
 
   return (
     <div
-      className={`flex items-center gap-1 relative ${
+      className={`relative flex items-center gap-1 relative ${
         disable
           ? "cursor-not-allowed text-gray-400"
           : "cursor-pointer hover:text-black"
@@ -35,13 +41,17 @@ function HoverDropdown({ label, items = [], onSelect, disable = false }) {
       />
 
       {!disable && isHovered && (
-        <div className="absolute left-0 top-6 min-w-[130px] whitespace-nowrap bg-white border rounded shadow-md transition duration-300 z-50">
+        <div
+          className={`absolute ${
+            position === "right" ? "right-0" : "left-0"
+          } top-6 min-w-[130px] whitespace-nowrap bg-white border rounded shadow-md transition duration-300 z-50`}
+        >
           <ul className="text-[12px] text-gray-700 max-h-[150px] overflow-auto scroll-container">
             {items.length > 0 ? (
               items.map((item, index) => (
                 <li
                   key={index}
-                  className="flex items-center px-4 py-2 font-normal hover:bg-gray-100 hover:text-red-500 cursor-pointer"
+                  className="flex items-center px-4 py-2 font-normal cursor-pointer hover:text-red-500 hover:bg-gray-200"
                   onClick={() => onSelect(item)}
                 >
                   {item?.icon && <span className="mr-2">{item.icon}</span>}

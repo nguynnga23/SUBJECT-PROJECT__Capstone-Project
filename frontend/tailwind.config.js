@@ -5,15 +5,18 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      screens: {
+        "3xl": "1000px",
+      },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
         inter: ["Inter", "sans-serif"],
+        serif: ["Merriweather", "serif"],
       },
       colors: {
         primary: {
-          DEFAULT: "#0064E0", // màu chính
-          dark: "#d67c10", // màu khi hover
-          light: "#f5b866", // nếu muốn thêm biến thể
+          DEFAULT: "#0064E0",
+          dark: "#d67c10",
+          light: "#f5b866",
         },
         sub: {
           DEFAULT: "#BCD6FF",

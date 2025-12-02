@@ -185,11 +185,13 @@ class DynamicIUHSpider(scrapy.Spider):
     # ------------------------------------------------------------------
     def parse_list(self, response):
         self.logger.info(f"[PARSE_LIST] {response.url}")
-
         last_date = self.cat["last_external_publish_date"]
+        
+        if isinstance(last_date, str):
+            last_date = datetime.strptime(last_date, "%Y-%m-%d").date()
         config_key = self.category_url
 
-        current_page = self.page_counter.get(self.category_url, 1)
+        current_page = self.page_counter.get(self.category_url, 0)
         self.page_counter[self.category_url] = current_page + 1
 
         articles = response.css(self.config["relative_url_list"])
@@ -197,19 +199,20 @@ class DynamicIUHSpider(scrapy.Spider):
 
         should_continue = True
         requests_for_detail = []
-
         for article in articles:
             relative_url = article.css(self.config["relative_url"]).get()
             thumbnail = article.css(self.config["thumbnail"]).get()
-            date_str = article.css(self.config["external_publish_date"]).get()
 
+            date_str = article.css(self.config["external_publish_date"]).get()
             if not date_str:
                 self.logger.warning("❌ Không tìm thấy ngày đăng bài viết")
                 continue
-
+            
             try:
+                normalized = date_str.strip().replace("/", "-")
+                
                 article_date = datetime.strptime(
-                    date_str.strip(), "%d-%m-%Y"
+                    normalized, "%d-%m-%Y"
                 ).date()
             except Exception as e:
                 self.logger.warning(
@@ -223,8 +226,9 @@ class DynamicIUHSpider(scrapy.Spider):
 
             if article_date >= last_date:
                 if relative_url:
+                    if relative_url.startswith("vi/"):
+                        relative_url = relative_url[2:]
                     full_url = urljoin(response.url, relative_url)
-
                     if (
                         config_key not in self.latest_dates
                         or article_date > self.latest_dates[config_key]
@@ -260,7 +264,11 @@ class DynamicIUHSpider(scrapy.Spider):
         if should_continue:
             next_pages = response.css(self.config["next_pages"]).getall()
             if len(next_pages) >= current_page:
-                next_page_url = urljoin(response.url, next_pages[current_page - 1])
+                next_page = next_pages[current_page - 1]
+                if next_page.startswith("vi/"):
+                    next_page = next_page[2:]
+
+                next_page_url = urljoin(response.url, next_page)
                 self.logger.info(f"[PAGINATION] Next page: {next_page_url}")
                 yield scrapy.Request(
                     url=next_page_url,
@@ -273,7 +281,21 @@ class DynamicIUHSpider(scrapy.Spider):
     def parse_detail(self, response):
         self.logger.info(f"[PARSE_DETAIL] {response.url}")
 
+        # self.logger.info("external_url", response.url)
+        # self.logger.info("external_slug", response.url.split("/")[-1])
+        # self.logger.info("thumbnail", response.meta.get("thumbnail"))
+        # self.logger.info("department_source_id", self.dept.get("documentId"))
+        # self.logger.info("department_source_name", self.dept.get("label"))
+        # self.logger.info("department_source_url", self.dept.get("url"))
+        # self.logger.info("category_id", self.cat.get("documentId"))
+        # self.logger.info("category_name", self.cat.get("category_name"))
+        # self.logger.info("category_url", self.cat.get("category_url"))
+        # self.logger.info("title", response.css(self.config["title"]).get())
+        # self.logger.info("content", response.css(self.config["content"]).get())
+        # self.logger.info("external_publish_date", response.meta.get("external_publish_date"))
+        
         item = ArticleItem()
+        
         item["external_url"] = response.url
         item["external_slug"] = response.url.split("/")[-1]
         item["thumbnail"] = response.meta.get("thumbnail")
@@ -289,5 +311,5 @@ class DynamicIUHSpider(scrapy.Spider):
         item["title"] = response.css(self.config["title"]).get()
         item["content"] = response.css(self.config["content"]).get()
         item["external_publish_date"] = response.meta.get("external_publish_date")
-
+        
         yield item

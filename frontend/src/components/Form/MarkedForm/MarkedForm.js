@@ -1,43 +1,64 @@
 import { useSelector } from "react-redux";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { DragDropContext, Droppable } from "@hello-pangea/dnd";
 import { useState, useEffect } from "react";
-import { RiDraggable } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { LiaTimesCircle } from "react-icons/lia";
+import { useApi } from "../../../hooks/useApi";
+import {
+  deleteBookMark,
+  deleteBookMarkById,
+  getBookMarkByUserId,
+} from "../../../apis/marked";
+import { MdOutlineDelete } from "react-icons/md";
+
+import ArticleItem from "../../ArtileItem";
+import Spinner from "../../Spinner";
+import { toast } from "react-toastify";
 
 function MarkedForm({ setUserProfile }) {
   const navigate = useNavigate();
-  const markedListId = useSelector((state) => state.article.listMarked);
-  const articles = useSelector((state) => state.article.allArticles);
+  const [markedList, setMarkedList] = useState([]);
+  const currentUser = useSelector((state) => state.auth.user);
 
-  const markedListArticle = articles.filter((item) =>
-    markedListId.includes(item.id)
-  );
+  const { request: fetchGetListBookMark, loading: loadingGetListBookMark } =
+    useApi(getBookMarkByUserId);
 
-  const [list, setList] = useState(markedListArticle);
-
-  // Đồng bộ với Redux mỗi khi danh sách thay đổi
   useEffect(() => {
-    setList(markedListArticle);
-  }, []);
+    if (!currentUser) return;
 
-  const handleOnDragEnd = (result) => {
-    if (!result.destination) return;
+    const fetchMarked = async () => {
+      try {
+        const res = await fetchGetListBookMark({
+          userId: currentUser?.documentId,
+        });
+        if (res) {
+          setMarkedList(res);
+        }
+      } catch (error) {
+        toast.error("Không thể tải dữ liệu");
+      }
+    };
 
-    const reordered = Array.from(list);
-    const [removed] = reordered.splice(result.source.index, 1);
-    reordered.splice(result.destination.index, 0, removed);
-
-    setList(reordered);
-  };
+    fetchMarked();
+  }, [currentUser]);
 
   const handleClickArticle = (articleId) => {
     navigate(`/article/${articleId}`);
     setUserProfile(false);
   };
 
+  const handleDeleteMarked = async (markedId) => {
+    try {
+      const res = await deleteBookMarkById({
+        bookmarkId: markedId,
+      });
+    } catch (error) {
+      toast.error("Không thể xóa đánh dấu bài viết này, thử lại sau");
+    }
+  };
+
   return (
-    <div className="relative w-[600px] max-w-3xl mx-auto bg-white rounded p-6 shadow">
+    <div className="relative w-[800px] max-w-3xl mx-auto bg-white rounded p-6 shadow">
       <LiaTimesCircle
         className="absolute top-4 right-4 text-gray-500 w-[25px] h-[25px] rounded-full hover:bg-red-500 hover:text-white cursor-pointer"
         onClick={() => setUserProfile(false)}
@@ -45,10 +66,14 @@ function MarkedForm({ setUserProfile }) {
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         Bài viết đã đánh dấu
       </h2>
-      {list.length === 0 ? (
+      {loadingGetListBookMark ? (
+        <div className="flex justify-center items-center h-[55vh]">
+          <Spinner />
+        </div>
+      ) : markedList.length === 0 ? (
         <p className="text-gray-500">Bạn chưa đánh dấu bài viết nào.</p>
       ) : (
-        <DragDropContext onDragEnd={handleOnDragEnd}>
+        <DragDropContext>
           <Droppable droppableId="marked-articles">
             {(provided) => (
               <ul
@@ -56,43 +81,27 @@ function MarkedForm({ setUserProfile }) {
                 ref={provided.innerRef}
                 className="space-y-3 max-h-[400px] overflow-auto border-b pb-4"
               >
-                {list.map((article, index) => (
-                  <Draggable
-                    key={article.id}
-                    draggableId={article.id.toString()}
-                    index={index}
+                {markedList.map((item, index) => (
+                  <li
+                    className={`relative transition flex`}
+                    onClick={() => handleClickArticle(item.article.documentId)}
+                    key={index}
                   >
-                    {(provided, snapshot) => (
-                      <li
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        className={`border rounded-md p-2 flex justify-between items-center transition ${
-                          snapshot.isDragging
-                            ? "bg-blue-50 shadow-lg"
-                            : "hover:bg-gray-50"
-                        }`}
-                        onClick={() => handleClickArticle(article.id)}
-                      >
-                        <div className="flex items-center">
-                          <span className="cursor-grab pr-2">
-                            <RiDraggable size={20} />
-                          </span>
-                          <div>
-                            <h3 className="text-[12px] font-medium truncate max-w-[430px]">
-                              {article.title}
-                            </h3>
-                            <i className="text-[10px] text-gray-500">
-                              {article.publishDate}
-                            </i>
-                          </div>
-                        </div>
-                        <button className="text-red-500 text-[12px] hover:underline">
-                          Bỏ đánh dấu
-                        </button>
-                      </li>
-                    )}
-                  </Draggable>
+                    <ArticleItem article={item.article} />
+                    <button
+                      className="text-red-500 text-[12px]"
+                      onClick={(e) => {
+                        // e.stopPropagation();
+                        handleDeleteMarked(item.documentId);
+                      }}
+                    >
+                      <MdOutlineDelete
+                        size={20}
+                        color="red"
+                        title="Xóa đánh dấu"
+                      />
+                    </button>
+                  </li>
                 ))}
                 {provided.placeholder}
               </ul>

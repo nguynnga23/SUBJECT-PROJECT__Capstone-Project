@@ -34,9 +34,6 @@ public class BookmarkController {
             return ResponseEntity.badRequest()
                     .body(Map.of("ok", false, "message", "userId/articleId is required"));
         }
-
-        log.info("Create bookmark req: userId={}, articleId={}", req.userId(), req.articleId());
-
         Object created = bookmarkService.create(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

@@ -1,79 +1,212 @@
 import CategoryList from "../../components/CategoryList";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useApi } from "../../hooks/useApi";
-import { getDepartmentSourceById } from "../../apis/department_source";
+import { getAllDepartmentSource } from "../../apis/department_source";
 import { toast } from "react-toastify";
 import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { getAllArticles } from "../../apis/article";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getAllArticles,
+  getAllArticlesByCatId,
+  getArticleByCategoryCount,
+  getArticleCount,
+} from "../../apis/article";
+import Spinner from "../../components/Spinner";
+import Pagination from "../../components/Pagination";
+import { setPageData, setTotal } from "../../store/slices/articleSlice";
+import { selectCurrentPageData } from "../../store/selector/articleSelectors";
+import { IoList } from "react-icons/io5";
+import { getCategoryById } from "../../apis/category";
+import HoverDropdownForCategory from "../../components/HoverDropdownForCategory";
+import ScrollToTopButton from "../../components/ScrollToTopButton";
 
 function Department() {
-  const { id, cat_id } = useParams();
-  const { request: fetchDepartment, loading: loadingFetch } = useApi(
-    getDepartmentSourceById
-  );
-  const { request: fetchArticles, loading: loadingArticleFetch } =
-    useApi(getAllArticles);
-  const [department, setDepartment] = useState({});
-  const [articles, setArticles] = useState([]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { cat_id } = useParams();
+  const { request: fetchDepartments, loading: loadingFetchDepartments } =
+    useApi(getAllDepartmentSource);
+  const { request: fetchCategory, loading: loadingFetchCategory } =
+    useApi(getCategoryById);
+  const [departments, setDepartments] = useState([]);
   const [category, setCategory] = useState(
     useSelector((state) => state.category.currentCategory) || null
   );
 
   useEffect(() => {
     const load = async () => {
-      try {
-        const fetched = await fetchDepartment(id);
-        setDepartment(fetched);
-      } catch (err) {
-        // toast.error("Không thể tải dữ liệu");
+      if (departments.length === 0) {
+        try {
+          const fetched = await fetchDepartments();
+          setDepartments(fetched);
+        } catch (err) {
+          toast.error("Không thể tải dữ liệu");
+        }
       }
     };
     load();
-  }, [id]);
+  }, [departments]);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { request: fetchArticles, loading: loadingFetchArticles } =
+    useApi(getAllArticles);
+
+  const {
+    request: fetchArticlesByCategory,
+    loading: loadingFetchArticlesByCategory,
+  } = useApi(getAllArticlesByCatId);
+  const { request: fetchArticlesCount, loading: loadingFetchCount } = useApi(
+    cat_id ? getArticleByCategoryCount : getArticleCount
+  );
+
+  const initialPage = parseInt(searchParams.get("page") || "1", 10);
+  const initialPageSize = parseInt(searchParams.get("pageSize") || "10", 10);
+
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const [itemsPerPage, setItemsPerPage] = useState(initialPageSize);
+  const totalItems = useSelector((state) => state.article.total);
+
+  const data = useSelector((state) =>
+    selectCurrentPageData(state, currentPage)
+  );
+
   useEffect(() => {
     const load = async () => {
-      try {
-        const fetched = await fetchArticles();
-        setArticles(fetched);
-      } catch (err) {
-        toast.error("Không thể tải dữ liệu");
+      if (cat_id) {
+        try {
+          const fetched = await fetchCategory(cat_id);
+          setCategory(fetched);
+        } catch (err) {
+          // toast.error("Không thể tải dữ liệu");
+        }
       }
     };
     load();
-  }, [id]);
+  }, [cat_id]);
 
-  return department ? (
-    <div>
-      <div className="bg-gray-50">
-        {!category ? (
-          department?.categories?.map((category, idx) => (
-            <div key={idx}>
-              <CategoryList
-                isCategoryFilter={false}
-                categoryName={category.categoryName}
-                articles={articles}
-                loadingFetch={loadingFetch}
-              />
-            </div>
-          ))
+  useEffect(() => {
+    setSearchParams({
+      page: currentPage,
+      pageSize: itemsPerPage,
+    });
+  }, [currentPage, itemsPerPage, setSearchParams]);
+
+  useEffect(() => {
+    const loadTotal = async () => {
+      try {
+        let count = null;
+        if (cat_id) {
+          count = await fetchArticlesCount(cat_id);
+        } else {
+          count = await fetchArticlesCount();
+        }
+        dispatch(setTotal(count));
+      } catch {
+        toast.error("Không thể lấy tổng số bài viết");
+      }
+    };
+    loadTotal();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const loadPage = async () => {
+      try {
+        let fetched;
+
+        if (cat_id) {
+          fetched = await fetchArticlesByCategory({
+            cat_id,
+            currentPage,
+            itemsPerPage,
+          });
+        } else {
+          fetched = await fetchArticles({
+            currentPage,
+            itemsPerPage,
+          });
+        }
+
+        dispatch(setPageData({ page: currentPage, items: fetched }));
+      } catch {
+        toast.error("Không thể tải dữ liệu trang này");
+      }
+    };
+
+    loadPage();
+  }, [cat_id, currentPage, itemsPerPage, dispatch]);
+
+  const handleCategorySelect = (cat) => {
+    navigate(`/category/${cat.documentId}`);
+  };
+
+  return (
+    <div className="flex w-full">
+      <div className="w-[25%] h-[100vh] pt-2 pr-2">
+        <h2 className="flex items-center text-base font-semibold text-gray-800 mt-4">
+          <IoList size={20} className="m-2" />
+          DANH SÁCH CÁC KHOA/VIỆN
+        </h2>
+        {loadingFetchDepartments ? (
+          <div className="flex justify-center items-center h-[80vh]">
+            <Spinner />
+          </div>
         ) : (
-          <div>
-            <div className="mb-2">
-              <CategoryList
-                isCategoryFilter={true}
-                categoryName={category.categoryName}
-                articles={articles}
-                loadingFetch={loadingFetch}
-              />
-            </div>
+          <div className="whitespace-nowrap truncate h-[100vh] transition duration-300 z-50">
+            <ul className="text-[12px]">
+              {departments.length > 0 ? (
+                departments.map((item, index) => (
+                  <li
+                    key={index}
+                    className="flex items-center bg-[#153898] text-white border rounded-lg px-4 py-2 mt-2 font-normal hover:text-[#F9B200] cursor-pointer"
+                  >
+                    <HoverDropdownForCategory
+                      label={(item?.name || item?.label)?.toUpperCase()}
+                      items={item.categories}
+                      onSelect={handleCategorySelect}
+                    />
+                  </li>
+                ))
+              ) : (
+                <li className="px-4 py-4 text-gray-400 italic">
+                  Không có mục nào
+                </li>
+              )}
+            </ul>
           </div>
         )}
       </div>
-    </div>
-  ) : (
-    <div className="flex justify-center p-5">
-      Xin lỗi. Chúng tôi không tìm được thông tin khoa/viện này!
+      <div className=" w-[75%] pt-3 mf-2 ">
+        <div className="mt-2 relative pb-4">
+          {data.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+              totalPages={Math.ceil(totalItems / itemsPerPage)}
+              itemsPerPage={itemsPerPage}
+              setItemsPerPage={setItemsPerPage}
+            />
+          )}
+
+          <div className="mb-2">
+            {loadingFetchArticles || loadingFetchArticlesByCategory ? (
+              <div className="flex justify-center items-center h-[80vh]">
+                <Spinner />
+              </div>
+            ) : (
+              <CategoryList
+                isCategoryFilter={true}
+                categoryName={
+                  cat_id && category
+                    ? `${category.departmentSource?.label} - ${category.categoryName}`.toUpperCase()
+                    : null
+                }
+                articles={data}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+      <ScrollToTopButton />
     </div>
   );
 }

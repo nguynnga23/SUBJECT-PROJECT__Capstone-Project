@@ -46,8 +46,31 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public int countItemsByCategory(String categoryId) {
+        var params = new LinkedMultiValueMap<String, String>();
+        params.add("filters[category][documentId][$eq]", categoryId);
+        params.add("pagination[page]", "1");
+        params.add("pagination[pageSize]", "1");
+
+        var raw = client.get(
+                "/articles",
+                new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
+                params,
+                null
+        );
+
+        if (raw != null && raw.meta() != null && raw.meta().pagination() != null) {
+            return (int) raw.meta().pagination().total();
+        }
+
+        return 0;
+    }
+
+
+    @Override
     public List<ArticleVM> list(int page, int pageSize) {
         var p = new LinkedMultiValueMap<String, String>();
+
         p.add("populate[category][populate]", "department_source");
         p.add("sort[0]", "external_publish_date:desc");
         p.add("sort[1]", "createdAt:desc");
@@ -68,6 +91,34 @@ public class ArticleServiceImpl implements ArticleService {
                 .filter(java.util.Objects::nonNull)
                 .toList();
     }
+
+    @Override
+    public List<ArticleVM> listByCategory(String cat_id, int page, int pageSize) {
+        var p = new LinkedMultiValueMap<String, String>();
+        p.add("filters[category][documentId][$eq]", cat_id);
+        p.add("populate[category][populate]", "department_source");
+
+        p.add("sort[0]", "external_publish_date:desc");
+        p.add("sort[1]", "createdAt:desc");
+
+        p.add("pagination[page]", String.valueOf(page));
+        p.add("pagination[pageSize]", String.valueOf(pageSize));
+
+        var raw = client.get(
+                "/articles",
+                new ParameterizedTypeReference<StrapiPageFlat<ArticleFlat>>() {},
+                p,
+                null
+        );
+
+        var data = (raw != null && raw.data() != null) ? raw.data() : List.<ArticleFlat>of();
+
+        return data.stream()
+                .map(StrapiMapper::toVM)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+    }
+
 
     @Override
     public ArticleVM one(String id) {
